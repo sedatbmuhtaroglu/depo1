@@ -1,0 +1,49 @@
+{
+  "name": "qrmenu-order",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:reset:dev": "prisma migrate reset --force --skip-generate",
+    "secrets:backfill": "ts-node -P tsconfig.scripts.json scripts/backfill-encrypted-secrets.ts --dry-run",
+    "secrets:backfill:write": "ts-node -P tsconfig.scripts.json scripts/backfill-encrypted-secrets.ts --write",
+    "secrets:verify": "ts-node -P tsconfig.scripts.json scripts/verify-encrypted-secrets.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1010.0",
+    "@aws-sdk/s3-request-presigner": "^3.1010.0",
+    "@prisma/client": "6.4.1",
+    "dotenv": "^17.3.1",
+    "iyzipay": "^2.0.65",
+    "lucide-react": "^0.577.0",
+    "next": "16.1.6",
+    "qrcode": "^1.5.4",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-hot-toast": "^2.6.0",
+    "redis": "^4.7.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "prisma": "6.4.1",
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  }
+}
