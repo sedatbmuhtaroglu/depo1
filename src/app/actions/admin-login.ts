@@ -18,7 +18,7 @@ function isLegacyTenantAdminFallbackEnabled() {
   return (process.env.ALLOW_LEGACY_ADMIN_USER_TENANT_LOGIN ?? "false").toLowerCase() === "true";
 }
 
-const INVALID_CREDENTIALS_MESSAGE = "KullanÄ±cÄ± adÄ± veya ÅŸifre hatalÄ±.";
+const INVALID_CREDENTIALS_MESSAGE = "Kullanıcı adı veya şifre hatalı.";
 
 async function resolveTenantIdForLogin() {
   const requestHeaders = await headers();
@@ -86,9 +86,9 @@ async function attemptTenantStaffLogin(params: {
   if (target.kind === "blocked") {
     await clearAdminSession();
     if (target.errorCode === "inactive") {
-      return { kind: "ERROR", message: "Bu kullanÄ±cÄ± ÅŸu anda aktif deÄŸil." };
+      return { kind: "ERROR", message: "Bu kullanıcı şu anda aktif değil." };
     }
-    return { kind: "ERROR", message: "Bu kullanÄ±cÄ± Ã§alÄ±ÅŸma saatleri dÄ±ÅŸÄ±nda." };
+    return { kind: "ERROR", message: "Bu kullanıcı çalışma saatleri dışında." };
   }
 
   redirect(target.path);
@@ -98,14 +98,14 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
   try {
     await assertPrivilegedServerActionOrigin();
   } catch {
-    return { error: "GÃ¼venlik doÄŸrulamasÄ± baÅŸarÄ±sÄ±z." };
+    return { error: "Güvenlik doğrulaması başarısız." };
   }
 
   const username = formData.get("username")?.toString().trim().toLowerCase() ?? "";
   const password = formData.get("password")?.toString() ?? "";
 
   if (!username || !password) {
-    return { error: "KullanÄ±cÄ± adÄ± ve ÅŸifre zorunludur." };
+    return { error: "Kullanıcı adı ve şifre zorunludur." };
   }
 
   const clientIp = await getAdminLoginClientIp();
@@ -113,12 +113,12 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
   if (!rateLimit.allowed) {
     if (rateLimit.reason === "infrastructure") {
       return {
-        error: "GÃ¼venlik kontrolleri geÃ§ici olarak kullanÄ±lamÄ±yor. LÃ¼tfen biraz sonra tekrar deneyin.",
+        error: "Güvenlik kontrolleri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
       };
     }
 
     return {
-      error: `Ã‡ok fazla baÅŸarÄ±sÄ±z giriÅŸ denemesi. LÃ¼tfen ${rateLimit.retryAfterSeconds} saniye sonra tekrar deneyin.`,
+      error: `Çok fazla başarısız giriş denemesi. Lütfen ${rateLimit.retryAfterSeconds} saniye sonra tekrar deneyin.`,
     };
   }
 
@@ -147,7 +147,7 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
       await registerAdminLoginFailure({ username, ip: clientIp });
       return {
         error:
-          "Bu kullanÄ±cÄ± birden fazla iÅŸletmede kayÄ±tlÄ±. Tenant baÄŸlantÄ±sÄ± ile giriÅŸ yapÄ±n.",
+          "Bu kullanıcı birden fazla işletmede kayıtlı. Tenant bağlantısı ile giriş yapın.",
       };
     }
     if (typeof inferredTenantId === "number") {
@@ -191,5 +191,6 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
   }
   redirect("/restaurant");
 }
+
 
 

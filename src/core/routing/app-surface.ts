@@ -11,7 +11,7 @@ export const APP_SURFACES = [
 export type AppSurface = (typeof APP_SURFACES)[number];
 
 const ROUTE_PREFIXES: Record<AppSurface, string[]> = {
-  marketing: ["/", "/pricing", "/contact", "/about"],
+  marketing: ["/", "/pricing", "/contact", "/about", "/blog", "/pages"],
   hq: ["/hq"],
   "restaurant-ops": ["/restaurant", "/glidragiris", "/staff", "/admin"],
   waiter: ["/waiter"],

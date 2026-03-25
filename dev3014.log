@@ -1,0 +1,140 @@
+
+> qrmenu-order@0.1.0 dev
+> next dev --port 3014
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3014
+- Network:       http://172.22.112.1:3014
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 1083ms
+⨯ ./src/app/actions/create-order.ts:218:7
+Parsing ecmascript source code failed
+[0m [90m 216 |[39m     [36mconst[39m stockQuantity [33m=[39m [33mNumber[39m[33m.[39misFinite(stockQuantityRaw)
+ [90m 217 |[39m       [33m?[39m[33m?[39m [33mMath[39m[33m.[39mmax([35m0[39m[33m,[39m [33mMath[39m[33m.[39mfloor(stockQuantityRaw))
+[31m[1m>[22m[39m[90m 218 |[39m       [33m:[39m [35m0[39m[33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 219 |[39m     [36mif[39m (trackStock [33m&&[39m stockQuantity [33m<[39m line[33m.[39mquantity) {
+ [90m 220 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m`"${product.nameTR}" icin yeterli stok yok.`[39m)[33m;[39m
+ [90m 221 |[39m     }[0m
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/create-order.ts [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/create-order.ts [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+
+./src/components/storefront/menu-showcase-rails.tsx:65:11
+Parsing ecmascript source code failed
+[0m [90m 63 |[39m             sizes[33m=[39m[32m"164px"[39m
+ [90m 64 |[39m           [33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 65 |[39m         ) [33m:[39m (
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 66 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex h-full items-center justify-center"[39m[33m>[39m
+ [90m 67 |[39m             [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex h-12 w-12 items-center justify-center rounded-full border border-[#d9cfc3] bg-[#fffcf7] shadow-sm"[39m[33m>[39m
+ [90m 68 |[39m               [33m<[39m[33mUtensilsCrossed[39m className[33m=[39m[32m"h-5 w-5 text-[#9a7a52]"[39m strokeWidth[33m=[39m{[35m2[39m} aria[33m-[39mhidden [33m/[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/components/storefront/menu-showcase-rails.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/storefront/menu-showcase-rails.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+
+./src/lib/menu-theme.ts:112:5
+Parsing ecmascript source code failed
+[0m [90m 110 |[39m
+ [90m 111 |[39m   [36mconst[39m fontSizePx [33m=[39m
+[31m[1m>[22m[39m[90m 112 |[39m     [36mtypeof[39m input[33m.[39mmenuFontSizePx [33m===[39m [32m"number"[39m [33m&&[39m [33mNumber[39m[33m.[39misFinite(input[33m.[39mmenuFontSizePx)
+ [90m     |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 113 |[39m       [33m?[39m[33m?[39m clampFontSize(input[33m.[39mmenuFontSizePx)
+ [90m 114 |[39m       [33m:[39m [33mDEFAULT_FONT_SIZE_PX[39m[33m;[39m
+ [90m 115 |[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/menu-theme.ts [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/menu-theme.ts [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+
+./src/lib/security/client-risk-signals.ts:44:5
+Parsing ecmascript source code failed
+[0m [90m 42 |[39m )[33m:[39m [33mClientRiskSignals[39m {
+ [90m 43 |[39m   [36mconst[39m timezone [33m=[39m
+[31m[1m>[22m[39m[90m 44 |[39m     [36mtypeof[39m [33mIntl[39m [33m!==[39m [32m"undefined"[39m
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 45 |[39m       [33m?[39m[33m?[39m [33mIntl[39m[33m.[39m[33mDateTimeFormat[39m()[33m.[39mresolvedOptions()[33m.[39mtimeZone [33m||[39m [36mnull[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 46 |[39m       [33m:[39m [36mnull[39m[33m;[39m
+ [90m 47 |[39m
+ [90m 48 |[39m   [36mconst[39m location [33m=[39m options[33m.[39mlocation[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/security/client-risk-signals.ts [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/security/client-risk-signals.ts [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+
+./src/lib/security/risk-engine.ts:244:13
+Parsing ecmascript source code failed
+[0m [90m 242 |[39m           signals[33m.[39mlocation[33m?[39m[33m.[39maccuracyMeters [33m!=[39m [36mnull[39m
+ [90m 243 |[39m             [33m?[39m[33m?[39m signals[33m.[39mlocation[33m.[39maccuracyMeters
+[31m[1m>[22m[39m[90m 244 |[39m             [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m             [31m[1m^[22m[39m
+ [90m 245 |[39m         ipCountry[33m:[39m ipRisk[33m.[39mcountry [33m?[39m[33m?[39m [36mnull[39m[33m,[39m
+ [90m 246 |[39m         ipCity[33m:[39m ipRisk[33m.[39mcity [33m?[39m[33m?[39m [36mnull[39m[33m,[39m
+ [90m 247 |[39m         ipTimezone[33m:[39m ipRisk[33m.[39mtimezone [33m?[39m[33m?[39m [36mnull[39m[33m,[39m[0m
+
+Expected ',', got ':'
+
+Import trace:
+  Server Component:
+    ./src/lib/security/risk-engine.ts
+    ./src/app/actions/request-bill-with-method.ts
+
+
+ GET /menu/test/1 500 in 2.3s (compile: 2.2s, render: 142ms)

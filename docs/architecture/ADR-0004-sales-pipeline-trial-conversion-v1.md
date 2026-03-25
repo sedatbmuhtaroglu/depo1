@@ -28,6 +28,6 @@ Date: 2026-03-23
   - Lead detail, bagli tenant icin mevcut setup resolver sonucunu reuse eder.
 
 ## Consequences
-- HQ artik satis hattini tenant yasam dongusuyle birlikte yonetebilir.
+- HQ artik sat?? hattini tenant yasam dongusuyle birlikte yonetebilir.
 - Lead tarafinda tenant disi olaylar icin `SalesLeadEvent` audit izi mevcut.
 - Public lead capture, task assignment, full CRM timeline ve billing entegre abonelik su asamada kapsam disi kaldı.

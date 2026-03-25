@@ -1,4 +1,4 @@
-# MENUCY AGENTS
+# ?atal App AGENTS
 
 ## Project context
 This repository is a multi-tenant QR menu and restaurant ordering system.
@@ -40,7 +40,7 @@ When the task is about user flow, confusion, step order, information architectur
 - improve manager/waiter/kitchen usability
 - do not introduce speculative features unless asked
 
-## MENUCY-specific design rules
+## ?atal App-specific design rules
 - Customer-facing screens must feel fast, obvious, and low-friction.
 - Restaurant manager screens must feel operational and clear.
 - Waiter and kitchen screens must prioritize speed and visibility.

@@ -1,0 +1,94 @@
+
+> qrmenu-order@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.22.112.1:3000
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 1267ms
+⨯ ./src/lib/security/allowed-origins.ts:64:5
+Parsing ecmascript source code failed
+[0m [90m 62 |[39m   [36mconst[39m withScheme [33m=[39m [35m/^[a-z][a-z0-9+.-]*:\/\//i[39m[33m.[39mtest(trimmed)
+ [90m 63 |[39m     [33m?[39m[33m?[39m trimmed
+[31m[1m>[22m[39m[90m 64 |[39m     [33m:[39m [32m`http://${trimmed}`[39m[33m;[39m
+ [90m    |[39m     [31m[1m^[22m[39m
+ [90m 65 |[39m
+ [90m 66 |[39m   [36mlet[39m parsed[33m:[39m [33mURL[39m[33m;[39m
+ [90m 67 |[39m   [36mtry[39m {[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./src/lib/security/allowed-origins.ts
+    ./src/modules/content/server/seo-metadata.ts
+    ./src/app/page.tsx
+
+
+
+./src/lib/tenancy/tenant-resolution-error.ts:21:9
+Parsing ecmascript source code failed
+[0m [90m 19 |[39m       code [33m===[39m [32m"AUTH_REQUIRED"[39m
+ [90m 20 |[39m         [33m?[39m[33m?[39m [33mTENANT_RESOLUTION_MESSAGE[39m[33m.[39m[33mAUTH_REQUIRED[39m
+[31m[1m>[22m[39m[90m 21 |[39m         [33m:[39m code [33m===[39m [32m"INVALID_TENANT_SLUG"[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 22 |[39m           [33m?[39m[33m?[39m [33mTENANT_RESOLUTION_MESSAGE[39m[33m.[39m[33mINVALID_TENANT_SLUG[39m
+ [90m 23 |[39m           [33m:[39m [33mTENANT_RESOLUTION_MESSAGE[39m[33m.[39m[33mTENANT_NOT_FOUND[39m[33m,[39m
+ [90m 24 |[39m     )[33m;[39m[0m
+
+Expected ',', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/tenancy/tenant-resolution-error.ts [Client Component Browser]
+    ./src/app/error.tsx [Client Component Browser]
+    ./src/app/error.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/tenancy/tenant-resolution-error.ts [Client Component SSR]
+    ./src/app/error.tsx [Client Component SSR]
+    ./src/app/error.tsx [Server Component]
+
+
+
+./src/modules/marketing/components/landing-homepage-view.tsx:202:9
+Parsing ecmascript source code failed
+[0m [90m 200 |[39m           {description}
+ [90m 201 |[39m         [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 202 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 203 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 204 |[39m   )[33m;[39m
+ [90m 205 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/marketing/components/landing-homepage-view.tsx
+    ./src/app/page.tsx
+
+
+
+./src/modules/marketing/server/landing-content.ts:131:5
+Parsing ecmascript source code failed
+[0m [90m 129 |[39m         [33m.[39mfilter((item) [33m=>[39m item[33m.[39mlength [33m>[39m [35m0[39m)
+ [90m 130 |[39m         [33m.[39mslice([35m0[39m[33m,[39m [35m12[39m)
+[31m[1m>[22m[39m[90m 131 |[39m     [33m:[39m undefined[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 132 |[39m
+ [90m 133 |[39m   [36mconst[39m badges [33m=[39m [33mArray[39m[33m.[39misArray(payload[33m.[39mbadges)
+ [90m 134 |[39m     [33m?[39m[33m?[39m payload[33m.[39mbadges[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./src/modules/marketing/server/landing-content.ts
+    ./src/app/page.tsx
+
+
+ GET / 500 in 1699ms (compile: 1564ms, render: 136ms)

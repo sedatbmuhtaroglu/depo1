@@ -1,0 +1,123 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 4 errors:
+./src/app/actions/product-crud.ts:636:8
+Parsing ecmascript source code failed
+[0m [90m 634 |[39m               category[33m:[39m { restaurant[33m:[39m { tenantId } }[33m,[39m
+ [90m 635 |[39m             }
+[31m[1m>[22m[39m[90m 636 |[39m           [33m:[39m options[33m.[39mrestaurantId
+ [90m     |[39m        [31m[1m^[22m[39m
+ [90m 637 |[39m             [33m?[39m[33m?[39m {
+ [90m 638 |[39m                 category[33m:[39m {
+ [90m 639 |[39m                   restaurantId[33m:[39m options[33m.[39mrestaurantId[33m,[39m[0m
+
+Expected ',', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/product-crud.ts [Client Component Browser]
+    ./src/app/restaurant/menu/menu-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/menu/menu-manager.tsx [Server Component]
+    ./src/app/restaurant/menu/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/product-crud.ts [Client Component SSR]
+    ./src/app/restaurant/menu/menu-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/menu/menu-manager.tsx [Server Component]
+    ./src/app/restaurant/menu/page.tsx [Server Component]
+
+
+./src/app/actions/table-account-transfer.ts:128:11
+Parsing ecmascript source code failed
+[0m [90m 126 |[39m         partialBlockReason[33m:[39m [33m![39meligibility[33m.[39mok
+ [90m 127 |[39m           [33m?[39m[33m?[39m eligibility[33m.[39mmessage
+[31m[1m>[22m[39m[90m 128 |[39m           [33m:[39m hasFinAdj
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 129 |[39m             [33m?[39m[33m?[39m [32m"Iptal veya kasa duzeltmesi var"[39m
+ [90m 130 |[39m             [33m:[39m lines[33m.[39mlength [33m<=[39m [35m1[39m
+ [90m 131 |[39m               [33m?[39m[33m?[39m [32m"Tek satirli siparişlerde kalem tasinamaz"[39m[0m
+
+Expected ',', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/table-account-transfer.ts [Client Component Browser]
+    ./src/app/waiter/table-account-transfer-modal.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-table-and-order-section.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/table-account-transfer.ts [Client Component SSR]
+    ./src/app/waiter/table-account-transfer-modal.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-table-and-order-section.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+
+./src/app/actions/update-restaurant-settings.ts:148:9
+Parsing ecmascript source code failed
+[0m [90m 146 |[39m       data[33m.[39mworkingHours [33m!==[39m undefined
+ [90m 147 |[39m         [33m?[39m[33m?[39m normalizeWeeklyWorkingHours(data[33m.[39mworkingHours)
+[31m[1m>[22m[39m[90m 148 |[39m         [33m:[39m [36mnull[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 149 |[39m     [36mif[39m (normalizedWorkingHours) {
+ [90m 150 |[39m       [36mconst[39m validation [33m=[39m validateWeeklyWorkingHoursInput(normalizedWorkingHours)[33m;[39m
+ [90m 151 |[39m       [36mif[39m ([33m![39mvalidation[33m.[39mvalid) {[0m
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/update-restaurant-settings.ts [Client Component Browser]
+    ./src/app/restaurant/settings/settings-form.tsx [Client Component Browser]
+    ./src/app/restaurant/settings/settings-form.tsx [Server Component]
+    ./src/app/restaurant/settings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/update-restaurant-settings.ts [Client Component SSR]
+    ./src/app/restaurant/settings/settings-form.tsx [Client Component SSR]
+    ./src/app/restaurant/settings/settings-form.tsx [Server Component]
+    ./src/app/restaurant/settings/page.tsx [Server Component]
+
+
+./src/app/restaurant/users/weekly-shift-editor.tsx:120:13
+Parsing ecmascript source code failed
+[0m [90m 118 |[39m           [36mconst[39m status [33m=[39m [33m![39mrow[33m.[39menabled
+ [90m 119 |[39m             [33m?[39m[33m?[39m [32m"Kapalı"[39m
+[31m[1m>[22m[39m[90m 120 |[39m             [33m:[39m row[33m.[39mstartTime [33m&&[39m row[33m.[39mendTime
+ [90m     |[39m             [31m[1m^[22m[39m
+ [90m 121 |[39m               [33m?[39m[33m?[39m [32m`${row.startTime} – ${row.endTime}`[39m
+ [90m 122 |[39m               [33m:[39m [32m"Saat eksik"[39m[33m;[39m
+ [90m 123 |[39m[0m
+
+Expected '</', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+
+    at <unknown> (./src/app/actions/product-crud.ts:636:8)
+    at <unknown> (./src/app/actions/table-account-transfer.ts:128:11)
+    at <unknown> (./src/app/actions/update-restaurant-settings.ts:148:9)
+    at <unknown> (./src/app/restaurant/users/weekly-shift-editor.tsx:120:13)

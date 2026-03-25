@@ -211,7 +211,7 @@ export async function resolveTenantSetupProgress(
       required: true,
       completed: hasMenuOrProduct,
       completedAt: menuSummary._min.createdAt ?? null,
-      blocker: "En az 1 menu veya urun girilmesi gerekli.",
+      blocker: "En az 1 menu veya ?r?n girilmesi gerekli.",
     }),
     buildStep({
       code: "tables_created",

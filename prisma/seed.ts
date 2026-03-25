@@ -1,4 +1,4 @@
-﻿import {
+﻿﻿import {
   FeatureCode,
   PaymentMethod,
   PlanCode,
@@ -12,10 +12,10 @@ import { isLegacyPlaintextSecret } from "../src/lib/secret-crypto";
 const prisma = new PrismaClient();
 
 const DEMO = {
-  tenantName: "MENUCY Demo Tenant",
+  tenantName: "?atal App Demo Tenant",
   tenantSlug: "menucy-demo",
   tenantDomain: "menucy-demo.local",
-  restaurantName: "MENUCY Demo Restaurant",
+  restaurantName: "?atal App Demo Restaurant",
   restaurantSlug: "menucy-demo-restaurant",
   menuName: "Ana MenÃ¼",
 };
@@ -471,11 +471,12 @@ async function main() {
     });
   }
 
+  const menuExisting = await prisma.menu.findFirst({
+    where: { tenantId: tenant.id, restaurantId: restaurant.id, name: DEMO.menuName },
+    orderBy: { id: "asc" },
+  });
   const menu =
-    (await prisma.menu.findFirst({
-      where: { tenantId: tenant.id, restaurantId: restaurant.id, name: DEMO.menuName },
-      orderBy: { id: "asc" },
-    })) ??
+    menuExisting ??
     (await prisma.menu.create({
       data: {
         tenantId: tenant.id,
@@ -577,14 +578,15 @@ async function main() {
   let categoryCount = 0;
   let productCount = 0;
   for (const categoryDef of CATEGORY_DEFS) {
+    const categoryExisting = await prisma.category.findFirst({
+      where: {
+        restaurantId: restaurant.id,
+        nameTR: categoryDef.nameTR,
+      },
+      orderBy: { id: "asc" },
+    });
     const category =
-      (await prisma.category.findFirst({
-        where: {
-          restaurantId: restaurant.id,
-          nameTR: categoryDef.nameTR,
-        },
-        orderBy: { id: "asc" },
-      })) ??
+      categoryExisting ??
       (await prisma.category.create({
         data: {
           restaurantId: restaurant.id,

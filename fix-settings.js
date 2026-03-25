@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');
 
@@ -9,10 +10,10 @@ const paymentReplacements = {
   "Odeme yontemleri kaydedilemedi": "Ödeme yöntemleri kaydedilemedi",
   "Odeme ayarlari kaydedildi": "Ödeme ayarları kaydedildi",
   "Odeme ayarlari": "Ödeme ayarları",
-  "Musteri odeme yontemleri": "Müşteri ödeme yöntemleri",
-  "Nakit odeme": "Nakit ödeme",
-  "Kredi karti ile odeme": "Kredi kartı ile ödeme",
-  "IyziCo (Kart ile odeme)": "IyziCo (Kart ile ödeme)",
+  "Musteri ?deme yontemleri": "Müşteri ödeme yöntemleri",
+  "Nakit ?deme": "Nakit ödeme",
+  "Kredi karti ile ?deme": "Kredi kartı ile ödeme",
+  "IyziCo (Kart ile ?deme)": "IyziCo (Kart ile ödeme)",
   "Konfigurasyon aktif": "Konfigürasyon aktif",
   "Degistirmek icin yeni deger girin": "Değiştirmek için yeni değer girin",
   "kayitli. Degistirmek icin yeni deger": "kayıtlı. Değiştirmek için yeni değer",

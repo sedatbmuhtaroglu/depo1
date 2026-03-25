@@ -1,0 +1,982 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 54 errors:
+./src/app/(hq)/hq/accounting/page.tsx:87:13
+Parsing ecmascript source code failed
+[0m [90m 85 |[39m           {overview[33m.[39mrecentCommercialRecords[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 86 |[39m             [33m<[39m[33mp[39m className[33m=[39m[32m"mt-3 text-sm text-[var(--ui-text-secondary)]"[39m[33m>[39m[33mKayit[39m yok[33m.[39m[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 87 |[39m           ) [33m:[39m (
+ [90m    |[39m             [31m[1m^[22m[39m
+ [90m 88 |[39m             [33m<[39m[33mul[39m className[33m=[39m[32m"mt-3 space-y-2"[39m[33m>[39m
+ [90m 89 |[39m               {overview[33m.[39mrecentCommercialRecords[33m.[39mmap((record) [33m=>[39m (
+ [90m 90 |[39m                 [33m<[39m[33mli[39m key[33m=[39m{record[33m.[39mid} className[33m=[39m[32m"rounded-lg border border-[var(--ui-border)] px-3 py-2 text-sm"[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/(hq)/hq/accounting/payments/page.tsx:46:11
+Parsing ecmascript source code failed
+[0m [90m 44 |[39m         {payments[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 45 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"p-6 text-sm text-[var(--ui-text-secondary)]"[39m[33m>[39m[33mTahsilat[39m kaydi bulunmuyor[33m.[39m[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 46 |[39m         ) [33m:[39m (
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 47 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"overflow-x-auto"[39m[33m>[39m
+ [90m 48 |[39m             [33m<[39m[33mtable[39m className[33m=[39m[32m"min-w-full text-left text-sm"[39m[33m>[39m
+ [90m 49 |[39m               [33m<[39m[33mthead[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/(hq)/hq/accounting/records/page.tsx:46:11
+Parsing ecmascript source code failed
+[0m [90m 44 |[39m         {records[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 45 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"p-6 text-sm text-[var(--ui-text-secondary)]"[39m[33m>[39m[33mTicari[39m kayit bulunmuyor[33m.[39m[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 46 |[39m         ) [33m:[39m (
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 47 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"overflow-x-auto"[39m[33m>[39m
+ [90m 48 |[39m             [33m<[39m[33mtable[39m className[33m=[39m[32m"min-w-full text-left text-sm"[39m[33m>[39m
+ [90m 49 |[39m               [33m<[39m[33mthead[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/(hq)/hq/leads/[leadId]/page.tsx:185:13
+Parsing ecmascript source code failed
+[0m [90m 183 |[39m               [33mBu[39m lead icin henuz trial tenant acilmamis[33m.[39m
+ [90m 184 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 185 |[39m           ) [33m:[39m (
+ [90m     |[39m             [31m[1m^[22m[39m
+ [90m 186 |[39m             [33m<[39m[33mdiv[39m className[33m=[39m[32m"mt-3 space-y-2 text-sm"[39m[33m>[39m
+ [90m 187 |[39m               [33m<[39m[33mp[39m className[33m=[39m[32m"font-medium text-[var(--ui-text-primary)]"[39m[33m>[39m
+ [90m 188 |[39m                 {detail[33m.[39mtenant[33m.[39mname} ({detail[33m.[39mtenant[33m.[39mslug})[0m
+
+Expected '</', got ':'
+
+
+./src/app/(hq)/hq/leads/page.tsx:130:11
+Parsing ecmascript source code failed
+[0m [90m 128 |[39m             [33mFiltreye[39m uygun lead bulunamadi[33m.[39m
+ [90m 129 |[39m           [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 130 |[39m         ) [33m:[39m (
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 131 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"overflow-x-auto"[39m[33m>[39m
+ [90m 132 |[39m             [33m<[39m[33mtable[39m className[33m=[39m[32m"min-w-full text-left text-sm"[39m[33m>[39m
+ [90m 133 |[39m               [33m<[39m[33mthead[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/(hq)/hq/marketing/submissions/page.tsx:67:11
+Parsing ecmascript source code failed
+[0m [90m 65 |[39m         {submissions[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 66 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"p-6 text-sm text-[var(--ui-text-secondary)]"[39m[33m>[39m[33mBasvuru[39m bulunamadi[33m.[39m[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 67 |[39m         ) [33m:[39m (
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 68 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"overflow-x-auto"[39m[33m>[39m
+ [90m 69 |[39m             [33m<[39m[33mtable[39m className[33m=[39m[32m"min-w-full text-left text-sm"[39m[33m>[39m
+ [90m 70 |[39m               [33m<[39m[33mthead[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/(hq)/hq/page.tsx:131:17
+Parsing ecmascript source code failed
+[0m [90m 129 |[39m               {data[33m.[39mattention[33m.[39msetupBlockerTenants[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 130 |[39m                 [33m<[39m[33mp[39m className[33m=[39m[32m"mt-2 text-sm text-[var(--ui-text-secondary)]"[39m[33m>[39m[33mAcil[39m blocker gorunmuyor[33m.[39m[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 131 |[39m               ) [33m:[39m (
+ [90m     |[39m                 [31m[1m^[22m[39m
+ [90m 132 |[39m                 [33m<[39m[33mul[39m className[33m=[39m[32m"mt-2 space-y-2"[39m[33m>[39m
+ [90m 133 |[39m                   {data[33m.[39mattention[33m.[39msetupBlockerTenants[33m.[39mslice([35m0[39m[33m,[39m [35m4[39m)[33m.[39mmap((tenant) [33m=>[39m (
+ [90m 134 |[39m                     [33m<[39m[33mli[39m key[33m=[39m{tenant[33m.[39mtenantId} className[33m=[39m[32m"rounded-lg border border-[var(--ui-border)] px-3 py-2"[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/(hq)/hq/tenants/[tenantId]/page.tsx:82:5
+Parsing ecmascript source code failed
+[0m [90m 80 |[39m   [36mconst[39m remainingCommercialBalance [33m=[39m detail[33m.[39mcommercialSummary
+ [90m 81 |[39m     [33m?[39m[33m?[39m [33mNumber[39m(detail[33m.[39mcommercialSummary[33m.[39mremainingBalance)
+[31m[1m>[22m[39m[90m 82 |[39m     [33m:[39m [35m0[39m[33m;[39m
+ [90m    |[39m     [31m[1m^[22m[39m
+ [90m 83 |[39m   [36mconst[39m hasCommercialRisk [33m=[39m detail[33m.[39mcommercialSummary
+ [90m 84 |[39m     [33m?[39m[33m?[39m [33mNumber[39m[33m.[39misFinite(remainingCommercialBalance) [33m&&[39m remainingCommercialBalance [33m>[39m [35m0[39m
+ [90m 85 |[39m     [33m:[39m [36mfalse[39m[33m;[39m[0m
+
+Expression expected
+
+
+./src/app/(hq)/hq/tenants/page.tsx:47:9
+Parsing ecmascript source code failed
+[0m [90m 45 |[39m           [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 46 |[39m         [33m<[39m[33m/[39m[33msection[39m[33m>[39m
+[31m[1m>[22m[39m[90m 47 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 48 |[39m
+ [90m 49 |[39m       [33m<[39m[33msection[39m className[33m=[39m{cardClasses({ className[33m:[39m [32m"p-4"[39m })}[33m>[39m
+ [90m 50 |[39m         [33m<[39m[33mform[39m className[33m=[39m[32m"grid gap-3 md:grid-cols-4"[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/(storefront)/[tableId]/page.tsx:273:17
+Parsing ecmascript source code failed
+[0m [90m 271 |[39m           [33m?[39m (restaurantFromTable [36mas[39m { menuBackgroundColor[33m?[39m[33m:[39m string [33m|[39m [36mnull[39m })[33m.[39mmenuBackgroundColor [33m?[39m
+ [90m 272 |[39m             [36mnull[39m
+[31m[1m>[22m[39m[90m 273 |[39m           [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m                 [31m[1m^[22m[39m
+ [90m 274 |[39m         menuButtonBackgroundColor[33m:[39m supportsMenuButtonBackgroundColor
+ [90m 275 |[39m           [33m?[39m (restaurantFromTable [36mas[39m { menuButtonBackgroundColor[33m?[39m[33m:[39m string [33m|[39m [36mnull[39m })
+ [90m 276 |[39m               [33m.[39mmenuButtonBackgroundColor [33m?[39m[33m?[39m [36mnull[39m[0m
+
+Expected ':', got ','
+
+
+./src/app/actions/create-order.ts:218:7
+Parsing ecmascript source code failed
+[0m [90m 216 |[39m     [36mconst[39m stockQuantity [33m=[39m [33mNumber[39m[33m.[39misFinite(stockQuantityRaw)
+ [90m 217 |[39m       [33m?[39m[33m?[39m [33mMath[39m[33m.[39mmax([35m0[39m[33m,[39m [33mMath[39m[33m.[39mfloor(stockQuantityRaw))
+[31m[1m>[22m[39m[90m 218 |[39m       [33m:[39m [35m0[39m[33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 219 |[39m     [36mif[39m (trackStock [33m&&[39m stockQuantity [33m<[39m line[33m.[39mquantity) {
+ [90m 220 |[39m       [36mthrow[39m [36mnew[39m [33mError[39m([32m`"${product.nameTR}" icin yeterli stok yok.`[39m)[33m;[39m
+ [90m 221 |[39m     }[0m
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/create-order.ts [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/create-order.ts [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+./src/app/admin/orders/order-list.tsx:218:49
+Parsing ecmascript source code failed
+[0m [90m 216 |[39m                                         className[33m=[39m{[32m`px-3 py-2.5 text-sm font-semibold rounded-xl flex items-center justify-center transition-all ${order.status === 'PREPARING'[39m
+ [90m 217 |[39m [32m                                                ?? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'[39m
+[31m[1m>[22m[39m[90m 218 |[39m [32m                                                : 'bg-white text-blue-600 border-2 border-blue-200 hover:border-blue-500 hover:bg-blue-50 shadow-sm'[39m
+ [90m     |[39m                                                 [31m[1m^[22m[39m
+ [90m 219 |[39m [32m                                            }`[39m}
+ [90m 220 |[39m                                     [33m>[39m
+ [90m 221 |[39m                                         [33mHazırlanıyor[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/admin/orders/order-list.tsx
+    ./src/app/admin/orders/page.tsx
+
+
+./src/app/api/payment/iyzico/order-callback/route.ts:93:5
+Parsing ecmascript source code failed
+[0m [90m 91 |[39m   [36mconst[39m supportsOrderPaymentProvider [33m=[39m prismaModelHasField([32m"Order"[39m[33m,[39m [32m"paymentProvider"[39m)[33m;[39m
+ [90m 92 |[39m   [36mconst[39m parsedOrderId [33m=[39m
+[31m[1m>[22m[39m[90m 93 |[39m     orderIdParam [33m&&[39m [33mNumber[39m[33m.[39misInteger([33mNumber[39m(orderIdParam))
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 94 |[39m       [33m?[39m[33m?[39m [33mNumber[39m(orderIdParam)
+ [90m 95 |[39m       [33m:[39m [36mnull[39m[33m;[39m
+ [90m 96 |[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+
+./src/app/glidragiris/login-form.tsx:43:9
+Parsing ecmascript source code failed
+[0m [90m 41 |[39m           {bannerError}
+ [90m 42 |[39m         [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 43 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 44 |[39m
+ [90m 45 |[39m       [33m<[39m[33mbutton[39m
+ [90m 46 |[39m         type[33m=[39m[32m"submit"[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/glidragiris/login-form.tsx
+    ./src/app/glidragiris/page.tsx
+
+
+./src/app/kitchen/page.tsx:111:7
+Parsing ecmascript source code failed
+[0m [90m 109 |[39m           select[33m:[39m { id[33m:[39m [36mtrue[39m[33m,[39m nameTR[33m:[39m [36mtrue[39m[33m,[39m nameEN[33m:[39m [36mtrue[39m }[33m,[39m
+ [90m 110 |[39m         })
+[31m[1m>[22m[39m[90m 111 |[39m       [33m:[39m [][33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 112 |[39m   [36mconst[39m fallbackOptionNameMap [33m=[39m [36mnew[39m [33mMap[39m(
+ [90m 113 |[39m     fallbackOptionList[33m.[39mmap((option) [33m=>[39m [
+ [90m 114 |[39m       option[33m.[39mid[33m,[39m[0m
+
+Expression expected
+
+
+./src/app/order-success/[orderId]/page.tsx:146:5
+Parsing ecmascript source code failed
+[0m [90m 144 |[39m   [36mconst[39m menuLink [33m=[39m tenantSlug
+ [90m 145 |[39m     [33m?[39m[33m?[39m [32m`/menu/${encodeURIComponent(tenantSlug)}/${order.table.id}`[39m
+[31m[1m>[22m[39m[90m 146 |[39m     [33m:[39m [32m`/${order.table.id}`[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 147 |[39m
+ [90m 148 |[39m   [36mreturn[39m (
+ [90m 149 |[39m     [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex min-h-screen flex-col items-center justify-center bg-neutral-900 p-4"[39m[33m>[39m[0m
+
+Expression expected
+
+
+./src/app/payment/iyzico/mock/page.tsx:37:9
+Parsing ecmascript source code failed
+[0m [90m 35 |[39m           [33mOdeme[39m basariyla tamamlandi[33m.[39m
+ [90m 36 |[39m         [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 37 |[39m       ) [33m:[39m status [33m===[39m [32m"failed"[39m [33m?[39m[33m?[39m (
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 38 |[39m         [33m<[39m[33mp[39m className[33m=[39m[32m"mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-700"[39m[33m>[39m
+ [90m 39 |[39m           [33mOdeme[39m tamamlanamadi[33m.[39m [33mLutfen[39m tekrar deneyin[33m.[39m
+ [90m 40 |[39m         [33m<[39m[33m/[39m[33mp[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/restaurant/audit/audit-log-view.tsx:291:8
+Parsing ecmascript source code failed
+[0m [90m 289 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 290 |[39m           [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 291 |[39m         ) [33m:[39m (
+ [90m     |[39m        [31m[1m^[22m[39m
+ [90m 292 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"overflow-x-auto"[39m[33m>[39m
+ [90m 293 |[39m             [33m<[39m[33mtable[39m className[33m=[39m[32m"min-w-full text-sm"[39m[33m>[39m
+ [90m 294 |[39m               [33m<[39m[33mthead[39m className[33m=[39m[32m"bg-[color:var(--ui-surface-subtle)]"[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/audit/audit-log-view.tsx
+    ./src/app/restaurant/audit/page.tsx
+
+
+./src/app/restaurant/cancellations/page.tsx:143:7
+Parsing ecmascript source code failed
+[0m [90m 141 |[39m           paymentProvider[33m:[39m c[33m.[39morder[33m.[39mpaymentProvider[33m,[39m
+ [90m 142 |[39m         })
+[31m[1m>[22m[39m[90m 143 |[39m       [33m:[39m [32m"-"[39m[33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 144 |[39m
+ [90m 145 |[39m     [36mreturn[39m {
+ [90m 146 |[39m       id[33m:[39m c[33m.[39mid[33m,[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/invoicing/page.tsx:131:7
+Parsing ecmascript source code failed
+[0m [90m 129 |[39m           select[33m:[39m { id[33m:[39m [36mtrue[39m[33m,[39m nameTR[33m:[39m [36mtrue[39m }[33m,[39m
+ [90m 130 |[39m         })
+[31m[1m>[22m[39m[90m 131 |[39m       [33m:[39m [][33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 132 |[39m   [36mconst[39m nameMap [33m=[39m [36mnew[39m [33mMap[39m(productNames[33m.[39mmap((product) [33m=>[39m [product[33m.[39mid[33m,[39m product[33m.[39mnameTR]))[33m;[39m
+ [90m 133 |[39m
+ [90m 134 |[39m   [36mconst[39m invoiceableCount [33m=[39m invoiceableOrders[33m.[39mlength[33m;[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/menu/page.tsx:39:5
+Parsing ecmascript source code failed
+[0m [90m 37 |[39m   [36mconst[39m activeMenu [33m=[39m menus[33m.[39mfind((m) [33m=>[39m m[33m.[39misActive) [33m?[39m[33m?[39m [36mnull[39m[33m;[39m
+ [90m 38 |[39m   [36mconst[39m selectedMenuId [33m=[39m
+[31m[1m>[22m[39m[90m 39 |[39m     selectedMenuParam [33m&&[39m
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 40 |[39m     [33m![39m[33mNumber[39m[33m.[39misNaN([33mNumber[39m(selectedMenuParam)) [33m&&[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 41 |[39m     menus[33m.[39msome((m) [33m=>[39m m[33m.[39mid [33m===[39m [33mNumber[39m(selectedMenuParam))
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 42 |[39m       [33m?[39m[33m?[39m [33mNumber[39m(selectedMenuParam)
+ [90m 43 |[39m       [33m:[39m activeMenu[33m?[39m[33m.[39mid [33m?[39m[33m?[39m [36mnull[39m[33m;[39m
+ [90m 44 |[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+
+./src/app/restaurant/menu/showcase/_components/frequent-showcase-manager.tsx:139:11
+Parsing ecmascript source code failed
+[0m [90m 137 |[39m             gidin[33m.[39m
+ [90m 138 |[39m           [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 139 |[39m         ) [33m:[39m [36mnull[39m}
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 140 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 141 |[39m
+ [90m 142 |[39m       {selectedMenuId [33m&&[39m categories[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m ([0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/menu/showcase/_components/frequent-showcase-manager.tsx
+    ./src/app/restaurant/menu/showcase/frequent/page.tsx
+
+
+./src/app/restaurant/menu/showcase/_components/popular-showcase-manager.tsx:192:11
+Parsing ecmascript source code failed
+[0m [90m 190 |[39m         {order[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 191 |[39m           [33m<[39m[33mp[39m className[33m=[39m{helperTextClasses()}[33m>[39m[33mHenüz[39m ürün eklenmedi[33m.[39m[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 192 |[39m         ) [33m:[39m (
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 193 |[39m           [33m<[39m[33mul[39m className[33m=[39m[32m"mt-2 space-y-1.5"[39m[33m>[39m
+ [90m 194 |[39m             {order[33m.[39mmap((id[33m,[39m idx) [33m=>[39m (
+ [90m 195 |[39m               [33m<[39m[33mli[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/menu/showcase/_components/popular-showcase-manager.tsx
+    ./src/app/restaurant/menu/showcase/popular/page.tsx
+
+
+./src/app/restaurant/menu/showcase/_lib/load-showcase-admin-data.ts:54:5
+Parsing ecmascript source code failed
+[0m [90m 52 |[39m   [36mconst[39m activeMenu [33m=[39m menus[33m.[39mfind((m) [33m=>[39m m[33m.[39misActive) [33m?[39m[33m?[39m [36mnull[39m[33m;[39m
+ [90m 53 |[39m   [36mconst[39m selectedMenuId [33m=[39m
+[31m[1m>[22m[39m[90m 54 |[39m     selectedMenuParam [33m&&[39m
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 55 |[39m     [33m![39m[33mNumber[39m[33m.[39misNaN([33mNumber[39m(selectedMenuParam)) [33m&&[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 56 |[39m     menus[33m.[39msome((m) [33m=>[39m m[33m.[39mid [33m===[39m [33mNumber[39m(selectedMenuParam))
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 57 |[39m       [33m?[39m[33m?[39m [33mNumber[39m(selectedMenuParam)
+ [90m 58 |[39m       [33m:[39m activeMenu[33m?[39m[33m.[39mid [33m?[39m[33m?[39m [36mnull[39m[33m;[39m
+ [90m 59 |[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/menu/showcase/_lib/load-showcase-admin-data.ts
+    ./src/app/restaurant/menu/showcase/frequent/page.tsx
+
+
+./src/app/restaurant/orders/page.tsx:69:7
+Parsing ecmascript source code failed
+[0m [90m 67 |[39m           select[33m:[39m { orderId[33m:[39m [36mtrue[39m[33m,[39m productId[33m:[39m [36mtrue[39m[33m,[39m quantity[33m:[39m [36mtrue[39m }[33m,[39m
+ [90m 68 |[39m         })
+[31m[1m>[22m[39m[90m 69 |[39m       [33m:[39m [33mPromise[39m[33m.[39mresolve([])[33m,[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 70 |[39m     orderIds[33m.[39mlength [33m>[39m [35m0[39m
+ [90m 71 |[39m       [33m?[39m[33m?[39m prisma[33m.[39mcashOrderAdjustment[33m.[39mfindMany({
+ [90m 72 |[39m           where[33m:[39m { tenantId[33m,[39m orderId[33m:[39m { [36min[39m[33m:[39m orderIds } }[33m,[39m[0m
+
+Expected ',', got ':'
+
+
+./src/app/restaurant/page.tsx:215:11
+Parsing ecmascript source code failed
+[0m [90m 213 |[39m           (acc[33m,[39m b) [33m=>[39m
+ [90m 214 |[39m             acc [33m+[39m
+[31m[1m>[22m[39m[90m 215 |[39m             (b[33m.[39msettledAt [33m&&[39m b[33m.[39mcreatedAt
+ [90m     |[39m           [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 216 |[39m               [33m?[39m[33m?[39m (b[33m.[39msettledAt[33m.[39mgetTime() [33m-[39m b[33m.[39mcreatedAt[33m.[39mgetTime()) [33m/[39m [35m60000[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 217 |[39m               [33m:[39m [35m0[39m)[33m,[39m
+ [90m 218 |[39m           [35m0[39m[33m,[39m
+ [90m 219 |[39m         ) [33m/[39m settledBillsToday[33m.[39mlength[0m
+
+Not a pattern
+
+
+./src/app/restaurant/page.tsx:215:11
+Parsing ecmascript source code failed
+[0m [90m 213 |[39m           (acc[33m,[39m b) [33m=>[39m
+ [90m 214 |[39m             acc [33m+[39m
+[31m[1m>[22m[39m[90m 215 |[39m             (b[33m.[39msettledAt [33m&&[39m b[33m.[39mcreatedAt
+ [90m     |[39m           [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 216 |[39m               [33m?[39m[33m?[39m (b[33m.[39msettledAt[33m.[39mgetTime() [33m-[39m b[33m.[39mcreatedAt[33m.[39mgetTime()) [33m/[39m [35m60000[39m
+ [90m 217 |[39m               [33m:[39m [35m0[39m)[33m,[39m
+ [90m 218 |[39m           [35m0[39m[33m,[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+
+./src/app/restaurant/performance/performance-view.tsx:49:11
+Parsing ecmascript source code failed
+[0m [90m 47 |[39m [32m        value === 0[39m
+ [90m 48 |[39m [32m          ?? "border-[#E5E7EB] bg-[#F9FAFB] text-[#6B7280]"[39m
+[31m[1m>[22m[39m[90m 49 |[39m [32m          : "border-[#D8E2F0] bg-[#EAF0F8] text-[#223356]"[39m
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 50 |[39m [32m      }`[39m}
+ [90m 51 |[39m     [33m>[39m
+ [90m 52 |[39m       {value}[0m
+
+Unexpected token `:`. Expected `}`
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/performance/performance-view.tsx
+    ./src/app/restaurant/performance/page.tsx
+
+
+./src/app/restaurant/reports/day-end-pdf/page.tsx:29:5
+Parsing ecmascript source code failed
+[0m [90m 27 |[39m   [36mconst[39m params [33m=[39m [36mawait[39m searchParams[33m;[39m
+ [90m 28 |[39m   [36mconst[39m day [33m=[39m
+[31m[1m>[22m[39m[90m 29 |[39m     params[33m.[39mday [33m&&[39m [35m/^\d{4}-\d{2}-\d{2}$/[39m[33m.[39mtest(params[33m.[39mday)
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 30 |[39m       [33m?[39m[33m?[39m params[33m.[39mday
+ [90m 31 |[39m       [33m:[39m getTurkeyDateString()[33m;[39m
+ [90m 32 |[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+
+./src/app/restaurant/reports/page.tsx:237:7
+Parsing ecmascript source code failed
+[0m [90m 235 |[39m           select[33m:[39m { id[33m:[39m [36mtrue[39m[33m,[39m nameTR[33m:[39m [36mtrue[39m }[33m,[39m
+ [90m 236 |[39m         })
+[31m[1m>[22m[39m[90m 237 |[39m       [33m:[39m [][33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 238 |[39m   [36mconst[39m nameMap [33m=[39m [33mObject[39m[33m.[39mfromEntries(
+ [90m 239 |[39m     productNames[33m.[39mmap((product) [33m=>[39m [product[33m.[39mid[33m,[39m product[33m.[39mnameTR])[33m,[39m
+ [90m 240 |[39m   )[33m;[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/security/page.tsx:116:7
+Parsing ecmascript source code failed
+[0m [90m 114 |[39m     eventType [33m===[39m [32m"all"[39m
+ [90m 115 |[39m       [33m?[39m[33m?[39m [32m"Tüm event tipleri"[39m
+[31m[1m>[22m[39m[90m 116 |[39m       [33m:[39m getSecurityEventTypeLabel(eventType)[33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 117 |[39m
+ [90m 118 |[39m   [36mconst[39m selectedRiskLabel [33m=[39m
+ [90m 119 |[39m     riskLevel [33m===[39m [32m"all"[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/settings/page.tsx:59:7
+Parsing ecmascript source code failed
+[0m [90m 57 |[39m           closeTime[33m:[39m row[33m.[39mcloseTime[33m,[39m
+ [90m 58 |[39m         }))
+[31m[1m>[22m[39m[90m 59 |[39m       [33m:[39m buildDefaultWeeklyWorkingHours(
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 60 |[39m           restaurant[33m.[39mopeningHour[33m,[39m
+ [90m 61 |[39m           restaurant[33m.[39mclosingHour[33m,[39m
+ [90m 62 |[39m         )[33m;[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/stocks/stocks-manager.tsx:195:17
+Parsing ecmascript source code failed
+[0m [90m 193 |[39m                   [33m<[39m[33m/[39m[33mtd[39m[33m>[39m
+ [90m 194 |[39m                 [33m<[39m[33m/[39m[33mtr[39m[33m>[39m
+[31m[1m>[22m[39m[90m 195 |[39m               ) [33m:[39m (
+ [90m     |[39m                 [31m[1m^[22m[39m
+ [90m 196 |[39m                 filteredProducts[33m.[39mmap((product) [33m=>[39m [33m<[39m[33mStockRow[39m key[33m=[39m{product[33m.[39mid} product[33m=[39m{product} [33m/[39m[33m>[39m)
+ [90m 197 |[39m               )}
+ [90m 198 |[39m             [33m<[39m[33m/[39m[33mtbody[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/stocks/stocks-manager.tsx
+    ./src/app/restaurant/stocks/page.tsx
+
+
+./src/app/restaurant/tables/page.tsx:92:7
+Parsing ecmascript source code failed
+[0m [90m 90 |[39m     limitSummary[33m.[39musage[33m.[39mtables[33m.[39mmax [33m==[39m [36mnull[39m
+ [90m 91 |[39m       [33m?[39m[33m?[39m [32m`${limitSummary.usage.tables.used}/∞`[39m
+[31m[1m>[22m[39m[90m 92 |[39m       [33m:[39m [32m`${limitSummary.usage.tables.used}/${limitSummary.usage.tables.max}`[39m[33m;[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 93 |[39m   [36mconst[39m activeTableCount [33m=[39m tables[33m.[39mfilter((table) [33m=>[39m table[33m.[39misActive)[33m.[39mlength[33m;[39m
+ [90m 94 |[39m   [36mconst[39m attentionTableCount [33m=[39m tables[33m.[39mfilter(
+ [90m 95 |[39m     (table) [33m=>[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/tables/qr/[tableId]/page.tsx:26:7
+Parsing ecmascript source code failed
+[0m [90m 24 |[39m     [36mconst[39m normalized [33m=[39m envBase[33m.[39mstartsWith([32m"http"[39m)
+ [90m 25 |[39m       [33m?[39m[33m?[39m envBase
+[31m[1m>[22m[39m[90m 26 |[39m       [33m:[39m [32m`https://${envBase}`[39m[33m;[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 27 |[39m     [36mreturn[39m normalized[33m.[39mreplace([35m/\/+$/[39m[33m,[39m [32m""[39m)[33m;[39m
+ [90m 28 |[39m   }
+ [90m 29 |[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/users/page.tsx:40:7
+Parsing ecmascript source code failed
+[0m [90m 38 |[39m     limitSummary[33m.[39musage[33m.[39musers[33m.[39mmax [33m==[39m [36mnull[39m
+ [90m 39 |[39m       [33m?[39m[33m?[39m [32m`${limitSummary.usage.users.used}/∞`[39m
+[31m[1m>[22m[39m[90m 40 |[39m       [33m:[39m [32m`${limitSummary.usage.users.used}/${limitSummary.usage.users.max}`[39m[33m;[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 41 |[39m   [36mconst[39m totalUsers [33m=[39m users[33m.[39mlength[33m;[39m
+ [90m 42 |[39m   [36mconst[39m activeUsers [33m=[39m users[33m.[39mfilter((user) [33m=>[39m user[33m.[39misActive)[33m.[39mlength[33m;[39m
+ [90m 43 |[39m   [36mconst[39m managerCount [33m=[39m users[33m.[39mfilter((user) [33m=>[39m user[33m.[39mrole [33m===[39m [32m"MANAGER"[39m)[33m.[39mlength[33m;[39m[0m
+
+Expression expected
+
+
+./src/app/restaurant/waiter-calls/page.tsx:67:9
+Parsing ecmascript source code failed
+[0m [90m 65 |[39m       c[33m.[39macknowledgedAt [33m!=[39m [36mnull[39m
+ [90m 66 |[39m         [33m?[39m[33m?[39m [33mMath[39m[33m.[39mround((c[33m.[39macknowledgedAt[33m.[39mgetTime() [33m-[39m c[33m.[39mcreatedAt[33m.[39mgetTime()) [33m/[39m [35m60000[39m)
+[31m[1m>[22m[39m[90m 67 |[39m         [33m:[39m [36mnull[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 68 |[39m     [36mreturn[39m {
+ [90m 69 |[39m       id[33m:[39m c[33m.[39mid[33m,[39m
+ [90m 70 |[39m       tableNo[33m:[39m c[33m.[39mtable[33m.[39mtableNo[33m,[39m[0m
+
+Expression expected
+
+
+./src/app/staff/set-password/page.tsx:113:7
+Parsing ecmascript source code failed
+[0m [90m 111 |[39m     afterPasswordTarget[33m.[39mkind [33m===[39m [32m"redirect"[39m
+ [90m 112 |[39m       [33m?[39m[33m?[39m afterPasswordTarget[33m.[39mpath
+[31m[1m>[22m[39m[90m 113 |[39m       [33m:[39m [32m`/glidragiris?error=${afterPasswordTarget.errorCode}`[39m[33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 114 |[39m
+ [90m 115 |[39m   [36mreturn[39m (
+ [90m 116 |[39m     [33m<[39m[33mmain[39m className[33m=[39m[32m"flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#f5f5f4,_#e7e5e4_45%,_#d6d3d1)] px-4 py-10"[39m[33m>[39m[0m
+
+Expression expected
+
+
+./src/app/waiter/waiter-dashboard-client.tsx:65:7
+Parsing ecmascript source code failed
+[0m [90m 63 |[39m           createdAt[33m:[39m [36mnew[39m [33mDate[39m(row[33m.[39mlastOrder[33m.[39mcreatedAt)[33m,[39m
+ [90m 64 |[39m         }
+[31m[1m>[22m[39m[90m 65 |[39m       [33m:[39m undefined[33m,[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 66 |[39m   }))[33m;[39m
+ [90m 67 |[39m
+ [90m 68 |[39m   [36mconst[39m pendingApprovalOrders [33m=[39m s[33m.[39mpendingApprovalOrders[33m.[39mmap(parseWaiterOrder)[33m;[39m[0m
+
+Expected ',', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/waiter/waiter-dashboard-client.tsx
+    ./src/app/waiter/page.tsx
+
+
+./src/app/waiter/waiter-theme-toggle.tsx:24:9
+Parsing ecmascript source code failed
+[0m [90m 22 |[39m       [36mtypeof[39m window [33m!==[39m [32m"undefined"[39m
+ [90m 23 |[39m         [33m?[39m[33m?[39m window[33m.[39mlocalStorage[33m.[39mgetItem([33mRESTAURANT_THEME_STORAGE_KEY[39m)
+[31m[1m>[22m[39m[90m 24 |[39m         [33m:[39m [33mDEFAULT_RESTAURANT_THEME[39m[33m,[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 25 |[39m     )[33m,[39m
+ [90m 26 |[39m   )[33m;[39m
+ [90m 27 |[39m[0m
+
+Expected ',', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/waiter/waiter-theme-toggle.tsx
+    ./src/app/waiter/layout.tsx
+
+
+./src/components/admin-logout-button.tsx:20:9
+Parsing ecmascript source code failed
+[0m [90m 18 |[39m             className[33m:[39m [32m"px-3"[39m[33m,[39m
+ [90m 19 |[39m           })
+[31m[1m>[22m[39m[90m 20 |[39m         }
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 21 |[39m       [33m>[39m
+ [90m 22 |[39m         [33mÇıkış[39m [33mYap[39m
+ [90m 23 |[39m       [33m<[39m[33m/[39m[33mbutton[39m[33m>[39m[0m
+
+Expected '</', got '}'
+
+Import trace:
+  Server Component:
+    ./src/components/admin-logout-button.tsx
+    ./src/app/(hq)/hq/layout.tsx
+
+
+./src/components/storefront/menu-showcase-rails.tsx:65:11
+Parsing ecmascript source code failed
+[0m [90m 63 |[39m             sizes[33m=[39m[32m"164px"[39m
+ [90m 64 |[39m           [33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 65 |[39m         ) [33m:[39m (
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 66 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex h-full items-center justify-center"[39m[33m>[39m
+ [90m 67 |[39m             [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex h-12 w-12 items-center justify-center rounded-full border border-[#d9cfc3] bg-[#fffcf7] shadow-sm"[39m[33m>[39m
+ [90m 68 |[39m               [33m<[39m[33mUtensilsCrossed[39m className[33m=[39m[32m"h-5 w-5 text-[#9a7a52]"[39m strokeWidth[33m=[39m{[35m2[39m} aria[33m-[39mhidden [33m/[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/components/storefront/menu-showcase-rails.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/storefront/menu-showcase-rails.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+./src/lib/iyzico.ts:160:13
+Parsing ecmascript source code failed
+[0m [90m 158 |[39m           paymentId[33m:[39m result[33m.[39mpaymentId [36mas[39m string [33m|[39m undefined[33m,[39m
+ [90m 159 |[39m           paymentTransactionId[33m:[39m
+[31m[1m>[22m[39m[90m 160 |[39m             [33mArray[39m[33m.[39misArray(result[33m.[39mpaymentItems) [33m&&[39m result[33m.[39mpaymentItems[33m.[39mlength [33m>[39m [35m0[39m
+ [90m     |[39m             [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 161 |[39m               [33m?[39m[33m?[39m ((result[33m.[39mpaymentItems[[35m0[39m] [36mas[39m [33mRecord[39m[33m<[39m[33mstring[39m[33m,[39m unknown[33m>[39m)
+ [90m 162 |[39m                   [33m.[39mpaymentTransactionId [36mas[39m string [33m|[39m undefined)
+ [90m 163 |[39m               [33m:[39m [33mArray[39m[33m.[39misArray(result[33m.[39mitemTransactions) [33m&&[39m result[33m.[39mitemTransactions[33m.[39mlength [33m>[39m [35m0[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import trace:
+  App Route:
+    ./src/lib/iyzico.ts
+    ./src/app/api/payment/iyzico/callback/route.ts
+
+
+./src/lib/menu-theme.ts:112:5
+Parsing ecmascript source code failed
+[0m [90m 110 |[39m
+ [90m 111 |[39m   [36mconst[39m fontSizePx [33m=[39m
+[31m[1m>[22m[39m[90m 112 |[39m     [36mtypeof[39m input[33m.[39mmenuFontSizePx [33m===[39m [32m"number"[39m [33m&&[39m [33mNumber[39m[33m.[39misFinite(input[33m.[39mmenuFontSizePx)
+ [90m     |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 113 |[39m       [33m?[39m[33m?[39m clampFontSize(input[33m.[39mmenuFontSizePx)
+ [90m 114 |[39m       [33m:[39m [33mDEFAULT_FONT_SIZE_PX[39m[33m;[39m
+ [90m 115 |[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/menu-theme.ts [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/menu-theme.ts [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+./src/lib/person-display-name.ts:92:5
+Parsing ecmascript source code failed
+[0m [90m 90 |[39m [36mexport[39m [36mfunction[39m resolvePersonDisplayName(parts[33m:[39m [33mPersonNameParts[39m)[33m:[39m string {
+ [90m 91 |[39m   [36mconst[39m firstLast [33m=[39m
+[31m[1m>[22m[39m[90m 92 |[39m     parts[33m.[39mfirstName[33m?[39m[33m.[39mtrim() [33m&&[39m parts[33m.[39mlastName[33m?[39m[33m.[39mtrim()
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 93 |[39m       [33m?[39m[33m?[39m [32m`${parts.firstName!.trim()} ${parts.lastName!.trim()}`[39m
+ [90m 94 |[39m       [33m:[39m [36mnull[39m[33m;[39m
+ [90m 95 |[39m   [36mconst[39m singleFirstOrLast [33m=[39m parts[33m.[39mfirstName[33m?[39m[33m.[39mtrim() [33m||[39m parts[33m.[39mlastName[33m?[39m[33m.[39mtrim() [33m||[39m [36mnull[39m[33m;[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import trace:
+  Server Component:
+    ./src/lib/person-display-name.ts
+    ./src/app/restaurant/performance/page.tsx
+
+
+./src/lib/security/client-risk-signals.ts:44:5
+Parsing ecmascript source code failed
+[0m [90m 42 |[39m )[33m:[39m [33mClientRiskSignals[39m {
+ [90m 43 |[39m   [36mconst[39m timezone [33m=[39m
+[31m[1m>[22m[39m[90m 44 |[39m     [36mtypeof[39m [33mIntl[39m [33m!==[39m [32m"undefined"[39m
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 45 |[39m       [33m?[39m[33m?[39m [33mIntl[39m[33m.[39m[33mDateTimeFormat[39m()[33m.[39mresolvedOptions()[33m.[39mtimeZone [33m||[39m [36mnull[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 46 |[39m       [33m:[39m [36mnull[39m[33m;[39m
+ [90m 47 |[39m
+ [90m 48 |[39m   [36mconst[39m location [33m=[39m options[33m.[39mlocation[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/security/client-risk-signals.ts [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/security/client-risk-signals.ts [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+./src/lib/security/risk-engine.ts:244:13
+Parsing ecmascript source code failed
+[0m [90m 242 |[39m           signals[33m.[39mlocation[33m?[39m[33m.[39maccuracyMeters [33m!=[39m [36mnull[39m
+ [90m 243 |[39m             [33m?[39m[33m?[39m signals[33m.[39mlocation[33m.[39maccuracyMeters
+[31m[1m>[22m[39m[90m 244 |[39m             [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m             [31m[1m^[22m[39m
+ [90m 245 |[39m         ipCountry[33m:[39m ipRisk[33m.[39mcountry [33m?[39m[33m?[39m [36mnull[39m[33m,[39m
+ [90m 246 |[39m         ipCity[33m:[39m ipRisk[33m.[39mcity [33m?[39m[33m?[39m [36mnull[39m[33m,[39m
+ [90m 247 |[39m         ipTimezone[33m:[39m ipRisk[33m.[39mtimezone [33m?[39m[33m?[39m [36mnull[39m[33m,[39m[0m
+
+Expected ',', got ':'
+
+Import traces:
+  App Route:
+    ./src/lib/security/risk-engine.ts
+    ./src/app/m/[publicCode]/route.ts
+
+  Server Component:
+    ./src/lib/security/risk-engine.ts
+    ./src/app/actions/request-bill-with-method.ts
+
+
+./src/lib/waiter-dashboard-snapshot.ts:166:15
+Parsing ecmascript source code failed
+[0m [90m 164 |[39m           category[33m:[39m { restaurant[33m:[39m { tenantId } }[33m,[39m
+ [90m 165 |[39m           isAvailable[33m:[39m [36mtrue[39m[33m,[39m
+[31m[1m>[22m[39m[90m 166 |[39m           [33m...[39m(supportsProductStockFields
+ [90m     |[39m               [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 167 |[39m             [33m?[39m[33m?[39m {
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 168 |[39m                 [33mOR[39m[33m:[39m [{ trackStock[33m:[39m [36mfalse[39m }[33m,[39m { stockQuantity[33m:[39m { gt[33m:[39m [35m0[39m } }][33m,[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 169 |[39m               }
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 170 |[39m             [33m:[39m {})[33m,[39m
+ [90m 171 |[39m         }[33m,[39m
+ [90m 172 |[39m         select[33m:[39m { id[33m:[39m [36mtrue[39m[33m,[39m nameTR[33m:[39m [36mtrue[39m[33m,[39m price[33m:[39m [36mtrue[39m[33m,[39m categoryId[33m:[39m [36mtrue[39m }[33m,[39m[0m
+
+Not a pattern
+
+Import trace:
+  Server Component:
+    ./src/lib/waiter-dashboard-snapshot.ts
+    ./src/app/waiter/page.tsx
+
+
+./src/modules/hq/actions/marketing.ts:167:5
+Parsing ecmascript source code failed
+[0m [90m 165 |[39m         [33m.[39mfilter((item) [33m=>[39m item[33m.[39mlength [33m>[39m [35m0[39m)
+ [90m 166 |[39m         [33m.[39mslice([35m0[39m[33m,[39m [35m20[39m)
+[31m[1m>[22m[39m[90m 167 |[39m     [33m:[39m undefined[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 168 |[39m
+ [90m 169 |[39m   [36mconst[39m badges [33m=[39m [33mArray[39m[33m.[39misArray(safe[33m.[39mbadges)
+ [90m 170 |[39m     [33m?[39m[33m?[39m safe[33m.[39mbadges[0m
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./src/modules/hq/actions/marketing.ts [Client Component Browser]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Client Component Browser]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Server Component]
+    ./src/app/(hq)/hq/marketing/builder/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/modules/hq/actions/marketing.ts [Client Component SSR]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Client Component SSR]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Server Component]
+    ./src/app/(hq)/hq/marketing/builder/page.tsx [Server Component]
+
+
+./src/modules/hq/components/create-tenant-form.tsx:105:11
+Parsing ecmascript source code failed
+[0m [90m 103 |[39m             [33mTenant[39m [33mDetayina[39m [33mGit[39m
+ [90m 104 |[39m           [33m<[39m[33m/[39m[33mLink[39m[33m>[39m
+[31m[1m>[22m[39m[90m 105 |[39m         ) [33m:[39m [36mnull[39m}
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 106 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 107 |[39m
+ [90m 108 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m ([0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/create-tenant-form.tsx
+    ./src/app/(hq)/hq/tenants/new/page.tsx
+
+
+./src/modules/hq/components/hq-side-nav.tsx:71:21
+Parsing ecmascript source code failed
+[0m [90m 69 |[39m [32m                  active[39m
+ [90m 70 |[39m [32m                    ?? "bg-[var(--ui-accent)]/10 text-[var(--ui-accent)]"[39m
+[31m[1m>[22m[39m[90m 71 |[39m [32m                    : "text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-subtle)]"[39m
+ [90m    |[39m                     [31m[1m^[22m[39m
+ [90m 72 |[39m [32m                }`[39m}
+ [90m 73 |[39m               [33m>[39m
+ [90m 74 |[39m                 {item[33m.[39mlabel}[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/hq-side-nav.tsx
+    ./src/app/(hq)/hq/layout.tsx
+
+
+./src/modules/hq/server/marketing-queries.ts:53:9
+Parsing ecmascript source code failed
+[0m [90m 51 |[39m   [36mconst[39m where[33m:[39m [33mPrisma[39m[33m.[39m[33mMarketingFormSubmissionWhereInput[39m [33m=[39m {
+ [90m 52 |[39m     [33m...[39m(status [33m!==[39m [32m"ALL"[39m [33m?[39m { status } [33m:[39m {})[33m,[39m
+[31m[1m>[22m[39m[90m 53 |[39m     [33m...[39m(search
+ [90m    |[39m         [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 54 |[39m       [33m?[39m[33m?[39m {
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 55 |[39m           [33mOR[39m[33m:[39m [
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 56 |[39m             { businessName[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 57 |[39m             { contactName[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 58 |[39m             { email[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 59 |[39m             { phone[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 60 |[39m           ][33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 61 |[39m         }
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 62 |[39m       [33m:[39m {})[33m,[39m
+ [90m 63 |[39m   }[33m;[39m
+ [90m 64 |[39m[0m
+
+Not a pattern
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/server/marketing-queries.ts
+    ./src/app/(hq)/hq/marketing/page.tsx
+
+
+./src/modules/hq/server/tenant-queries.ts:109:9
+Parsing ecmascript source code failed
+[0m [90m 107 |[39m   [36mconst[39m where[33m:[39m [33mPrisma[39m[33m.[39m[33mTenantWhereInput[39m [33m=[39m {
+ [90m 108 |[39m     [33m...[39mbuildTenantStatusWhere(statusFilter)[33m,[39m
+[31m[1m>[22m[39m[90m 109 |[39m     [33m...[39m(search
+ [90m     |[39m         [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 110 |[39m       [33m?[39m[33m?[39m {
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 111 |[39m           [33mOR[39m[33m:[39m [
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 112 |[39m             { name[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 113 |[39m             { slug[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 114 |[39m           ][33m,[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 115 |[39m         }
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 116 |[39m       [33m:[39m {})[33m,[39m
+ [90m 117 |[39m     [33m...[39m(planCode [33m?[39m { plan[33m:[39m { code[33m:[39m planCode } } [33m:[39m {})[33m,[39m
+ [90m 118 |[39m   }[33m;[39m[0m
+
+Not a pattern
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/server/tenant-queries.ts
+    ./src/app/(hq)/hq/tenants/new/page.tsx
+
+
+./src/modules/marketing/components/landing-homepage-view.tsx:202:9
+Parsing ecmascript source code failed
+[0m [90m 200 |[39m           {description}
+ [90m 201 |[39m         [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 202 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 203 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 204 |[39m   )[33m;[39m
+ [90m 205 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/marketing/components/landing-homepage-view.tsx
+    ./src/app/page.tsx
+
+
+    at <unknown> (./src/app/(hq)/hq/accounting/page.tsx:87:13)
+    at <unknown> (./src/app/(hq)/hq/accounting/payments/page.tsx:46:11)
+    at <unknown> (./src/app/(hq)/hq/accounting/records/page.tsx:46:11)
+    at <unknown> (./src/app/(hq)/hq/leads/[leadId]/page.tsx:185:13)
+    at <unknown> (./src/app/(hq)/hq/leads/page.tsx:130:11)
+    at <unknown> (./src/app/(hq)/hq/marketing/submissions/page.tsx:67:11)
+    at <unknown> (./src/app/(hq)/hq/page.tsx:131:17)
+    at <unknown> (./src/app/(hq)/hq/tenants/[tenantId]/page.tsx:82:5)
+    at <unknown> (./src/app/(hq)/hq/tenants/page.tsx:47:9)
+    at <unknown> (./src/app/(storefront)/[tableId]/page.tsx:273:17)
+    at <unknown> (./src/app/actions/create-order.ts:218:7)
+    at <unknown> (./src/app/admin/orders/order-list.tsx:218:49)
+    at <unknown> (./src/app/api/payment/iyzico/order-callback/route.ts:93:5)
+    at <unknown> (./src/app/glidragiris/login-form.tsx:43:9)
+    at <unknown> (./src/app/kitchen/page.tsx:111:7)
+    at <unknown> (./src/app/order-success/[orderId]/page.tsx:146:5)
+    at <unknown> (./src/app/payment/iyzico/mock/page.tsx:37:9)
+    at <unknown> (./src/app/restaurant/audit/audit-log-view.tsx:291:8)
+    at <unknown> (./src/app/restaurant/cancellations/page.tsx:143:7)
+    at <unknown> (./src/app/restaurant/invoicing/page.tsx:131:7)
+    at <unknown> (./src/app/restaurant/menu/page.tsx:39:5)
+    at <unknown> (./src/app/restaurant/menu/showcase/_components/frequent-showcase-manager.tsx:139:11)
+    at <unknown> (./src/app/restaurant/menu/showcase/_components/popular-showcase-manager.tsx:192:11)
+    at <unknown> (./src/app/restaurant/menu/showcase/_lib/load-showcase-admin-data.ts:54:5)
+    at <unknown> (./src/app/restaurant/orders/page.tsx:69:7)
+    at <unknown> (./src/app/restaurant/page.tsx:215:11)
+    at <unknown> (./src/app/restaurant/page.tsx:215:11)
+    at <unknown> (./src/app/restaurant/performance/performance-view.tsx:49:11)
+    at <unknown> (./src/app/restaurant/reports/day-end-pdf/page.tsx:29:5)
+    at <unknown> (./src/app/restaurant/reports/page.tsx:237:7)
+    at <unknown> (./src/app/restaurant/security/page.tsx:116:7)
+    at <unknown> (./src/app/restaurant/settings/page.tsx:59:7)
+    at <unknown> (./src/app/restaurant/stocks/stocks-manager.tsx:195:17)
+    at <unknown> (./src/app/restaurant/tables/page.tsx:92:7)
+    at <unknown> (./src/app/restaurant/tables/qr/[tableId]/page.tsx:26:7)
+    at <unknown> (./src/app/restaurant/users/page.tsx:40:7)
+    at <unknown> (./src/app/restaurant/waiter-calls/page.tsx:67:9)
+    at <unknown> (./src/app/staff/set-password/page.tsx:113:7)
+    at <unknown> (./src/app/waiter/waiter-dashboard-client.tsx:65:7)
+    at <unknown> (./src/app/waiter/waiter-theme-toggle.tsx:24:9)
+    at <unknown> (./src/components/admin-logout-button.tsx:20:9)
+    at <unknown> (./src/components/storefront/menu-showcase-rails.tsx:65:11)
+    at <unknown> (./src/lib/iyzico.ts:160:13)
+    at <unknown> (./src/lib/menu-theme.ts:112:5)
+    at <unknown> (./src/lib/person-display-name.ts:92:5)
+    at <unknown> (./src/lib/security/client-risk-signals.ts:44:5)
+    at <unknown> (./src/lib/security/risk-engine.ts:244:13)
+    at <unknown> (./src/lib/waiter-dashboard-snapshot.ts:166:15)
+    at <unknown> (./src/modules/hq/actions/marketing.ts:167:5)
+    at <unknown> (./src/modules/hq/components/create-tenant-form.tsx:105:11)
+    at <unknown> (./src/modules/hq/components/hq-side-nav.tsx:71:21)
+    at <unknown> (./src/modules/hq/server/marketing-queries.ts:53:9)
+    at <unknown> (./src/modules/hq/server/tenant-queries.ts:109:9)
+    at <unknown> (./src/modules/marketing/components/landing-homepage-view.tsx:202:9)

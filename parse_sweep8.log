@@ -1,0 +1,119 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 4 errors:
+./src/app/actions/update-restaurant-settings.ts:188:15
+Parsing ecmascript source code failed
+[0m [90m 186 |[39m           [33m...[39m(data[33m.[39mname [33m!==[39m undefined [33m&&[39m { name[33m:[39m data[33m.[39mname })[33m,[39m
+ [90m 187 |[39m           [33m...[39m(normalizedLogoUrl [33m!==[39m undefined [33m&&[39m { logoUrl[33m:[39m normalizedLogoUrl })[33m,[39m
+[31m[1m>[22m[39m[90m 188 |[39m           [33m...[39m(normalizedWorkingHours
+ [90m     |[39m               [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 189 |[39m             [33m?[39m[33m?[39m {
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 190 |[39m                 openingHour[33m:[39m firstOpenDay[33m?[39m[33m.[39mopenTime [33m?[39m[33m?[39m [36mnull[39m[33m,[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 191 |[39m                 closingHour[33m:[39m firstOpenDay[33m?[39m[33m.[39mcloseTime [33m?[39m[33m?[39m [36mnull[39m[33m,[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 192 |[39m               }
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 193 |[39m             [33m:[39m {
+ [90m 194 |[39m                 [33m...[39m(data[33m.[39mopeningHour [33m!==[39m undefined [33m&&[39m { openingHour[33m:[39m data[33m.[39mopeningHour })[33m,[39m
+ [90m 195 |[39m                 [33m...[39m(data[33m.[39mclosingHour [33m!==[39m undefined [33m&&[39m { closingHour[33m:[39m data[33m.[39mclosingHour })[33m,[39m[0m
+
+Not a pattern
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/update-restaurant-settings.ts [Client Component Browser]
+    ./src/app/restaurant/settings/settings-form.tsx [Client Component Browser]
+    ./src/app/restaurant/settings/settings-form.tsx [Server Component]
+    ./src/app/restaurant/settings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/update-restaurant-settings.ts [Client Component SSR]
+    ./src/app/restaurant/settings/settings-form.tsx [Client Component SSR]
+    ./src/app/restaurant/settings/settings-form.tsx [Server Component]
+    ./src/app/restaurant/settings/page.tsx [Server Component]
+
+
+./src/app/restaurant/users/weekly-shift-editor.tsx:156:73
+Parsing ecmascript source code failed
+[0m [90m 154 |[39m                         updateDay(day[33m,[39m {
+ [90m 155 |[39m                           enabled[33m:[39m en[33m,[39m
+[31m[1m>[22m[39m[90m 156 |[39m                           startTime[33m:[39m en [33m?[39m row[33m.[39mstartTime [33m?[39m [32m"09:00"[39m [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m                                                                         [31m[1m^[22m[39m
+ [90m 157 |[39m                           endTime[33m:[39m en [33m?[39m row[33m.[39mendTime [33m?[39m [32m"18:00"[39m [33m:[39m [36mnull[39m[33m,[39m
+ [90m 158 |[39m                         })[33m;[39m
+ [90m 159 |[39m                       }}[0m
+
+Expected '</', got ','
+
+Import traces:
+  Client Component Browser:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+
+./src/app/restaurant/users/weekly-shift-editor.tsx:156:70
+Parsing ecmascript source code failed
+[0m [90m 154 |[39m                         updateDay(day[33m,[39m {
+ [90m 155 |[39m                           enabled[33m:[39m en[33m,[39m
+[31m[1m>[22m[39m[90m 156 |[39m                           startTime[33m:[39m en [33m?[39m row[33m.[39mstartTime [33m?[39m [32m"09:00"[39m [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m                                                                      [31m[1m^[22m[39m
+ [90m 157 |[39m                           endTime[33m:[39m en [33m?[39m row[33m.[39mendTime [33m?[39m [32m"18:00"[39m [33m:[39m [36mnull[39m[33m,[39m
+ [90m 158 |[39m                         })[33m;[39m
+ [90m 159 |[39m                       }}[0m
+
+Expected '</', got ','
+
+Import traces:
+  Client Component Browser:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+
+./src/lib/table-account-transfer-core.ts:115:75
+Parsing ecmascript source code failed
+[0m [90m 113 |[39m   [36mconst[39m keep [33m=[39m
+ [90m 114 |[39m     open[33m.[39mfind((b) [33m=>[39m b[33m.[39mpaymentIntents[33m.[39mlength [33m>[39m [35m0[39m) [33m?[39m
+[31m[1m>[22m[39m[90m 115 |[39m     open[33m.[39msort((a[33m,[39m b) [33m=>[39m a[33m.[39mcreatedAt[33m.[39mgetTime() [33m-[39m b[33m.[39mcreatedAt[33m.[39mgetTime())[[35m0[39m][33m![39m[33m;[39m
+ [90m     |[39m                                                                           [31m[1m^[22m[39m
+ [90m 116 |[39m
+ [90m 117 |[39m   [36mfor[39m ([36mconst[39m br [36mof[39m open) {
+ [90m 118 |[39m     [36mif[39m (br[33m.[39mid [33m===[39m keep[33m.[39mid) [36mcontinue[39m[33m;[39m[0m
+
+Expected ':', got ';'
+
+Import trace:
+  Server Component:
+    ./src/lib/table-account-transfer-core.ts
+    ./src/app/actions/table-account-transfer.ts
+
+
+    at <unknown> (./src/app/actions/update-restaurant-settings.ts:188:15)
+    at <unknown> (./src/app/restaurant/users/weekly-shift-editor.tsx:156:73)
+    at <unknown> (./src/app/restaurant/users/weekly-shift-editor.tsx:156:70)
+    at <unknown> (./src/lib/table-account-transfer-core.ts:115:75)

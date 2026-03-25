@@ -1,0 +1,399 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 22 errors:
+./src/app/(hq)/hq/content/blog/page.tsx:115:71
+Parsing ecmascript source code failed
+[0m [90m 113 |[39m                 {posts[33m.[39mmap((post) [33m=>[39m {
+ [90m 114 |[39m                   [36mconst[39m previewHref [33m=[39m
+[31m[1m>[22m[39m[90m 115 |[39m                     post[33m.[39mstatus [33m===[39m [32m"PUBLISHED"[39m  [32m`/blog/${post.slug}`[39m [33m:[39m [32m`/hq/content/blog/${post.id}/preview`[39m[33m;[39m
+ [90m     |[39m                                                                       [31m[1m^[22m[39m
+ [90m 116 |[39m                   [36mconst[39m seoVariant [33m=[39m
+ [90m 117 |[39m                     post[33m.[39mseo[33m.[39mstatus [33m===[39m [32m"strong"[39m
+ [90m 118 |[39m                        [32m"success"[39m[0m
+
+Expected a semicolon
+
+
+./src/app/(hq)/hq/content/blog/page.tsx:115:101
+Parsing ecmascript source code failed
+[0m [90m 113 |[39m                 {posts[33m.[39mmap((post) [33m=>[39m {
+ [90m 114 |[39m                   [36mconst[39m previewHref [33m=[39m
+[31m[1m>[22m[39m[90m 115 |[39m                     post[33m.[39mstatus [33m===[39m [32m"PUBLISHED"[39m  [32m`/blog/${post.slug}`[39m [33m:[39m [32m`/hq/content/blog/${post.id}/preview`[39m[33m;[39m
+ [90m     |[39m                                                                                                     [31m[1m^[22m[39m
+ [90m 116 |[39m                   [36mconst[39m seoVariant [33m=[39m
+ [90m 117 |[39m                     post[33m.[39mseo[33m.[39mstatus [33m===[39m [32m"strong"[39m
+ [90m 118 |[39m                        [32m"success"[39m[0m
+
+Expected a semicolon
+
+
+./src/app/(hq)/hq/content/blog/page.tsx:149:54
+Parsing ecmascript source code failed
+[0m [90m 147 |[39m                         [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-wrap gap-2"[39m[33m>[39m
+ [90m 148 |[39m                           [33m<[39m[33mLink[39m
+[31m[1m>[22m[39m[90m 149 |[39m                             href[33m=[39m{[32m`/hq/content/blog/${post.id}/edit`[39m}
+ [90m     |[39m                                                      [31m[1m^[22m[39m
+ [90m 150 |[39m                             className[33m=[39m{buttonClasses({ variant[33m:[39m [32m"outline"[39m[33m,[39m size[33m:[39m [32m"xs"[39m })}
+ [90m 151 |[39m                           [33m>[39m
+ [90m 152 |[39m                             [33mDuzenle[39m[0m
+
+Expected a semicolon
+
+
+./src/app/(hq)/hq/content/pages/page.tsx:96:72
+Parsing ecmascript source code failed
+[0m [90m 94 |[39m                 {pages[33m.[39mmap((page) [33m=>[39m {
+ [90m 95 |[39m                   [36mconst[39m previewHref [33m=[39m
+[31m[1m>[22m[39m[90m 96 |[39m                     page[33m.[39mstatus [33m===[39m [32m"PUBLISHED"[39m  [32m`/pages/${page.slug}`[39m [33m:[39m [32m`/hq/content/pages/${page.id}/preview`[39m[33m;[39m
+ [90m    |[39m                                                                        [31m[1m^[22m[39m
+ [90m 97 |[39m                   [36mconst[39m seoVariant [33m=[39m
+ [90m 98 |[39m                     page[33m.[39mseo[33m.[39mstatus [33m===[39m [32m"strong"[39m
+ [90m 99 |[39m                        [32m"success"[39m[0m
+
+Expected a semicolon
+
+
+./src/app/(hq)/hq/content/pages/page.tsx:96:103
+Parsing ecmascript source code failed
+[0m [90m 94 |[39m                 {pages[33m.[39mmap((page) [33m=>[39m {
+ [90m 95 |[39m                   [36mconst[39m previewHref [33m=[39m
+[31m[1m>[22m[39m[90m 96 |[39m                     page[33m.[39mstatus [33m===[39m [32m"PUBLISHED"[39m  [32m`/pages/${page.slug}`[39m [33m:[39m [32m`/hq/content/pages/${page.id}/preview`[39m[33m;[39m
+ [90m    |[39m                                                                                                       [31m[1m^[22m[39m
+ [90m 97 |[39m                   [36mconst[39m seoVariant [33m=[39m
+ [90m 98 |[39m                     page[33m.[39mseo[33m.[39mstatus [33m===[39m [32m"strong"[39m
+ [90m 99 |[39m                        [32m"success"[39m[0m
+
+Expected a semicolon
+
+
+./src/app/(hq)/hq/content/pages/page.tsx:131:55
+Parsing ecmascript source code failed
+[0m [90m 129 |[39m                         [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-wrap gap-2"[39m[33m>[39m
+ [90m 130 |[39m                           [33m<[39m[33mLink[39m
+[31m[1m>[22m[39m[90m 131 |[39m                             href[33m=[39m{[32m`/hq/content/pages/${page.id}/edit`[39m}
+ [90m     |[39m                                                       [31m[1m^[22m[39m
+ [90m 132 |[39m                             className[33m=[39m{buttonClasses({ variant[33m:[39m [32m"outline"[39m[33m,[39m size[33m:[39m [32m"xs"[39m })}
+ [90m 133 |[39m                           [33m>[39m
+ [90m 134 |[39m                             [33mDuzenle[39m[0m
+
+Expected a semicolon
+
+
+./src/app/(hq)/hq/media/page.tsx:112:82
+Parsing ecmascript source code failed
+[0m [90m 110 |[39m                 [33m<[39m[33mp[39m className[33m=[39m[32m"line-clamp-1 text-xs text-[var(--ui-text-secondary)]"[39m[33m>[39m{asset[33m.[39mstoragePath}[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 111 |[39m                 [33m<[39m[33mp[39m className[33m=[39m[32m"text-[11px] text-[var(--ui-text-secondary)]"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 112 |[39m                   {asset[33m.[39mwidth [33m&&[39m asset[33m.[39mheight  [32m`${asset.width}x${asset.height}`[39m [33m:[39m [32m"Olcu yok"[39m} [33m-[39m {asset[33m.[39mmimeType} [33m-[39m {formatSize(asset[33m.[39mbyteSize)}
+ [90m     |[39m                                                                                  [31m[1m^[22m[39m
+ [90m 113 |[39m                 [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 114 |[39m                 [33m<[39m[33mp[39m className[33m=[39m[32m"text-[11px] text-[var(--ui-text-secondary)]"[39m[33m>[39m{formatDate(asset[33m.[39mcreatedAt)}[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 115 |[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/blog/[slug]/page.tsx:103:51
+Parsing ecmascript source code failed
+[0m [90m 101 |[39m       seoTitle[33m:[39m post[33m.[39mseoTitle[33m,[39m
+ [90m 102 |[39m       metaDescription[33m:[39m post[33m.[39mmetaDescription[33m,[39m
+[31m[1m>[22m[39m[90m 103 |[39m       canonicalUrl[33m:[39m resolved[33m.[39mpreview [33m?[39m[33m?[39m undefined [33m:[39m post[33m.[39mcanonicalUrl[33m,[39m
+ [90m     |[39m                                                   [31m[1m^[22m[39m
+ [90m 104 |[39m       ogTitle[33m:[39m post[33m.[39mogTitle[33m,[39m
+ [90m 105 |[39m       ogDescription[33m:[39m post[33m.[39mogDescription[33m,[39m
+ [90m 106 |[39m       ogImage[33m:[39m post[33m.[39mogImage[33m,[39m[0m
+
+Expected ',', got ':'
+
+
+./src/app/blog/page.tsx:14:17
+Parsing ecmascript source code failed
+[0m [90m 12 |[39m   [36mreturn[39m buildMetadataFromSeo({
+ [90m 13 |[39m     seo[33m:[39m {
+[31m[1m>[22m[39m[90m 14 |[39m       seoTitle[33m:[39m site[33m?[39m[33m.[39mbrandName  [32m`${site.brandName} | Blog`[39m [33m:[39m [32m"Blog"[39m[33m,[39m
+ [90m    |[39m                 [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 15 |[39m       metaDescription[33m:[39m [32m"QR menu, restoran operasyonu ve siparis akisina dair guncel yazilar."[39m[33m,[39m
+ [90m 16 |[39m       robotsIndex[33m:[39m [36mtrue[39m[33m,[39m
+ [90m 17 |[39m       robotsFollow[33m:[39m [36mtrue[39m[33m,[39m[0m
+
+Tagged template literal is not allowed in optional chain.
+
+
+./src/app/pages/[slug]/page.tsx:68:51
+Parsing ecmascript source code failed
+[0m [90m 66 |[39m       seoTitle[33m:[39m page[33m.[39mseoTitle[33m,[39m
+ [90m 67 |[39m       metaDescription[33m:[39m page[33m.[39mmetaDescription[33m,[39m
+[31m[1m>[22m[39m[90m 68 |[39m       canonicalUrl[33m:[39m resolved[33m.[39mpreview [33m?[39m[33m?[39m undefined [33m:[39m page[33m.[39mcanonicalUrl[33m,[39m
+ [90m    |[39m                                                   [31m[1m^[22m[39m
+ [90m 69 |[39m       ogTitle[33m:[39m page[33m.[39mogTitle[33m,[39m
+ [90m 70 |[39m       ogDescription[33m:[39m page[33m.[39mogDescription[33m,[39m
+ [90m 71 |[39m       ogImage[33m:[39m page[33m.[39mogImage[33m,[39m[0m
+
+Expected ',', got ':'
+
+
+./src/app/pages/page.tsx:11:17
+Parsing ecmascript source code failed
+[0m [90m  9 |[39m   [36mreturn[39m buildMetadataFromSeo({
+ [90m 10 |[39m     seo[33m:[39m {
+[31m[1m>[22m[39m[90m 11 |[39m       seoTitle[33m:[39m site[33m?[39m[33m.[39mbrandName  [32m`${site.brandName} | Sayfalar`[39m [33m:[39m [32m"Sayfalar"[39m[33m,[39m
+ [90m    |[39m                 [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 12 |[39m       metaDescription[33m:[39m [32m"Kurumsal ve bilgilendirici icerik sayfalari."[39m[33m,[39m
+ [90m 13 |[39m       robotsIndex[33m:[39m [36mtrue[39m[33m,[39m
+ [90m 14 |[39m       robotsFollow[33m:[39m [36mtrue[39m[33m,[39m[0m
+
+Tagged template literal is not allowed in optional chain.
+
+
+./src/app/restaurant/allergens/allergens-manager.tsx:174:46
+Parsing ecmascript source code failed
+[0m [90m 172 |[39m           [33m<[39m[33mdiv[39m className[33m=[39m[32m"divide-y divide-[color:var(--ui-border)]"[39m[33m>[39m
+ [90m 173 |[39m             {allergens[33m.[39mmap((item) [33m=>[39m {
+[31m[1m>[22m[39m[90m 174 |[39m               [36mconst[39m draft [33m=[39m drafts[item[33m.[39mid]  {
+ [90m     |[39m                                              [31m[1m^[22m[39m
+ [90m 175 |[39m                 name[33m:[39m item[33m.[39mname[33m,[39m
+ [90m 176 |[39m                 sortOrder[33m:[39m [33mString[39m(item[33m.[39msortOrder)[33m,[39m
+ [90m 177 |[39m                 isActive[33m:[39m item[33m.[39misActive[33m,[39m[0m
+
+Expected a semicolon
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/allergens/allergens-manager.tsx
+    ./src/app/restaurant/allergens/page.tsx
+
+
+./src/app/restaurant/cash-register/page.tsx:24:40
+Parsing ecmascript source code failed
+[0m [90m 22 |[39m [36mexport[39m [36mdefault[39m [36masync[39m [36mfunction[39m [33mCashRegisterPage[39m({ searchParams }[33m:[39m [33mCashRegisterPageProps[39m) {
+ [90m 23 |[39m   [36mconst[39m { tenantId } [33m=[39m [36mawait[39m getCurrentTenantOrThrow()[33m;[39m
+[31m[1m>[22m[39m[90m 24 |[39m   [36mconst[39m params [33m=[39m ([36mawait[39m searchParams)  {}[33m;[39m
+ [90m    |[39m                                        [31m[1m^[22m[39m
+ [90m 25 |[39m
+ [90m 26 |[39m   [36mconst[39m restaurants [33m=[39m [36mawait[39m prisma[33m.[39mrestaurant[33m.[39mfindMany({
+ [90m 27 |[39m     where[33m:[39m { tenantId }[33m,[39m[0m
+
+Expected a semicolon
+
+
+./src/app/robots.ts:14:16
+Parsing ecmascript source code failed
+[0m [90m 12 |[39m        {
+ [90m 13 |[39m           userAgent[33m:[39m [32m"*"[39m[33m,[39m
+[31m[1m>[22m[39m[90m 14 |[39m           allow[33m:[39m [32m"/"[39m[33m,[39m
+ [90m    |[39m                [31m[1m^[22m[39m
+ [90m 15 |[39m           disallow[33m:[39m [[32m"/hq"[39m[33m,[39m [32m"/api"[39m[33m,[39m [32m"/restaurant"[39m[33m,[39m [32m"/waiter"[39m[33m,[39m [32m"/kitchen"[39m][33m,[39m
+ [90m 16 |[39m         }
+ [90m 17 |[39m       [33m:[39m {[0m
+
+Expected ';', '}' or <eof>
+
+Import trace:
+  App Route:
+    ./src/app/robots.ts
+    ./src/app/robots--route-entry.js
+
+
+./src/modules/content/server/content-queries.ts:124:27
+Parsing ecmascript source code failed
+[0m [90m 122 |[39m
+ [90m 123 |[39m   [36mconst[39m where[33m:[39m [33mPrisma[39m[33m.[39m[33mPageWhereInput[39m [33m=[39m {
+[31m[1m>[22m[39m[90m 124 |[39m     [33m...[39m(status [33m!==[39m [32m"ALL"[39m  { status } [33m:[39m {})[33m,[39m
+ [90m     |[39m                           [31m[1m^[22m[39m
+ [90m 125 |[39m     [33m...[39m(q
+ [90m 126 |[39m        {
+ [90m 127 |[39m           [33mOR[39m[33m:[39m [[0m
+
+Expected ',', got '{'
+
+Import traces:
+  Server Component:
+    ./src/modules/content/server/content-queries.ts
+    ./src/app/(hq)/hq/content/blog/[postId]/edit/page.tsx
+
+  App Route:
+    ./src/modules/content/server/content-queries.ts
+    ./src/app/sitemap.ts
+    ./src/app/sitemap--route-entry.js
+
+
+./src/modules/content/server/redirect-rules.ts:6:23
+Parsing ecmascript source code failed
+[0m [90m 4 |[39m
+ [90m 5 |[39m [36mexport[39m [36mfunction[39m normalizeRedirectFromPath(value[33m:[39m string [33m|[39m [36mnull[39m [33m|[39m undefined)[33m:[39m string [33m|[39m [36mnull[39m {
+[31m[1m>[22m[39m[90m 6 |[39m   [36mconst[39m raw [33m=[39m (value  [32m""[39m)[33m.[39mtrim()[33m;[39m
+ [90m   |[39m                       [31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 7 |[39m   [36mif[39m ([33m![39mraw) [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m 8 |[39m
+ [90m 9 |[39m   [36mtry[39m {[0m
+
+Expected ',', got 'string literal'
+
+Import trace:
+  App Route:
+    ./src/modules/content/server/redirect-rules.ts
+    ./src/app/api/internal/redirects/resolve/route.ts
+
+
+./src/modules/content/server/seo-metadata.ts:75:28
+Parsing ecmascript source code failed
+[0m [90m 73 |[39m     title[33m,[39m
+ [90m 74 |[39m     description[33m,[39m
+[31m[1m>[22m[39m[90m 75 |[39m     alternates[33m:[39m canonical  { canonical } [33m:[39m undefined[33m,[39m
+ [90m    |[39m                            [31m[1m^[22m[39m
+ [90m 76 |[39m     openGraph[33m:[39m {
+ [90m 77 |[39m       type[33m:[39m input[33m.[39mtype [33m?[39m[33m?[39m [32m"website"[39m[33m,[39m
+ [90m 78 |[39m       title[33m:[39m ogTitle[33m,[39m[0m
+
+Expected ',', got '{'
+
+Import traces:
+  Server Component:
+    ./src/modules/content/server/seo-metadata.ts
+    ./src/app/blog/category/[slug]/page.tsx
+
+  App Route:
+    ./src/modules/content/server/seo-metadata.ts
+    ./src/app/sitemap.ts
+    ./src/app/sitemap--route-entry.js
+
+
+./src/modules/hq/actions/content.ts:46:54
+Parsing ecmascript source code failed
+[0m [90m 44 |[39m
+ [90m 45 |[39m [36mfunction[39m parseId(value[33m:[39m [33mFormDataEntryValue[39m [33m|[39m [36mnull[39m)[33m:[39m number [33m|[39m [36mnull[39m {
+[31m[1m>[22m[39m[90m 46 |[39m   [36mconst[39m parsed [33m=[39m [33mNumber[39m[33m.[39mparseInt((value[33m?[39m[33m.[39mtoString()  [32m""[39m)[33m.[39mtrim()[33m,[39m [35m10[39m)[33m;[39m
+ [90m    |[39m                                                      [31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 47 |[39m   [36mif[39m ([33m![39m[33mNumber[39m[33m.[39misInteger(parsed) [33m||[39m parsed [33m<=[39m [35m0[39m) [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m 48 |[39m   [36mreturn[39m parsed[33m;[39m
+ [90m 49 |[39m }[0m
+
+Expected ',', got 'string literal'
+
+Import traces:
+  Server Component:
+    ./src/modules/hq/actions/content.ts
+    ./src/app/(hq)/hq/content/blog/categories/page.tsx
+
+  Client Component Browser:
+    ./src/modules/hq/actions/content.ts [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/modules/hq/actions/content.ts [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+
+./src/modules/hq/components/content-blog-post-form.tsx:103:53
+Parsing ecmascript source code failed
+[0m [90m 101 |[39m     initial[33m?[39m[33m.[39mcategoryId [33m?[39m [33mString[39m(initial[33m.[39mcategoryId) [33m:[39m [32m""[39m[33m,[39m
+ [90m 102 |[39m   )[33m;[39m
+[31m[1m>[22m[39m[90m 103 |[39m   [36mconst[39m [tags[33m,[39m setTags] [33m=[39m useState((initial[33m?[39m[33m.[39mtags  [])[33m.[39mjoin([32m", "[39m))[33m;[39m
+ [90m     |[39m                                                     [31m[1m^[22m[39m
+ [90m 104 |[39m   [36mconst[39m [seo[33m,[39m setSeo] [33m=[39m useState[33m<[39m[33mSeoEditorState[39m[33m>[39m(() [33m=>[39m buildSeoState(initial))[33m;[39m
+ [90m 105 |[39m   [36mconst[39m [createSlugRedirect[33m,[39m setCreateSlugRedirect] [33m=[39m useState([36mtrue[39m)[33m;[39m
+ [90m 106 |[39m[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-blog-post-form.tsx
+    ./src/app/(hq)/hq/content/blog/[postId]/edit/page.tsx
+
+
+./src/modules/hq/components/content-page-form.tsx:91:73
+Parsing ecmascript source code failed
+[0m [90m 89 |[39m   [36mconst[39m [contentHtml[33m,[39m setContentHtml] [33m=[39m useState(initial[33m?[39m[33m.[39mcontentHtml [33m?[39m[33m?[39m [32m""[39m)[33m;[39m
+ [90m 90 |[39m   [36mconst[39m [status[33m,[39m setStatus] [33m=[39m useState[33m<[39m[32m"DRAFT"[39m [33m|[39m [32m"PUBLISHED"[39m[33m>[39m(initial[33m?[39m[33m.[39mstatus [33m?[39m[33m?[39m [32m"DRAFT"[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 91 |[39m   [36mconst[39m [sortOrder[33m,[39m setSortOrder] [33m=[39m useState([33mString[39m(initial[33m?[39m[33m.[39msortOrder  [35m0[39m))[33m;[39m
+ [90m    |[39m                                                                         [31m[1m^[22m[39m
+ [90m 92 |[39m   [36mconst[39m [seo[33m,[39m setSeo] [33m=[39m useState[33m<[39m[33mSeoEditorState[39m[33m>[39m(() [33m=>[39m buildSeoState(initial))[33m;[39m
+ [90m 93 |[39m   [36mconst[39m [createSlugRedirect[33m,[39m setCreateSlugRedirect] [33m=[39m useState([36mtrue[39m)[33m;[39m
+ [90m 94 |[39m[0m
+
+Expected ',', got 'numeric literal'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-page-form.tsx
+    ./src/app/(hq)/hq/content/pages/[pageId]/edit/page.tsx
+
+
+./src/modules/hq/components/marketing-landing-builder-form.tsx:295:38
+Parsing ecmascript source code failed
+[0m [90m 293 |[39m             [33m<[39m[33mRichListEditor[39m
+ [90m 294 |[39m               label[33m=[39m{[32m`Bullet Listesi #${index + 1}`[39m}
+[31m[1m>[22m[39m[90m 295 |[39m               values[33m=[39m{item[33m.[39mbullets  []}
+ [90m     |[39m                                      [31m[1m^[22m[39m
+ [90m 296 |[39m               onChange[33m=[39m{(next) [33m=>[39m {
+ [90m 297 |[39m                 [36mconst[39m cloned [33m=[39m [[33m...[39mcards][33m;[39m
+ [90m 298 |[39m                 cloned[index] [33m=[39m { [33m...[39mcloned[index][33m,[39m bullets[33m:[39m next }[33m;[39m[0m
+
+Expected '</', got ']'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx
+    ./src/app/(hq)/hq/marketing/builder/page.tsx
+
+
+./src/modules/hq/components/seo-editor-panel.tsx:207:44
+Parsing ecmascript source code failed
+[0m [90m 205 |[39m           [33m<[39m[33mp[39m className[33m=[39m[32m"font-semibold"[39m[33m>[39m[33mEksikler[39m ({seoReport[33m.[39mmissing[33m.[39mlength})[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 206 |[39m           [33m<[39m[33mul[39m className[33m=[39m[32m"mt-1 space-y-1"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 207 |[39m             {seoReport[33m.[39mmissing[33m.[39mlength [33m>[39m [35m0[39m  seoReport[33m.[39mmissing[33m.[39mmap((item) [33m=>[39m [33m<[39m[33mli[39m key[33m=[39m{item}[33m>[39m[33m-[39m {item}[33m<[39m[33m/[39m[33mli[39m[33m>[39m) [33m:[39m [33m<[39m[33mli[39m[33m>[39m[33m-[39m [33mYok[39m[33m<[39m[33m/[39m[33mli[39m[33m>[39m}
+ [90m     |[39m                                            [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 208 |[39m           [33m<[39m[33m/[39m[33mul[39m[33m>[39m
+ [90m 209 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 210 |[39m[0m
+
+Expected '</', got 'ident'
+
+Import traces:
+  Client Component Browser:
+    ./src/modules/hq/components/seo-editor-panel.tsx [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/modules/hq/components/seo-editor-panel.tsx [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+
+    at <unknown> (./src/app/(hq)/hq/content/blog/page.tsx:115:71)
+    at <unknown> (./src/app/(hq)/hq/content/blog/page.tsx:115:101)
+    at <unknown> (./src/app/(hq)/hq/content/blog/page.tsx:149:54)
+    at <unknown> (./src/app/(hq)/hq/content/pages/page.tsx:96:72)
+    at <unknown> (./src/app/(hq)/hq/content/pages/page.tsx:96:103)
+    at <unknown> (./src/app/(hq)/hq/content/pages/page.tsx:131:55)
+    at <unknown> (./src/app/(hq)/hq/media/page.tsx:112:82)
+    at <unknown> (./src/app/blog/[slug]/page.tsx:103:51)
+    at <unknown> (./src/app/blog/page.tsx:14:17)
+    at <unknown> (./src/app/pages/[slug]/page.tsx:68:51)
+    at <unknown> (./src/app/pages/page.tsx:11:17)
+    at <unknown> (./src/app/restaurant/allergens/allergens-manager.tsx:174:46)
+    at <unknown> (./src/app/restaurant/cash-register/page.tsx:24:40)
+    at <unknown> (./src/app/robots.ts:14:16)
+    at <unknown> (./src/modules/content/server/content-queries.ts:124:27)
+    at <unknown> (./src/modules/content/server/redirect-rules.ts:6:23)
+    at <unknown> (./src/modules/content/server/seo-metadata.ts:75:28)
+    at <unknown> (./src/modules/hq/actions/content.ts:46:54)
+    at <unknown> (./src/modules/hq/components/content-blog-post-form.tsx:103:53)
+    at <unknown> (./src/modules/hq/components/content-page-form.tsx:91:73)
+    at <unknown> (./src/modules/hq/components/marketing-landing-builder-form.tsx:295:38)
+    at <unknown> (./src/modules/hq/components/seo-editor-panel.tsx:207:44)

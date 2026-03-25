@@ -193,6 +193,14 @@ export async function getMarketingSiteConfigForHq() {
         },
       },
       faqs: { orderBy: [{ sortOrder: "asc" }, { id: "asc" }] },
+      landingTheme: true,
+      landingSections: { orderBy: [{ sortOrder: "asc" }, { id: "asc" }] },
+      landingNavItems: {
+        orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+        include: {
+          subitems: { orderBy: [{ sortOrder: "asc" }, { id: "asc" }] },
+        },
+      },
     },
   });
 }

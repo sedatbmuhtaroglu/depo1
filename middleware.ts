@@ -8,7 +8,61 @@ import {
 import { mapAppSurfaceToSecuritySurface } from "@/core/surfaces/surface-map";
 import { resolveTenantSlugFromRequest } from "@/lib/tenancy/resolve";
 
-export function middleware(request: NextRequest) {
+async function resolveRedirectResponse(request: NextRequest): Promise<NextResponse | null> {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+
+  const surface = resolveAppSurface(request.nextUrl.pathname);
+  if (surface !== "marketing") return null;
+
+  const searchPath = request.nextUrl.pathname;
+  if (!searchPath) return null;
+  if (searchPath.startsWith("/uploads/")) return null;
+  const lastSegment = searchPath.split("/").pop() ?? "";
+  if (lastSegment.includes(".")) return null;
+
+  const endpoint = new URL("/api/internal/redirects/resolve", request.url);
+  endpoint.searchParams.set("path", searchPath);
+
+  try {
+    const resolved = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "x-redirect-resolver": "1",
+      },
+      cache: "no-store",
+    });
+
+    if (!resolved.ok) return null;
+    const body = (await resolved.json()) as {
+      matched?: boolean;
+      toPath?: string;
+      statusCode?: number;
+    };
+
+    if (!body.matched || !body.toPath) return null;
+
+    const target = body.toPath.trim();
+    if (!target) return null;
+    if (target === request.nextUrl.pathname) return null;
+
+    const targetUrl = new URL(target, request.url);
+    if (request.nextUrl.search && !targetUrl.search) {
+      targetUrl.search = request.nextUrl.search;
+    }
+
+    const statusCode = body.statusCode === 302 ? 302 : 301;
+    return NextResponse.redirect(targetUrl, statusCode);
+  } catch {
+    return null;
+  }
+}
+
+export async function middleware(request: NextRequest) {
+  const redirectResponse = await resolveRedirectResponse(request);
+  if (redirectResponse) {
+    return redirectResponse;
+  }
+
   const surface = resolveAppSurface(request.nextUrl.pathname);
   const securitySurface = mapAppSurfaceToSecuritySurface(surface);
   const slug = resolveTenantSlugFromRequest(request);

@@ -1,0 +1,18 @@
+
+> qrmenu-order@0.1.0 dev
+> next dev --port 3013
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3013
+- Network:       http://172.22.112.1:3013
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 1322ms
+Persisting failed: Unable to commit operations
+
+Caused by:
+    0: Unable to write meta file 00001211.meta
+    1: İstenen işlem, kullanıcıya eşleşmiş bölümü açık olan bir dosyada yürütülemez. (os error 1224)
+ GET /blog/test 404 in 2.7s (compile: 2.2s, render: 484ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)

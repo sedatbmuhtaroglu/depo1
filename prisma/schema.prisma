@@ -75,6 +75,16 @@ enum MarketingSubmissionStatus {
   SPAM_REJECTED
 }
 
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ContentPreviewTargetType {
+  PAGE
+  BLOG_POST
+}
+
 enum CommercialSaleType {
   DIRECT_PURCHASE
   TRIAL_CONVERSION
@@ -205,11 +215,51 @@ enum MenuFrequentShowcasePlacement {
   BLOCK
 }
 
+enum ProductComplianceStatus {
+  YES
+  NO
+  UNSPECIFIED
+}
+
+enum ProductAllergen {
+  CEREALS_CONTAINING_GLUTEN
+  CRUSTACEANS
+  EGGS
+  FISH
+  PEANUTS
+  SOYBEANS
+  MILK
+  TREE_NUTS
+  CELERY
+  MUSTARD
+  SESAME
+  SULPHUR_DIOXIDE_AND_SULPHITES
+  LUPIN
+  MOLLUSCS
+}
+
+enum CashMovementType {
+  IN
+  OUT
+}
+
+enum CashMovementCategory {
+  SALES_REVENUE
+  SUPPLIER_PAYMENT
+  PERSONNEL_EXPENSE
+  EXPENSE
+  CASH_ADJUSTMENT
+  OTHER
+}
+
 model AdminUser {
   id           Int      @id @default(autoincrement())
   username     String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
+
+  authoredPages     Page[]     @relation("PageAuthor")
+  authoredBlogPosts BlogPost[] @relation("BlogPostAuthor")
 }
 
 model Plan {
@@ -260,6 +310,24 @@ model Tenant {
   menuFrequentShowcases  MenuFrequentShowcase[]
   salesLeads             SalesLead[]
   commercialRecord       CommercialRecord?
+  allergens              TenantAllergen[]
+  cashMovements          CashMovement[]
+  cashRegisterDays       CashRegisterDay[]
+}
+
+model TenantAllergen {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  name      String   @db.VarChar(120)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@index([tenantId, isActive, sortOrder])
 }
 
 model TenantLimitOverride {
@@ -277,31 +345,32 @@ model TenantLimitOverride {
 }
 
 model TenantStaff {
-  id           Int       @id @default(autoincrement())
-  tenantId     Int
-  username     String
-  passwordHash String
+  id                    Int       @id @default(autoincrement())
+  tenantId              Int
+  username              String
+  passwordHash          String
   mustSetPassword       Boolean   @default(true)
   passwordInitializedAt DateTime?
-  role         StaffRole
-  displayName  String?
-  email        String?   @db.VarChar(180)
-  phone        String?   @db.VarChar(32)
-  isActive     Boolean   @default(true)
-  workingDays  Weekday[] @default([])
-  shiftStart   String?   @db.VarChar(5)
-  shiftEnd     String?   @db.VarChar(5)
+  role                  StaffRole
+  displayName           String?
+  email                 String?   @db.VarChar(180)
+  phone                 String?   @db.VarChar(32)
+  isActive              Boolean   @default(true)
+  workingDays           Weekday[] @default([])
+  shiftStart            String?   @db.VarChar(5)
+  shiftEnd              String?   @db.VarChar(5)
   /// Haftalık vardiya: [{ dayOfWeek, enabled, startTime, endTime }, ...] — dolu ise önceliklidir; yoksa workingDays+shift* legacy.
-  weeklyShiftSchedule Json?
-  notes        String?   @db.VarChar(280)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  weeklyShiftSchedule   Json?
+  notes                 String?   @db.VarChar(280)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  tenant                   Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  acknowledgedWaiterCalls  WaiterCall[]          @relation("WaiterCallAcknowledgedBy")
-  acknowledgedBillRequests BillRequest[]         @relation("BillRequestAcknowledgedBy")
-  deliveredOrders          Order[]               @relation("OrderDeliveredBy")
+  tenant                   Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  acknowledgedWaiterCalls  WaiterCall[]            @relation("WaiterCallAcknowledgedBy")
+  acknowledgedBillRequests BillRequest[]           @relation("BillRequestAcknowledgedBy")
+  deliveredOrders          Order[]                 @relation("OrderDeliveredBy")
   cashOrderAdjustments     CashOrderAdjustment[]
+  cashMovementsCreated     CashMovement[]          @relation("CashMovementCreatedBy")
   setPasswordTokens        StaffSetPasswordToken[]
 
   @@unique([tenantId, username])
@@ -309,14 +378,14 @@ model TenantStaff {
 }
 
 model StaffSetPasswordToken {
-  id               Int       @id @default(autoincrement())
-  tenantStaffId    Int
-  tokenHash        String    @unique @db.VarChar(64)
-  expiresAt        DateTime
-  consumedAt       DateTime?
-  revokedAt        DateTime?
-  createdBy        String?   @db.VarChar(120)
-  createdAt        DateTime  @default(now())
+  id            Int       @id @default(autoincrement())
+  tenantStaffId Int
+  tokenHash     String    @unique @db.VarChar(64)
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  revokedAt     DateTime?
+  createdBy     String?   @db.VarChar(120)
+  createdAt     DateTime  @default(now())
 
   tenantStaff TenantStaff @relation(fields: [tenantStaffId], references: [id], onDelete: Cascade)
 
@@ -415,29 +484,29 @@ model SetupProgress {
 }
 
 model SalesLead {
-  id          Int             @id @default(autoincrement())
-  businessName String
-  contactName String
-  phone       String?         @db.VarChar(32)
-  email       String?         @db.VarChar(180)
-  city        String?         @db.VarChar(120)
-  notes       String?
-  source      SalesLeadSource @default(MANUAL)
-  status      SalesLeadStatus @default(NEW)
-  assignedTo  String?         @db.VarChar(120)
-  lostReason  String?         @db.VarChar(280)
-  tenantId    Int?
-  trialStartedAt DateTime?
-  trialEndsAt DateTime?
-  trialAdminUsername String?  @db.VarChar(120)
-  wonAt       DateTime?
-  lostAt      DateTime?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id                 Int             @id @default(autoincrement())
+  businessName       String
+  contactName        String
+  phone              String?         @db.VarChar(32)
+  email              String?         @db.VarChar(180)
+  city               String?         @db.VarChar(120)
+  notes              String?
+  source             SalesLeadSource @default(MANUAL)
+  status             SalesLeadStatus @default(NEW)
+  assignedTo         String?         @db.VarChar(120)
+  lostReason         String?         @db.VarChar(280)
+  tenantId           Int?
+  trialStartedAt     DateTime?
+  trialEndsAt        DateTime?
+  trialAdminUsername String?         @db.VarChar(120)
+  wonAt              DateTime?
+  lostAt             DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 
-  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  events SalesLeadEvent[]
-  commercialRecord CommercialRecord?
+  tenant               Tenant?                   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  events               SalesLeadEvent[]
+  commercialRecord     CommercialRecord?
   marketingSubmissions MarketingFormSubmission[]
 
   @@index([status, createdAt])
@@ -447,56 +516,278 @@ model SalesLead {
 }
 
 model MarketingSiteConfig {
-  id                        Int      @id @default(autoincrement())
-  key                       String   @unique @default("main")
-  isPublished               Boolean  @default(true)
-  brandName                 String   @default("MENUCY")
-  brandTagline              String?  @db.VarChar(180)
-  announcementEnabled       Boolean  @default(false)
-  announcementText          String?  @db.VarChar(240)
-  announcementCtaLabel      String?  @db.VarChar(80)
-  announcementCtaHref       String?  @db.VarChar(220)
-  heroKicker                String?  @db.VarChar(120)
-  heroTitle                 String   @db.VarChar(180)
-  heroDescription           String   @db.VarChar(600)
-  heroPrimaryCtaLabel       String   @db.VarChar(80)
-  heroPrimaryCtaHref        String   @db.VarChar(220)
-  heroSecondaryCtaLabel     String?  @db.VarChar(80)
-  heroSecondaryCtaHref      String?  @db.VarChar(220)
-  trustSectionTitle         String?  @db.VarChar(120)
-  trustSectionDescription   String?  @db.VarChar(320)
-  featuresSectionTitle      String?  @db.VarChar(120)
-  featuresSectionDescription String? @db.VarChar(320)
-  howItWorksSectionTitle    String?  @db.VarChar(120)
-  howItWorksSectionDescription String? @db.VarChar(320)
-  categorySectionTitle      String?  @db.VarChar(120)
-  categorySectionDescription String? @db.VarChar(320)
-  ctaSectionTitle           String?  @db.VarChar(140)
-  ctaSectionDescription     String?  @db.VarChar(320)
-  ctaPrimaryLabel           String?  @db.VarChar(80)
-  ctaPrimaryHref            String?  @db.VarChar(220)
-  faqSectionTitle           String?  @db.VarChar(120)
-  faqSectionDescription     String?  @db.VarChar(320)
-  formSectionTitle          String   @db.VarChar(140)
-  formSectionDescription    String?  @db.VarChar(320)
-  formSubmitLabel           String   @db.VarChar(80)
-  formConsentText           String?  @db.VarChar(280)
-  seoTitle                  String?  @db.VarChar(160)
-  seoDescription            String?  @db.VarChar(320)
-  seoCanonicalUrl           String?  @db.VarChar(320)
-  seoOgTitle                String?  @db.VarChar(160)
-  seoOgDescription          String?  @db.VarChar(320)
-  seoOgImageUrl             String?  @db.VarChar(320)
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
+  id                           Int      @id @default(autoincrement())
+  key                          String   @unique @default("main")
+  isPublished                  Boolean  @default(true)
+  brandName                    String   @default("MENUCY")
+  brandTagline                 String?  @db.VarChar(180)
+  announcementEnabled          Boolean  @default(false)
+  announcementText             String?  @db.VarChar(240)
+  announcementCtaLabel         String?  @db.VarChar(80)
+  announcementCtaHref          String?  @db.VarChar(220)
+  heroKicker                   String?  @db.VarChar(120)
+  heroTitle                    String   @db.VarChar(180)
+  heroDescription              String   @db.VarChar(600)
+  heroPrimaryCtaLabel          String   @db.VarChar(80)
+  heroPrimaryCtaHref           String   @db.VarChar(220)
+  heroSecondaryCtaLabel        String?  @db.VarChar(80)
+  heroSecondaryCtaHref         String?  @db.VarChar(220)
+  trustSectionTitle            String?  @db.VarChar(120)
+  trustSectionDescription      String?  @db.VarChar(320)
+  featuresSectionTitle         String?  @db.VarChar(120)
+  featuresSectionDescription   String?  @db.VarChar(320)
+  howItWorksSectionTitle       String?  @db.VarChar(120)
+  howItWorksSectionDescription String?  @db.VarChar(320)
+  categorySectionTitle         String?  @db.VarChar(120)
+  categorySectionDescription   String?  @db.VarChar(320)
+  ctaSectionTitle              String?  @db.VarChar(140)
+  ctaSectionDescription        String?  @db.VarChar(320)
+  ctaPrimaryLabel              String?  @db.VarChar(80)
+  ctaPrimaryHref               String?  @db.VarChar(220)
+  faqSectionTitle              String?  @db.VarChar(120)
+  faqSectionDescription        String?  @db.VarChar(320)
+  formSectionTitle             String   @db.VarChar(140)
+  formSectionDescription       String?  @db.VarChar(320)
+  formSubmitLabel              String   @db.VarChar(80)
+  formConsentText              String?  @db.VarChar(280)
+  seoTitle                     String?  @db.VarChar(160)
+  seoDescription               String?  @db.VarChar(320)
+  seoCanonicalUrl              String?  @db.VarChar(320)
+  seoOgTitle                   String?  @db.VarChar(160)
+  seoOgDescription             String?  @db.VarChar(320)
+  seoOgImageUrl                String?  @db.VarChar(320)
+  seoRobotsIndex               Boolean  @default(true)
+  seoRobotsFollow              Boolean  @default(true)
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
 
-  trustBadges   MarketingTrustBadge[]
-  logos         MarketingLogo[]
-  features      MarketingFeature[]
-  howItWorks    MarketingHowItWorksStep[]
-  categories    MarketingCategory[]
-  faqs          MarketingFaq[]
-  submissions   MarketingFormSubmission[]
+  trustBadges     MarketingTrustBadge[]
+  logos           MarketingLogo[]
+  features        MarketingFeature[]
+  howItWorks      MarketingHowItWorksStep[]
+  categories      MarketingCategory[]
+  faqs            MarketingFaq[]
+  submissions     MarketingFormSubmission[]
+  landingTheme    MarketingLandingTheme?
+  landingSections MarketingLandingSection[]
+  landingNavItems MarketingLandingNavItem[]
+}
+
+model Page {
+  id                   Int           @id @default(autoincrement())
+  title                String        @db.VarChar(180)
+  slug                 String        @unique @db.VarChar(160)
+  status               ContentStatus @default(DRAFT)
+  excerpt              String?       @db.VarChar(420)
+  coverImageUrl        String?       @db.VarChar(320)
+  contentHtml          String
+  publishedAt          DateTime?
+  authorName           String?       @db.VarChar(120)
+  authorId             Int?
+  sortOrder            Int           @default(0)
+  isHomepageSelectable Boolean       @default(false)
+  seoTitle             String?       @db.VarChar(160)
+  metaDescription      String?       @db.VarChar(320)
+  canonicalUrl         String?       @db.VarChar(320)
+  ogTitle              String?       @db.VarChar(160)
+  ogDescription        String?       @db.VarChar(320)
+  ogImage              String?       @db.VarChar(320)
+  robotsIndex          Boolean       @default(true)
+  robotsFollow         Boolean       @default(true)
+  focusKeyword         String?       @db.VarChar(120)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  author AdminUser? @relation("PageAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([updatedAt])
+  @@index([sortOrder])
+}
+
+model BlogCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(120)
+  slug        String   @unique @db.VarChar(120)
+  description String?  @db.VarChar(320)
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  posts BlogPost[]
+
+  @@index([sortOrder])
+  @@index([isActive])
+}
+
+model BlogPost {
+  id                 Int           @id @default(autoincrement())
+  title              String        @db.VarChar(180)
+  slug               String        @unique @db.VarChar(160)
+  status             ContentStatus @default(DRAFT)
+  excerpt            String?       @db.VarChar(420)
+  contentHtml        String
+  featuredImageUrl   String?       @db.VarChar(320)
+  publishedAt        DateTime?
+  authorName         String?       @db.VarChar(120)
+  authorId           Int?
+  categoryId         Int?
+  tags               String[]      @default([])
+  readingTimeMinutes Int           @default(1)
+  canonicalUrl       String?       @db.VarChar(320)
+  seoTitle           String?       @db.VarChar(160)
+  metaDescription    String?       @db.VarChar(320)
+  ogTitle            String?       @db.VarChar(160)
+  ogDescription      String?       @db.VarChar(320)
+  ogImage            String?       @db.VarChar(320)
+  robotsIndex        Boolean       @default(true)
+  robotsFollow       Boolean       @default(true)
+  focusKeyword       String?       @db.VarChar(120)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  author   AdminUser?    @relation("BlogPostAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  category BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([categoryId, status, publishedAt])
+  @@index([updatedAt])
+}
+
+model RedirectRule {
+  id         Int      @id @default(autoincrement())
+  fromPath   String   @unique @db.VarChar(320)
+  toPath     String   @db.VarChar(520)
+  statusCode Int      @default(301)
+  isActive   Boolean  @default(true)
+  note       String?  @db.VarChar(280)
+  createdBy  String?  @db.VarChar(120)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([isActive, updatedAt])
+}
+
+model MediaAsset {
+  id          Int      @id @default(autoincrement())
+  title       String?  @db.VarChar(160)
+  altText     String?  @db.VarChar(220)
+  caption     String?  @db.VarChar(420)
+  storagePath String   @unique @db.VarChar(320)
+  fileName    String   @db.VarChar(220)
+  mimeType    String   @db.VarChar(120)
+  byteSize    Int
+  width       Int?
+  height      Int?
+  createdBy   String?  @db.VarChar(120)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model ContentPreviewToken {
+  id         Int                      @id @default(autoincrement())
+  targetType ContentPreviewTargetType
+  targetId   Int
+  tokenHash  String                   @unique @db.VarChar(128)
+  createdBy  String?                  @db.VarChar(120)
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime                 @default(now())
+
+  @@index([targetType, targetId, expiresAt])
+}
+
+model MarketingLandingTheme {
+  id                  Int      @id @default(autoincrement())
+  siteConfigId        Int      @unique
+  background          String   @db.VarChar(16)
+  surface             String   @db.VarChar(16)
+  surfaceAlt          String   @db.VarChar(16)
+  card                String   @db.VarChar(16)
+  border              String   @db.VarChar(16)
+  textPrimary         String   @db.VarChar(16)
+  textSecondary       String   @db.VarChar(16)
+  accent              String   @db.VarChar(16)
+  accentHover         String   @db.VarChar(16)
+  success             String   @db.VarChar(16)
+  warning             String   @db.VarChar(16)
+  heroBadgeBg         String   @db.VarChar(16)
+  heroBadgeText       String   @db.VarChar(16)
+  buttonPrimaryBg     String   @db.VarChar(16)
+  buttonPrimaryText   String   @db.VarChar(16)
+  buttonSecondaryBg   String   @db.VarChar(16)
+  buttonSecondaryText String   @db.VarChar(16)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  siteConfig MarketingSiteConfig @relation(fields: [siteConfigId], references: [id], onDelete: Cascade)
+}
+
+model MarketingLandingSection {
+  id                    Int      @id @default(autoincrement())
+  siteConfigId          Int
+  sectionType           String   @db.VarChar(64)
+  isEnabled             Boolean  @default(true)
+  sortOrder             Int      @default(0)
+  eyebrowHtml           String?
+  titleHtml             String?
+  subtitleHtml          String?
+  bodyHtml              String?
+  ctaPrimaryLabelHtml   String?
+  ctaPrimaryHref        String?  @db.VarChar(320)
+  ctaSecondaryLabelHtml String?
+  ctaSecondaryHref      String?  @db.VarChar(320)
+  mediaUrl              String?  @db.VarChar(320)
+  mediaAlt              String?  @db.VarChar(180)
+  mediaCaptionHtml      String?
+  payload               Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  siteConfig MarketingSiteConfig @relation(fields: [siteConfigId], references: [id], onDelete: Cascade)
+
+  @@unique([siteConfigId, sectionType])
+  @@index([siteConfigId, sortOrder])
+}
+
+model MarketingLandingNavItem {
+  id           Int      @id @default(autoincrement())
+  siteConfigId Int
+  title        String   @db.VarChar(140)
+  slug         String   @db.VarChar(72)
+  href         String   @db.VarChar(320)
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
+  badgeText    String?  @db.VarChar(64)
+  openInNewTab Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  siteConfig MarketingSiteConfig          @relation(fields: [siteConfigId], references: [id], onDelete: Cascade)
+  subitems   MarketingLandingNavSubitem[]
+
+  @@unique([siteConfigId, slug])
+  @@index([siteConfigId, sortOrder])
+}
+
+model MarketingLandingNavSubitem {
+  id           Int      @id @default(autoincrement())
+  navItemId    Int
+  title        String   @db.VarChar(140)
+  href         String   @db.VarChar(320)
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
+  badgeText    String?  @db.VarChar(64)
+  openInNewTab Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  navItem MarketingLandingNavItem @relation(fields: [navItemId], references: [id], onDelete: Cascade)
+
+  @@index([navItemId, sortOrder])
 }
 
 model MarketingTrustBadge {
@@ -618,30 +909,30 @@ model MarketingFaq {
 }
 
 model MarketingFormSubmission {
-  id            Int                        @id @default(autoincrement())
+  id            Int                       @id @default(autoincrement())
   siteConfigId  Int?
-  source        MarketingSubmissionSource  @default(LANDING_HOMEPAGE)
-  status        MarketingSubmissionStatus  @default(RECEIVED)
-  contactName   String                     @db.VarChar(120)
-  businessName  String                     @db.VarChar(160)
-  phone         String?                    @db.VarChar(32)
-  email         String?                    @db.VarChar(180)
-  city          String?                    @db.VarChar(120)
+  source        MarketingSubmissionSource @default(LANDING_HOMEPAGE)
+  status        MarketingSubmissionStatus @default(RECEIVED)
+  contactName   String                    @db.VarChar(120)
+  businessName  String                    @db.VarChar(160)
+  phone         String?                   @db.VarChar(32)
+  email         String?                   @db.VarChar(180)
+  city          String?                   @db.VarChar(120)
   message       String?
-  consentGiven  Boolean                    @default(false)
-  utmSource     String?                    @db.VarChar(120)
-  utmMedium     String?                    @db.VarChar(120)
-  utmCampaign   String?                    @db.VarChar(120)
-  utmTerm       String?                    @db.VarChar(120)
-  utmContent    String?                    @db.VarChar(120)
-  landingPath   String?                    @db.VarChar(220)
-  referrer      String?                    @db.VarChar(320)
-  ipHash        String?                    @db.VarChar(128)
-  userAgentHash String?                    @db.VarChar(128)
+  consentGiven  Boolean                   @default(false)
+  utmSource     String?                   @db.VarChar(120)
+  utmMedium     String?                   @db.VarChar(120)
+  utmCampaign   String?                   @db.VarChar(120)
+  utmTerm       String?                   @db.VarChar(120)
+  utmContent    String?                   @db.VarChar(120)
+  landingPath   String?                   @db.VarChar(220)
+  referrer      String?                   @db.VarChar(320)
+  ipHash        String?                   @db.VarChar(128)
+  userAgentHash String?                   @db.VarChar(128)
   leadId        Int?
-  failureReason String?                    @db.VarChar(280)
+  failureReason String?                   @db.VarChar(280)
   processedAt   DateTime?
-  createdAt     DateTime                   @default(now())
+  createdAt     DateTime                  @default(now())
 
   siteConfig MarketingSiteConfig? @relation(fields: [siteConfigId], references: [id], onDelete: SetNull)
   lead       SalesLead?           @relation(fields: [leadId], references: [id], onDelete: SetNull)
@@ -652,30 +943,30 @@ model MarketingFormSubmission {
 }
 
 model CommercialRecord {
-  id                  Int                         @id @default(autoincrement())
-  leadId              Int                         @unique
-  tenantId            Int?                        @unique
-  saleType            CommercialSaleType
-  planCode            PlanCode?
-  packageName         String?                     @db.VarChar(120)
-  currency            String                      @db.VarChar(3)
-  listPrice           Decimal                     @db.Decimal(12, 2)
-  discountAmount      Decimal                     @db.Decimal(12, 2)
-  netSaleAmount       Decimal                     @db.Decimal(12, 2)
-  amountCollected     Decimal                     @default(0) @db.Decimal(12, 2)
-  remainingBalance    Decimal                     @db.Decimal(12, 2)
-  paymentStatus       CommercialPaymentStatus     @default(UNPAID)
-  operationalStatus   CommercialOperationalStatus @default(DRAFT)
-  paymentMethodSummary String?                    @db.VarChar(280)
-  dueDate             DateTime?
-  soldAt              DateTime
-  salespersonName     String?                     @db.VarChar(120)
-  notes               String?
-  createdAt           DateTime                    @default(now())
-  updatedAt           DateTime                    @updatedAt
+  id                   Int                         @id @default(autoincrement())
+  leadId               Int                         @unique
+  tenantId             Int?                        @unique
+  saleType             CommercialSaleType
+  planCode             PlanCode?
+  packageName          String?                     @db.VarChar(120)
+  currency             String                      @db.VarChar(3)
+  listPrice            Decimal                     @db.Decimal(12, 2)
+  discountAmount       Decimal                     @db.Decimal(12, 2)
+  netSaleAmount        Decimal                     @db.Decimal(12, 2)
+  amountCollected      Decimal                     @default(0) @db.Decimal(12, 2)
+  remainingBalance     Decimal                     @db.Decimal(12, 2)
+  paymentStatus        CommercialPaymentStatus     @default(UNPAID)
+  operationalStatus    CommercialOperationalStatus @default(DRAFT)
+  paymentMethodSummary String?                     @db.VarChar(280)
+  dueDate              DateTime?
+  soldAt               DateTime
+  salespersonName      String?                     @db.VarChar(120)
+  notes                String?
+  createdAt            DateTime                    @default(now())
+  updatedAt            DateTime                    @updatedAt
 
-  lead     SalesLead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  tenant   Tenant?      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  lead     SalesLead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  tenant   Tenant?       @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   payments SalePayment[]
 
   @@index([tenantId])
@@ -699,11 +990,11 @@ model SalePayment {
 
 model SalesLeadEvent {
   id            Int      @id @default(autoincrement())
-  leadId         Int
-  actorUsername  String   @db.VarChar(120)
-  actionType     String   @db.VarChar(80)
-  description    String?
-  createdAt      DateTime @default(now())
+  leadId        Int
+  actorUsername String   @db.VarChar(120)
+  actionType    String   @db.VarChar(80)
+  description   String?
+  createdAt     DateTime @default(now())
 
   lead SalesLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
@@ -744,11 +1035,13 @@ model Restaurant {
   /// Mutfak bekleme uyarı eşiği: kırmızı (dakika)
   kitchenWarningRedMin       Int?
 
-  tenant       Tenant?                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  categories   Category[]
-  menus        Menu[]
-  tables       Table[]
-  workingHours RestaurantWorkingHour[]
+  tenant           Tenant?                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  categories       Category[]
+  menus            Menu[]
+  tables           Table[]
+  cashMovements    CashMovement[]
+  cashRegisterDays CashRegisterDay[]
+  workingHours     RestaurantWorkingHour[]
 }
 
 model RestaurantWorkingHour {
@@ -774,11 +1067,11 @@ model Menu {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  tenant              Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  restaurant        Restaurant?            @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
-  categories        Category[]
-  popularShowcases  MenuPopularShowcase[]
-  frequentShowcase  MenuFrequentShowcase?
+  tenant           Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant       Restaurant?           @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  categories       Category[]
+  popularShowcases MenuPopularShowcase[]
+  frequentShowcase MenuFrequentShowcase?
 
   @@index([tenantId])
   @@index([restaurantId])
@@ -791,9 +1084,9 @@ model Category {
   nameTR       String
   nameEN       String?
 
-  restaurant         Restaurant              @relation(fields: [restaurantId], references: [id])
-  menu               Menu?                   @relation(fields: [menuId], references: [id], onDelete: SetNull)
-  products           Product[]
+  restaurant           Restaurant            @relation(fields: [restaurantId], references: [id])
+  menu                 Menu?                 @relation(fields: [menuId], references: [id], onDelete: SetNull)
+  products             Product[]
   menuPopularShowcases MenuPopularShowcase[]
 
   @@index([restaurantId])
@@ -801,39 +1094,56 @@ model Category {
 }
 
 model Product {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   categoryId    Int
   nameTR        String
   nameEN        String?
   descriptionTR String?
   descriptionEN String?
-  price         Decimal  @db.Decimal(10, 2)
+  price         Decimal   @db.Decimal(10, 2)
   imageUrl      String?
-  isAvailable   Boolean  @default(true)
+  isAvailable   Boolean   @default(true)
   /// Menü görünürlüğü (stoktan bağımsız). İleride modül-limit / yetenek kontrolleri bu alanla birlikte
   /// merkezi helper'a bağlanacak şekilde tasarlanmıştır.
-  isActive      Boolean  @default(true)
+  isActive      Boolean   @default(true)
   /// Opsiyonel zaman penceresi: bu aralık dışındaysa ürün menüde gizli kalır.
   visibleFrom   DateTime?
   visibleUntil  DateTime?
   /// Kategori içinde öne çıkarma + sıralama.
-  isFeatured    Boolean  @default(false)
-  sortOrder     Int      @default(0)
-  trackStock    Boolean  @default(false)
-  stockQuantity Int      @default(0)
-  updatedAt     DateTime @updatedAt
+  isFeatured    Boolean   @default(false)
+  sortOrder     Int       @default(0)
+  trackStock    Boolean   @default(false)
+  stockQuantity Int       @default(0)
+  updatedAt     DateTime  @updatedAt
   /// Ürün etiketleri (örn: yemek, içecek, tatlı). Faz-1 için basit JSON dizi.
   tags          Json?
   /// Ürün seçenekleri (boyut, pişme derecesi vb.). Faz-1 için basit JSON dizi.
   options       Json?
 
-  category              Category                  @relation(fields: [categoryId], references: [id])
+  category              Category                   @relation(fields: [categoryId], references: [id])
   optionGroups          ProductOptionGroup[]
   orderItemOptions      OrderItemOption[]
   popularShowcaseItems  MenuPopularShowcaseItem[]
   frequentShowcaseItems MenuFrequentShowcaseItem[]
+  complianceInfo        ProductComplianceInfo?
 
   @@index([categoryId])
+}
+
+model ProductComplianceInfo {
+  id                     Int                     @id @default(autoincrement())
+  productId              Int                     @unique
+  basicIngredients       String?
+  caloriesKcal           Int?
+  allergens              ProductAllergen[]       @default([])
+  customAllergens        String[]                @default([])
+  alcoholStatus          ProductComplianceStatus @default(UNSPECIFIED)
+  porkStatus             ProductComplianceStatus @default(UNSPECIFIED)
+  crossContaminationNote String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 /// Kategori görünümünde yatay vitrin: yalnızca ilgili kategorideyken storefront’ta gösterilir.
@@ -876,18 +1186,18 @@ model MenuPopularShowcaseItem {
 
 /// Menü genelinde, kategori değişse de görünen vitrin.
 model MenuFrequentShowcase {
-  id        Int                          @id @default(autoincrement())
+  id        Int                           @id @default(autoincrement())
   tenantId  Int
-  menuId    Int                          @unique
-  title     String                       @db.VarChar(160)
-  subtitle  String?                      @db.VarChar(320)
-  isEnabled Boolean                      @default(false)
+  menuId    Int                           @unique
+  title     String                        @db.VarChar(160)
+  subtitle  String?                       @db.VarChar(320)
+  isEnabled Boolean                       @default(false)
   placement MenuFrequentShowcasePlacement @default(BELOW_CATEGORIES)
-  createdAt DateTime                     @default(now())
-  updatedAt DateTime                     @updatedAt
+  createdAt DateTime                      @default(now())
+  updatedAt DateTime                      @updatedAt
 
-  tenant Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  menu   Menu                         @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  tenant Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  menu   Menu                       @relation(fields: [menuId], references: [id], onDelete: Cascade)
   items  MenuFrequentShowcaseItem[]
 
   @@index([tenantId])
@@ -900,7 +1210,7 @@ model MenuFrequentShowcaseItem {
   sortOrder  Int @default(0)
 
   showcase MenuFrequentShowcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
-  product  Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product  Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([showcaseId, productId])
   @@index([showcaseId])
@@ -1126,6 +1436,51 @@ model CashOrderAdjustment {
   @@index([tenantId, orderId])
   @@index([tenantId, productId])
   @@index([tenantId, createdAt])
+}
+
+model CashMovement {
+  id              Int                  @id @default(autoincrement())
+  tenantId        Int
+  restaurantId    Int
+  createdByUserId Int?
+  type            CashMovementType
+  category        CashMovementCategory
+  amount          Decimal              @db.Decimal(12, 2)
+  note            String?              @db.VarChar(500)
+  occurredAt      DateTime             @default(now())
+  isVoided        Boolean              @default(false)
+  voidedAt        DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant    Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdByUser TenantStaff? @relation("CashMovementCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, restaurantId, occurredAt])
+  @@index([tenantId, restaurantId, isVoided, occurredAt])
+  @@index([tenantId, createdByUserId])
+}
+
+model CashRegisterDay {
+  id             Int       @id @default(autoincrement())
+  tenantId       Int
+  restaurantId   Int
+  businessDate   DateTime  @db.Date
+  openingBalance Decimal   @default(0) @db.Decimal(12, 2)
+  countedBalance Decimal?  @db.Decimal(12, 2)
+  systemBalance  Decimal   @default(0) @db.Decimal(12, 2)
+  variance       Decimal?  @db.Decimal(12, 2)
+  closingNote    String?   @db.VarChar(1000)
+  closedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, restaurantId, businessDate])
+  @@index([tenantId, restaurantId, businessDate])
 }
 
 model WaiterCall {

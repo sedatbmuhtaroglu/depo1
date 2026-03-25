@@ -1,0 +1,84 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 3 errors:
+./src/app/restaurant/users/weekly-shift-editor.tsx:196:25
+Parsing ecmascript source code failed
+[0m [90m 194 |[39m                       isModal
+ [90m 195 |[39m                         [33m?[39m[33m?[39m [32m"mt-1.5 text-[10px] leading-snug text-[#6B7280]"[39m
+[31m[1m>[22m[39m[90m 196 |[39m                         [33m:[39m [32m"mt-2 text-[11px] text-[#6B7280]"[39m
+ [90m     |[39m                         [31m[1m^[22m[39m
+ [90m 197 |[39m                     }
+ [90m 198 |[39m                   [33m>[39m
+ [90m 199 |[39m                     [33mGece[39m vardiyasÄ±[33m:[39m bitiÅŸ baÅŸlangÄ±Ã§tan kÃ¼Ã§Ã¼k olabilir ([33mÃ¶r[39m[33m.[39m [35m22[39m[33m:[39m[35m00[39m â†’ [35m02[39m[33m:[39m[35m00[39m)[33m.[39m[0m
+
+Expected '</', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+
+./src/app/restaurant/users/weekly-shift-editor.tsx:196:22
+Parsing ecmascript source code failed
+[0m [90m 194 |[39m                       isModal
+ [90m 195 |[39m                         [33m?[39m[33m?[39m [32m"mt-1.5 text-[10px] leading-snug text-[#6B7280]"[39m
+[31m[1m>[22m[39m[90m 196 |[39m                         [33m:[39m [32m"mt-2 text-[11px] text-[#6B7280]"[39m
+ [90m     |[39m                      [31m[1m^[22m[39m
+ [90m 197 |[39m                     }
+ [90m 198 |[39m                   [33m>[39m
+ [90m 199 |[39m                     [33mGece[39m vardiyasÄ±[33m:[39m bitiÅŸ baÅŸlangÄ±Ã§tan kÃ¼Ã§Ã¼k olabilir ([33mÃ¶r[39m[33m.[39m [35m22[39m[33m:[39m[35m00[39m â†’ [35m02[39m[33m:[39m[35m00[39m)[33m.[39m[0m
+
+Expected '</', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/restaurant/users/weekly-shift-editor.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/users/users-manager.tsx [Server Component]
+    ./src/app/restaurant/users/page.tsx [Server Component]
+
+
+./src/lib/table-account-transfer-core.ts:412:9
+Parsing ecmascript source code failed
+[0m [90m 410 |[39m       riskLevel[33m:[39m order[33m.[39mriskLevel[33m,[39m
+ [90m 411 |[39m       riskReasons[33m:[39m
+[31m[1m>[22m[39m[90m 412 |[39m         order[33m.[39mriskReasons [33m===[39m [36mnull[39m [33m||[39m order[33m.[39mriskReasons [33m===[39m undefined
+ [90m     |[39m         [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 413 |[39m           [33m?[39m[33m?[39m [33mPrisma[39m[33m.[39m[33mJsonNull[39m
+ [90m 414 |[39m           [33m:[39m (order[33m.[39mriskReasons [36mas[39m [33mPrisma[39m[33m.[39m[33mInputJsonValue[39m)[33m,[39m
+ [90m 415 |[39m       preparingStartedAt[33m:[39m order[33m.[39mpreparingStartedAt[33m,[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import trace:
+  Server Component:
+    ./src/lib/table-account-transfer-core.ts
+    ./src/app/actions/table-account-transfer.ts
+
+
+    at <unknown> (./src/app/restaurant/users/weekly-shift-editor.tsx:196:25)
+    at <unknown> (./src/app/restaurant/users/weekly-shift-editor.tsx:196:22)
+    at <unknown> (./src/lib/table-account-transfer-core.ts:412:9)

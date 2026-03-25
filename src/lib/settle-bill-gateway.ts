@@ -87,7 +87,7 @@ export async function completeGatewaySettlement(params: {
     if (paymentCreateResult.status === "conflict") {
       return {
         success: false as const,
-        message: "Bu odeme kaydi baska bir hesap icin zaten islenmis.",
+        message: "Bu ?deme kaydi baska bir hesap icin zaten islenmis.",
       };
     }
 

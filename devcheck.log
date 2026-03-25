@@ -1,0 +1,11 @@
+
+> qrmenu-order@0.1.0 dev
+> next dev --port 3011
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3011
+- Network:       http://172.22.112.1:3011
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 1243ms

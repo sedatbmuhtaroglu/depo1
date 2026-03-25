@@ -1,0 +1,352 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 16 errors:
+./src/app/actions/tenant-allergens.ts:36:52
+Parsing ecmascript source code failed
+[0m [90m 34 |[39m     [36mif[39m (ctxTenantId [33m!==[39m tenantId) [36mreturn[39m { success[33m:[39m [36mfalse[39m[33m,[39m message[33m:[39m [32m"Yetkisiz."[39m }[33m;[39m
+ [90m 35 |[39m
+[31m[1m>[22m[39m[90m 36 |[39m     [36mconst[39m name [33m=[39m normalizeAllergenName(input[33m.[39mname  [32m""[39m)[33m;[39m
+ [90m    |[39m                                                    [31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 37 |[39m     [36mif[39m ([33m![39mname) {
+ [90m 38 |[39m       [36mreturn[39m { success[33m:[39m [36mfalse[39m[33m,[39m message[33m:[39m [32m"Alerjen adı gerekli."[39m }[33m;[39m
+ [90m 39 |[39m     }[0m
+
+Expected ',', got 'string literal'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/tenant-allergens.ts [Client Component Browser]
+    ./src/app/restaurant/allergens/allergens-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/allergens/allergens-manager.tsx [Server Component]
+    ./src/app/restaurant/allergens/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/tenant-allergens.ts [Client Component SSR]
+    ./src/app/restaurant/allergens/allergens-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/allergens/allergens-manager.tsx [Server Component]
+    ./src/app/restaurant/allergens/page.tsx [Server Component]
+
+
+./src/app/restaurant/cash-register/page.tsx:84:14
+Parsing ecmascript source code failed
+[0m [90m 82 |[39m           currentBalance[33m:[39m decimalToNumber(dashboardData[33m.[39msummary[33m.[39mcurrentBalance)[33m,[39m
+ [90m 83 |[39m           lastMovementAt[33m:[39m dashboardData[33m.[39msummary[33m.[39mlastMovementAt
+[31m[1m>[22m[39m[90m 84 |[39m              dashboardData[33m.[39msummary[33m.[39mlastMovementAt[33m.[39mtoISOString()
+ [90m    |[39m              [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 85 |[39m             [33m:[39m [36mnull[39m[33m,[39m
+ [90m 86 |[39m           dayClosedAt[33m:[39m dashboardData[33m.[39msummary[33m.[39mdayClosedAt
+ [90m 87 |[39m              dashboardData[33m.[39msummary[33m.[39mdayClosedAt[33m.[39mtoISOString()[0m
+
+Expected '</', got 'ident'
+
+
+./src/modules/content/server/content-queries.ts:232:27
+Parsing ecmascript source code failed
+[0m [90m 230 |[39m
+ [90m 231 |[39m   [36mconst[39m where[33m:[39m [33mPrisma[39m[33m.[39m[33mBlogPostWhereInput[39m [33m=[39m {
+[31m[1m>[22m[39m[90m 232 |[39m     [33m...[39m(status [33m!==[39m [32m"ALL"[39m  { status } [33m:[39m {})[33m,[39m
+ [90m     |[39m                           [31m[1m^[22m[39m
+ [90m 233 |[39m     [33m...[39m(category  { categoryId[33m:[39m category } [33m:[39m {})[33m,[39m
+ [90m 234 |[39m     [33m...[39m(q
+ [90m 235 |[39m        {[0m
+
+Expected ',', got '{'
+
+Import traces:
+  Server Component:
+    ./src/modules/content/server/content-queries.ts
+    ./src/app/(hq)/hq/content/blog/page.tsx
+
+  App Route:
+    ./src/modules/content/server/content-queries.ts
+    ./src/app/sitemap.ts
+    ./src/app/sitemap--route-entry.js
+
+
+./src/modules/content/server/preview-token.ts:23:68
+Parsing ecmascript source code failed
+[0m [90m 21 |[39m
+ [90m 22 |[39m [36mfunction[39m resolvePreviewTtlHours()[33m:[39m number {
+[31m[1m>[22m[39m[90m 23 |[39m   [36mconst[39m raw [33m=[39m [33mNumber[39m[33m.[39mparseInt(process[33m.[39menv[33m.[39m[33mPREVIEW_TOKEN_TTL_HOURS[39m  [32m""[39m[33m,[39m [35m10[39m)[33m;[39m
+ [90m    |[39m                                                                    [31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 24 |[39m   [36mif[39m ([33m![39m[33mNumber[39m[33m.[39misFinite(raw) [33m||[39m raw [33m<=[39m [35m0[39m) [36mreturn[39m [33mDEFAULT_PREVIEW_TTL_HOURS[39m[33m;[39m
+ [90m 25 |[39m   [36mreturn[39m [33mMath[39m[33m.[39mmin([35m24[39m [33m*[39m [35m30[39m[33m,[39m raw)[33m;[39m
+ [90m 26 |[39m }[0m
+
+Expected ',', got 'string literal'
+
+Import trace:
+  Server Component:
+    ./src/modules/content/server/preview-token.ts
+    ./src/app/blog/[slug]/page.tsx
+
+
+./src/modules/content/server/redirect-rules.ts:17:37
+Parsing ecmascript source code failed
+[0m [90m 15 |[39m   }
+ [90m 16 |[39m
+[31m[1m>[22m[39m[90m 17 |[39m   [36mconst[39m path [33m=[39m raw[33m.[39mstartsWith([32m"/"[39m)  raw [33m:[39m [32m`/${raw}`[39m[33m;[39m
+ [90m    |[39m                                     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m   [36mconst[39m withoutHash [33m=[39m path[33m.[39msplit([32m"#"[39m[33m,[39m [35m1[39m)[[35m0[39m]  path[33m;[39m
+ [90m 19 |[39m   [36mconst[39m withoutQuery [33m=[39m withoutHash[33m.[39msplit([32m"?"[39m[33m,[39m [35m1[39m)[[35m0[39m]  withoutHash[33m;[39m
+ [90m 20 |[39m[0m
+
+Expected a semicolon
+
+Import trace:
+  App Route:
+    ./src/modules/content/server/redirect-rules.ts
+    ./src/app/api/internal/redirects/resolve/route.ts
+
+
+./src/modules/content/server/seo-metadata.ts:93:34
+Parsing ecmascript source code failed
+[0m [90m 91 |[39m       title[33m:[39m ogTitle[33m,[39m
+ [90m 92 |[39m       description[33m:[39m ogDescription[33m,[39m
+[31m[1m>[22m[39m[90m 93 |[39m       images[33m:[39m ogImage  [ogImage] [33m:[39m undefined[33m,[39m
+ [90m    |[39m                                  [31m[1m^[22m[39m
+ [90m 94 |[39m     }[33m,[39m
+ [90m 95 |[39m     robots[33m:[39m {
+ [90m 96 |[39m       index[33m:[39m robotsIndex[33m,[39m[0m
+
+Expected ',', got ':'
+
+Import traces:
+  Server Component:
+    ./src/modules/content/server/seo-metadata.ts
+    ./src/app/blog/page.tsx
+
+  App Route:
+    ./src/modules/content/server/seo-metadata.ts
+    ./src/app/sitemap.ts
+    ./src/app/sitemap--route-entry.js
+
+
+./src/modules/hq/actions/content.ts:190:46
+Parsing ecmascript source code failed
+[0m [90m 188 |[39m         coverImageUrl[33m,[39m
+ [90m 189 |[39m         contentHtml[33m,[39m
+[31m[1m>[22m[39m[90m 190 |[39m         publishedAt[33m:[39m status [33m===[39m [32m"PUBLISHED"[39m  now [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m                                              [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 191 |[39m         authorName[33m:[39m hq[33m.[39musername[33m,[39m
+ [90m 192 |[39m         sortOrder[33m,[39m
+ [90m 193 |[39m         isHomepageSelectable[33m:[39m [36mfalse[39m[33m,[39m[0m
+
+Expected ',', got 'ident'
+
+Import traces:
+  Server Component:
+    ./src/modules/hq/actions/content.ts
+    ./src/app/(hq)/hq/content/blog/page.tsx
+
+  Client Component Browser:
+    ./src/modules/hq/actions/content.ts [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/modules/hq/actions/content.ts [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+
+./src/modules/hq/components/content-blog-post-form.tsx:124:86
+Parsing ecmascript source code failed
+[0m [90m 122 |[39m   [36mconst[39m postSlug [33m=[39m useMemo(() [33m=>[39m resolvedSlug [33m||[39m [32m"yeni-yazi"[39m[33m,[39m [resolvedSlug])[33m;[39m
+ [90m 123 |[39m   [36mconst[39m previewPath [33m=[39m [32m`/blog/${postSlug}`[39m[33m;[39m
+[31m[1m>[22m[39m[90m 124 |[39m   [36mconst[39m previewTokenPath [33m=[39m mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mslug  [32m`/blog/${initial.slug}`[39m [33m:[39m previewPath[33m;[39m
+ [90m     |[39m                                                                                      [31m[1m^[22m[39m
+ [90m 125 |[39m   [36mconst[39m previewLink [33m=[39m
+ [90m 126 |[39m     mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mid
+ [90m 127 |[39m        [32m`/hq/content/blog/${initial.id}/preview`[39m[0m
+
+Expected a semicolon
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-blog-post-form.tsx
+    ./src/app/(hq)/hq/content/blog/[postId]/edit/page.tsx
+
+
+./src/modules/hq/components/content-blog-post-form.tsx:124:47
+Parsing ecmascript source code failed
+[0m [90m 122 |[39m   [36mconst[39m postSlug [33m=[39m useMemo(() [33m=>[39m resolvedSlug [33m||[39m [32m"yeni-yazi"[39m[33m,[39m [resolvedSlug])[33m;[39m
+ [90m 123 |[39m   [36mconst[39m previewPath [33m=[39m [32m`/blog/${postSlug}`[39m[33m;[39m
+[31m[1m>[22m[39m[90m 124 |[39m   [36mconst[39m previewTokenPath [33m=[39m mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mslug  [32m`/blog/${initial.slug}`[39m [33m:[39m previewPath[33m;[39m
+ [90m     |[39m                                               [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 125 |[39m   [36mconst[39m previewLink [33m=[39m
+ [90m 126 |[39m     mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mid
+ [90m 127 |[39m        [32m`/hq/content/blog/${initial.id}/preview`[39m[0m
+
+Tagged template literal is not allowed in optional chain.
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-blog-post-form.tsx
+    ./src/app/(hq)/hq/content/blog/[postId]/edit/page.tsx
+
+
+./src/modules/hq/components/content-blog-post-form.tsx:126:24
+Parsing ecmascript source code failed
+[0m [90m 124 |[39m   [36mconst[39m previewTokenPath [33m=[39m mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mslug  [32m`/blog/${initial.slug}`[39m [33m:[39m previewPath[33m;[39m
+ [90m 125 |[39m   [36mconst[39m previewLink [33m=[39m
+[31m[1m>[22m[39m[90m 126 |[39m     mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mid
+ [90m     |[39m                        [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 127 |[39m        [32m`/hq/content/blog/${initial.id}/preview`[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 128 |[39m       [33m:[39m previewPath[33m;[39m
+ [90m 129 |[39m
+ [90m 130 |[39m   [36mreturn[39m ([0m
+
+Tagged template literal is not allowed in optional chain.
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-blog-post-form.tsx
+    ./src/app/(hq)/hq/content/blog/[postId]/edit/page.tsx
+
+
+./src/modules/hq/components/content-page-form.tsx:111:87
+Parsing ecmascript source code failed
+[0m [90m 109 |[39m   [36mconst[39m pageSlug [33m=[39m useMemo(() [33m=>[39m resolvedSlug [33m||[39m [32m"yeni-sayfa"[39m[33m,[39m [resolvedSlug])[33m;[39m
+ [90m 110 |[39m   [36mconst[39m previewPath [33m=[39m [32m`/pages/${pageSlug}`[39m[33m;[39m
+[31m[1m>[22m[39m[90m 111 |[39m   [36mconst[39m previewTokenPath [33m=[39m mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mslug  [32m`/pages/${initial.slug}`[39m [33m:[39m previewPath[33m;[39m
+ [90m     |[39m                                                                                       [31m[1m^[22m[39m
+ [90m 112 |[39m   [36mconst[39m previewLink [33m=[39m
+ [90m 113 |[39m     mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mid
+ [90m 114 |[39m        [32m`/hq/content/pages/${initial.id}/preview`[39m[0m
+
+Expected a semicolon
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-page-form.tsx
+    ./src/app/(hq)/hq/content/pages/[pageId]/edit/page.tsx
+
+
+./src/modules/hq/components/content-page-form.tsx:111:47
+Parsing ecmascript source code failed
+[0m [90m 109 |[39m   [36mconst[39m pageSlug [33m=[39m useMemo(() [33m=>[39m resolvedSlug [33m||[39m [32m"yeni-sayfa"[39m[33m,[39m [resolvedSlug])[33m;[39m
+ [90m 110 |[39m   [36mconst[39m previewPath [33m=[39m [32m`/pages/${pageSlug}`[39m[33m;[39m
+[31m[1m>[22m[39m[90m 111 |[39m   [36mconst[39m previewTokenPath [33m=[39m mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mslug  [32m`/pages/${initial.slug}`[39m [33m:[39m previewPath[33m;[39m
+ [90m     |[39m                                               [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 112 |[39m   [36mconst[39m previewLink [33m=[39m
+ [90m 113 |[39m     mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mid
+ [90m 114 |[39m        [32m`/hq/content/pages/${initial.id}/preview`[39m[0m
+
+Tagged template literal is not allowed in optional chain.
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-page-form.tsx
+    ./src/app/(hq)/hq/content/pages/[pageId]/edit/page.tsx
+
+
+./src/modules/hq/components/content-page-form.tsx:113:24
+Parsing ecmascript source code failed
+[0m [90m 111 |[39m   [36mconst[39m previewTokenPath [33m=[39m mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mslug  [32m`/pages/${initial.slug}`[39m [33m:[39m previewPath[33m;[39m
+ [90m 112 |[39m   [36mconst[39m previewLink [33m=[39m
+[31m[1m>[22m[39m[90m 113 |[39m     mode [33m===[39m [32m"edit"[39m [33m&&[39m initial[33m?[39m[33m.[39mid
+ [90m     |[39m                        [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 114 |[39m        [32m`/hq/content/pages/${initial.id}/preview`[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 115 |[39m       [33m:[39m previewPath[33m;[39m
+ [90m 116 |[39m
+ [90m 117 |[39m   [36mreturn[39m ([0m
+
+Tagged template literal is not allowed in optional chain.
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/content-page-form.tsx
+    ./src/app/(hq)/hq/content/pages/[pageId]/edit/page.tsx
+
+
+./src/modules/hq/components/copy-text-button.tsx:29:16
+Parsing ecmascript source code failed
+[0m [90m 27 |[39m       }}
+ [90m 28 |[39m     [33m>[39m
+[31m[1m>[22m[39m[90m 29 |[39m       {copied  [32m"Kopyalandi"[39m [33m:[39m label}
+ [90m    |[39m                [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 30 |[39m     [33m<[39m[33m/[39m[33mbutton[39m[33m>[39m
+ [90m 31 |[39m   )[33m;[39m
+ [90m 32 |[39m }[0m
+
+Expected '</', got 'string literal'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/copy-text-button.tsx
+    ./src/app/(hq)/hq/media/page.tsx
+
+
+./src/modules/hq/components/marketing-landing-builder-form.tsx:1032:54
+Parsing ecmascript source code failed
+[0m [90m 1030 |[39m                     [33m<[39m[33mRichListEditor[39m
+ [90m 1031 |[39m                       label[33m=[39m[32m"Bulletlar"[39m
+[31m[1m>[22m[39m[90m 1032 |[39m                       values[33m=[39m{item[33m.[39mpayload[33m.[39mbullets  []}
+ [90m      |[39m                                                      [31m[1m^[22m[39m
+ [90m 1033 |[39m                       onChange[33m=[39m{(next) [33m=>[39m
+ [90m 1034 |[39m                         updateSection(index[33m,[39m (current) [33m=>[39m ({
+ [90m 1035 |[39m                           [33m...[39mcurrent[33m,[39m[0m
+
+Expected '</', got ']'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx
+    ./src/app/(hq)/hq/marketing/builder/page.tsx
+
+
+./src/modules/hq/components/seo-editor-panel.tsx:221:46
+Parsing ecmascript source code failed
+[0m [90m 219 |[39m           [33m<[39m[33mp[39m className[33m=[39m[32m"font-semibold"[39m[33m>[39m[33mBasarili[39m ({seoReport[33m.[39msuccesses[33m.[39mlength})[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 220 |[39m           [33m<[39m[33mul[39m className[33m=[39m[32m"mt-1 space-y-1"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 221 |[39m             {seoReport[33m.[39msuccesses[33m.[39mlength [33m>[39m [35m0[39m  seoReport[33m.[39msuccesses[33m.[39mmap((item) [33m=>[39m [33m<[39m[33mli[39m key[33m=[39m{item}[33m>[39m[33m-[39m {item}[33m<[39m[33m/[39m[33mli[39m[33m>[39m) [33m:[39m [33m<[39m[33mli[39m[33m>[39m[33m-[39m [33mHenuz[39m yok[33m<[39m[33m/[39m[33mli[39m[33m>[39m}
+ [90m     |[39m                                              [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 222 |[39m           [33m<[39m[33m/[39m[33mul[39m[33m>[39m
+ [90m 223 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 224 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+
+Expected '</', got 'ident'
+
+Import traces:
+  Client Component Browser:
+    ./src/modules/hq/components/seo-editor-panel.tsx [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component Browser]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/modules/hq/components/seo-editor-panel.tsx [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Client Component SSR]
+    ./src/modules/hq/components/homepage-seo-form.tsx [Server Component]
+    ./src/app/(hq)/hq/settings/seo/page.tsx [Server Component]
+
+
+    at <unknown> (./src/app/actions/tenant-allergens.ts:36:52)
+    at <unknown> (./src/app/restaurant/cash-register/page.tsx:84:14)
+    at <unknown> (./src/modules/content/server/content-queries.ts:232:27)
+    at <unknown> (./src/modules/content/server/preview-token.ts:23:68)
+    at <unknown> (./src/modules/content/server/redirect-rules.ts:17:37)
+    at <unknown> (./src/modules/content/server/seo-metadata.ts:93:34)
+    at <unknown> (./src/modules/hq/actions/content.ts:190:46)
+    at <unknown> (./src/modules/hq/components/content-blog-post-form.tsx:124:86)
+    at <unknown> (./src/modules/hq/components/content-blog-post-form.tsx:124:47)
+    at <unknown> (./src/modules/hq/components/content-blog-post-form.tsx:126:24)
+    at <unknown> (./src/modules/hq/components/content-page-form.tsx:111:87)
+    at <unknown> (./src/modules/hq/components/content-page-form.tsx:111:47)
+    at <unknown> (./src/modules/hq/components/content-page-form.tsx:113:24)
+    at <unknown> (./src/modules/hq/components/copy-text-button.tsx:29:16)
+    at <unknown> (./src/modules/hq/components/marketing-landing-builder-form.tsx:1032:54)
+    at <unknown> (./src/modules/hq/components/seo-editor-panel.tsx:221:46)

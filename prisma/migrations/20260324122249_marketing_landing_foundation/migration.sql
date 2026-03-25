@@ -9,7 +9,7 @@ CREATE TABLE "MarketingSiteConfig" (
     "id" SERIAL NOT NULL,
     "key" TEXT NOT NULL DEFAULT 'main',
     "isPublished" BOOLEAN NOT NULL DEFAULT true,
-    "brandName" TEXT NOT NULL DEFAULT 'MENUCY',
+    "brandName" TEXT NOT NULL DEFAULT '?atal App',
     "brandTagline" VARCHAR(180),
     "announcementEnabled" BOOLEAN NOT NULL DEFAULT false,
     "announcementText" VARCHAR(240),

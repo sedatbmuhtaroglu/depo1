@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -382,7 +382,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
                             }}
                             className="rounded-lg border border-[color:var(--ui-border)] px-2.5 py-1 text-xs font-medium text-[color:var(--ui-text-secondary)] hover:bg-[color:var(--ui-surface-subtle)] disabled:opacity-60"
                           >
-                            Åifreyi Ayarla
+                            Şifreyi Ayarla
                           </button>
                           <button
                             type="button"
@@ -557,7 +557,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
                     disabled={isPending}
                     className={buttonClasses({ variant: "primary", size: "md", className: "min-h-[40px] min-w-[88px] px-4" })}
                   >
-                    {isPending ? "Kaydediliyorâ€¦" : "Kaydet"}
+                    {isPending ? "Kaydediliyorââ‚¬Â¦" : "Kaydet"}
                   </button>
                 </div>
               </div>
@@ -603,5 +603,6 @@ export default function UsersManager({ users }: UsersManagerProps) {
     </div>
   );
 }
+
 
 

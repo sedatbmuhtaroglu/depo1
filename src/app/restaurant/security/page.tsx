@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { requireManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import {
@@ -130,7 +130,7 @@ export default async function RestaurantSecurityPage({
             </p>
             <h2 className="mt-1 text-xl font-semibold text-[color:var(--ui-text-primary)]">Güvenlik Olayları</h2>
             <p className="mt-1 text-sm text-[color:var(--ui-text-secondary)]">
-              Åüpheli aksiyonları, risk seviyelerini ve alınan kararları operasyonel bir görünümle
+              Şüpheli aksiyonları, risk seviyelerini ve alınan kararları operasyonel bir görünümle
               takip edin.
             </p>
           </div>
@@ -327,7 +327,7 @@ export default async function RestaurantSecurityPage({
                             event.riskLevel,
                           )}`}
                         >
-                          {getRiskLevelLabel(event.riskLevel)} • {event.riskScore}
+                          {getRiskLevelLabel(event.riskLevel)} â€¢ {event.riskScore}
                         </span>
                       </td>
                       <td className="px-4 py-3 font-mono text-xs text-[color:var(--ui-text-secondary)] sm:px-5">
@@ -339,7 +339,7 @@ export default async function RestaurantSecurityPage({
                           <span className="text-xs text-[color:var(--ui-text-secondary)]">Sorun tespit edilmedi</span>
                         ) : (
                           <p className="max-w-96 whitespace-normal break-words text-xs text-[color:var(--ui-text-secondary)]">
-                            {reasons.join(" • ")}
+                            {reasons.join(" â€¢ ")}
                           </p>
                         )}
                       </td>
@@ -380,4 +380,5 @@ export default async function RestaurantSecurityPage({
     </div>
   );
 }
+
 

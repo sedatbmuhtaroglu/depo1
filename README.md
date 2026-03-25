@@ -16,6 +16,18 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Landing Form Security (reCAPTCHA)
+
+Landing demo/iletisim formu Google reCAPTCHA v3 ile korunur. Asagidaki env degiskenlerini ayarlayin:
+
+```bash
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key
+RECAPTCHA_SECRET_KEY=your_secret_key
+```
+
+- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`: yalnizca client token uretimi icin kullanilir.
+- `RECAPTCHA_SECRET_KEY`: sadece server-side verify icin kullanilir, client bundle'a dahil edilmez.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

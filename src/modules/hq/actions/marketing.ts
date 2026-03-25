@@ -3,6 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { assertHqMutationGuard } from "@/modules/hq/actions/_shared";
+import {
+  DEFAULT_LANDING_THEME,
+  getDefaultLandingSections,
+  isLandingSectionType,
+  type LandingNavigationItem,
+  type LandingSectionConfig,
+  type LandingThemeTokens,
+} from "@/modules/marketing/landing-cms-schema";
 
 type ActionResult = { success: true; message: string } | { success: false; message: string };
 
@@ -79,11 +87,138 @@ async function ensureMainSiteId() {
 function revalidateMarketingPaths() {
   revalidatePath("/");
   revalidatePath("/hq/marketing");
+  revalidatePath("/hq/marketing/builder");
   revalidatePath("/hq/marketing/settings");
   revalidatePath("/hq/marketing/homepage");
   revalidatePath("/hq/marketing/categories");
   revalidatePath("/hq/marketing/submissions");
   revalidatePath("/hq/leads");
+}
+
+function parseJsonPayload<T>(value: FormDataEntryValue | null, fallback: T): T {
+  const raw = value?.toString().trim();
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    throw new Error("LANDING_BUILDER_PAYLOAD");
+  }
+}
+
+function normalizeThemePayload(input: unknown): LandingThemeTokens {
+  const source = input && typeof input === "object" ? (input as Record<string, unknown>) : {};
+  const keys = Object.keys(DEFAULT_LANDING_THEME) as Array<keyof LandingThemeTokens>;
+  const normalized = { ...DEFAULT_LANDING_THEME };
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "string" && value.trim()) {
+      normalized[key] = value.trim().slice(0, 16);
+    }
+  }
+  return normalized;
+}
+
+function normalizeLandingSectionsPayload(input: unknown): LandingSectionConfig[] {
+  const defaults = getDefaultLandingSections();
+  if (!Array.isArray(input)) return defaults;
+
+  const byType = new Map<string, LandingSectionConfig>();
+  for (const item of input) {
+    if (!item || typeof item !== "object") continue;
+    const candidate = item as Record<string, unknown>;
+    const typeRaw = candidate.sectionType;
+    if (typeof typeRaw !== "string" || !isLandingSectionType(typeRaw)) continue;
+
+    const payload =
+      candidate.payload && typeof candidate.payload === "object" && !Array.isArray(candidate.payload)
+        ? (candidate.payload as LandingSectionConfig["payload"])
+        : {};
+
+    byType.set(typeRaw, {
+      sectionType: typeRaw,
+      isEnabled: Boolean(candidate.isEnabled),
+      sortOrder: Number.isFinite(candidate.sortOrder) ? Number(candidate.sortOrder) : 0,
+      eyebrowHtml: typeof candidate.eyebrowHtml === "string" ? candidate.eyebrowHtml : "",
+      titleHtml: typeof candidate.titleHtml === "string" ? candidate.titleHtml : "",
+      subtitleHtml: typeof candidate.subtitleHtml === "string" ? candidate.subtitleHtml : "",
+      bodyHtml: typeof candidate.bodyHtml === "string" ? candidate.bodyHtml : "",
+      ctaPrimaryLabelHtml: typeof candidate.ctaPrimaryLabelHtml === "string" ? candidate.ctaPrimaryLabelHtml : "",
+      ctaPrimaryHref:
+        typeof candidate.ctaPrimaryHref === "string" && isAllowedHref(candidate.ctaPrimaryHref)
+          ? candidate.ctaPrimaryHref.slice(0, 320)
+          : "",
+      ctaSecondaryLabelHtml: typeof candidate.ctaSecondaryLabelHtml === "string" ? candidate.ctaSecondaryLabelHtml : "",
+      ctaSecondaryHref:
+        typeof candidate.ctaSecondaryHref === "string" && isAllowedHref(candidate.ctaSecondaryHref)
+          ? candidate.ctaSecondaryHref.slice(0, 320)
+          : "",
+      mediaUrl: typeof candidate.mediaUrl === "string" ? candidate.mediaUrl.slice(0, 320) : "",
+      mediaAlt: typeof candidate.mediaAlt === "string" ? candidate.mediaAlt.slice(0, 180) : "",
+      mediaCaptionHtml: typeof candidate.mediaCaptionHtml === "string" ? candidate.mediaCaptionHtml : "",
+      payload,
+    });
+  }
+
+  return defaults.map((section, index) => {
+    const normalized = byType.get(section.sectionType);
+    return normalized
+      ? {
+          ...normalized,
+          sortOrder: Number.isFinite(normalized.sortOrder) && normalized.sortOrder > 0 ? normalized.sortOrder : index + 1,
+        }
+      : section;
+  });
+}
+
+function normalizeLandingNavigationPayload(input: unknown): LandingNavigationItem[] {
+  if (!Array.isArray(input)) return [];
+  const seenSlugs = new Set<string>();
+  const result: LandingNavigationItem[] = [];
+
+  for (const item of input) {
+    if (!item || typeof item !== "object") continue;
+    const candidate = item as Record<string, unknown>;
+    const slug = parseSlug(typeof candidate.slug === "string" ? candidate.slug : "");
+    if (!slug || seenSlugs.has(slug)) {
+      throw new Error("LANDING_BUILDER_NAV_SLUG");
+    }
+    const hrefRaw = typeof candidate.href === "string" ? candidate.href.trim() : "";
+    if (!hrefRaw || !isAllowedHref(hrefRaw)) {
+      throw new Error("LANDING_BUILDER_NAV_HREF");
+    }
+
+    const children = Array.isArray(candidate.children) ? candidate.children : [];
+    const normalizedChildren = children
+      .filter((child): child is Record<string, unknown> => Boolean(child) && typeof child === "object")
+      .map((child, index) => {
+        const childHrefRaw = typeof child.href === "string" ? child.href.trim() : "";
+        if (!childHrefRaw || !isAllowedHref(childHrefRaw)) {
+          throw new Error("LANDING_BUILDER_NAV_HREF");
+        }
+        return {
+          title: normalizeText(typeof child.title === "string" ? child.title : "", 140),
+          href: childHrefRaw.slice(0, 320),
+          sortOrder: Number.isFinite(child.sortOrder) && Number(child.sortOrder) > 0 ? Number(child.sortOrder) : index + 1,
+          isActive: Boolean(child.isActive),
+          badgeText: normalizeOptionalText(typeof child.badgeText === "string" ? child.badgeText : null, 64),
+          openInNewTab: Boolean(child.openInNewTab),
+        };
+      });
+
+    seenSlugs.add(slug);
+    result.push({
+      title: normalizeText(typeof candidate.title === "string" ? candidate.title : "", 140),
+      slug,
+      href: hrefRaw.slice(0, 320),
+      sortOrder: Number.isFinite(candidate.sortOrder) && Number(candidate.sortOrder) > 0 ? Number(candidate.sortOrder) : result.length + 1,
+      isActive: Boolean(candidate.isActive),
+      badgeText: normalizeOptionalText(typeof candidate.badgeText === "string" ? candidate.badgeText : null, 64),
+      openInNewTab: Boolean(candidate.openInNewTab),
+      children: normalizedChildren,
+    });
+  }
+
+  return result;
 }
 
 export async function saveMarketingGeneralSettingsAction(formData: FormData): Promise<ActionResult> {
@@ -488,5 +623,128 @@ export async function saveMarketingCategoriesAction(formData: FormData): Promise
       };
     }
     return { success: false, message: "Kategori icerigi kaydedilemedi." };
+  }
+}
+
+export async function saveMarketingLandingBuilderAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await assertHqMutationGuard({ capability: "MARKETING_CONTENT_MANAGE" });
+
+    const brandName = normalizeText(formData.get("brandName"), 120);
+    const brandTagline = normalizeOptionalText(formData.get("brandTagline"), 180);
+    const isPublished = parseBoolean(formData.get("isPublished"));
+    const seoTitle = normalizeOptionalText(formData.get("seoTitle"), 160);
+    const seoDescription = normalizeOptionalText(formData.get("seoDescription"), 320);
+    const seoCanonicalUrl = normalizeOptionalHref(formData.get("seoCanonicalUrl"), 320);
+    const seoOgTitle = normalizeOptionalText(formData.get("seoOgTitle"), 160);
+    const seoOgDescription = normalizeOptionalText(formData.get("seoOgDescription"), 320);
+    const seoOgImageUrl = normalizeOptionalHref(formData.get("seoOgImageUrl"), 320);
+
+    if (!brandName) {
+      return { success: false, message: "Marka adi zorunludur." };
+    }
+    if (formData.get("seoCanonicalUrl")?.toString().trim() && !seoCanonicalUrl) {
+      return { success: false, message: "Canonical URL gecersiz." };
+    }
+    if (formData.get("seoOgImageUrl")?.toString().trim() && !seoOgImageUrl) {
+      return { success: false, message: "OG gorsel URL gecersiz." };
+    }
+
+    const theme = normalizeThemePayload(parseJsonPayload(formData.get("themePayload"), DEFAULT_LANDING_THEME));
+    const sections = normalizeLandingSectionsPayload(parseJsonPayload(formData.get("sectionsPayload"), getDefaultLandingSections()));
+    const navItems = normalizeLandingNavigationPayload(parseJsonPayload(formData.get("navItemsPayload"), []));
+    const siteId = await ensureMainSiteId();
+
+    await prisma.$transaction(async (tx) => {
+      await tx.marketingSiteConfig.update({
+        where: { id: siteId },
+        data: {
+          brandName,
+          brandTagline,
+          isPublished,
+          seoTitle,
+          seoDescription,
+          seoCanonicalUrl,
+          seoOgTitle,
+          seoOgDescription,
+          seoOgImageUrl,
+        },
+      });
+
+      await tx.marketingLandingTheme.upsert({
+        where: { siteConfigId: siteId },
+        update: theme,
+        create: {
+          siteConfigId: siteId,
+          ...theme,
+        },
+      });
+
+      await tx.marketingLandingSection.deleteMany({ where: { siteConfigId: siteId } });
+      if (sections.length > 0) {
+        await tx.marketingLandingSection.createMany({
+          data: sections.map((section) => ({
+            siteConfigId: siteId,
+            sectionType: section.sectionType,
+            isEnabled: section.isEnabled,
+            sortOrder: section.sortOrder,
+            eyebrowHtml: section.eyebrowHtml || null,
+            titleHtml: section.titleHtml || null,
+            subtitleHtml: section.subtitleHtml || null,
+            bodyHtml: section.bodyHtml || null,
+            ctaPrimaryLabelHtml: section.ctaPrimaryLabelHtml || null,
+            ctaPrimaryHref: section.ctaPrimaryHref || null,
+            ctaSecondaryLabelHtml: section.ctaSecondaryLabelHtml || null,
+            ctaSecondaryHref: section.ctaSecondaryHref || null,
+            mediaUrl: section.mediaUrl || null,
+            mediaAlt: section.mediaAlt || null,
+            mediaCaptionHtml: section.mediaCaptionHtml || null,
+            payload: section.payload,
+          })),
+        });
+      }
+
+      await tx.marketingLandingNavItem.deleteMany({ where: { siteConfigId: siteId } });
+      for (const item of navItems) {
+        await tx.marketingLandingNavItem.create({
+          data: {
+            siteConfigId: siteId,
+            title: item.title,
+            slug: item.slug,
+            href: item.href,
+            sortOrder: item.sortOrder,
+            isActive: item.isActive,
+            badgeText: item.badgeText ?? null,
+            openInNewTab: item.openInNewTab ?? false,
+            subitems: item.children.length
+              ? {
+                  create: item.children.map((child) => ({
+                    title: child.title,
+                    href: child.href,
+                    sortOrder: child.sortOrder,
+                    isActive: child.isActive,
+                    badgeText: child.badgeText ?? null,
+                    openInNewTab: child.openInNewTab ?? false,
+                  })),
+                }
+              : undefined,
+          },
+        });
+      }
+    });
+
+    revalidateMarketingPaths();
+    return { success: true, message: "Landing builder ayarlari kaydedildi." };
+  } catch (error) {
+    if (error instanceof Error && error.message === "LANDING_BUILDER_PAYLOAD") {
+      return { success: false, message: "Landing builder payload formati gecersiz." };
+    }
+    if (error instanceof Error && error.message === "LANDING_BUILDER_NAV_SLUG") {
+      return { success: false, message: "Navigation slug degeri gecersiz veya tekrarli." };
+    }
+    if (error instanceof Error && error.message === "LANDING_BUILDER_NAV_HREF") {
+      return { success: false, message: "Navigation link degeri gecersiz." };
+    }
+    return { success: false, message: "Landing builder ayari kaydedilemedi." };
   }
 }

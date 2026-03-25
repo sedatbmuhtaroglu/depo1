@@ -1,0 +1,940 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 45 errors:
+./src/app/(storefront)/[tableId]/menu-client.tsx:202:5
+Parsing ecmascript source code failed
+[0m [90m 200 |[39m         [33mMath[39m[33m.[39mmax([33mMIN_ORDER_RADIUS_METERS[39m[33m,[39m [33mMath[39m[33m.[39mround(restaurant[33m.[39morderRadiusMeters))[33m,[39m
+ [90m 201 |[39m       )
+[31m[1m>[22m[39m[90m 202 |[39m     [33m:[39m [35m100[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 203 |[39m   [36mconst[39m restaurantLatitude [33m=[39m
+ [90m 204 |[39m     restaurant[33m.[39mlocationLatitude [33m!=[39m [36mnull[39m [33m?[39m [33mNumber[39m(restaurant[33m.[39mlocationLatitude) [33m:[39m [36mnull[39m[33m;[39m
+ [90m 205 |[39m   [36mconst[39m restaurantLongitude [33m=[39m[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./src/app/(storefront)/[tableId]/menu-client.tsx
+    ./src/app/(storefront)/[tableId]/page.tsx
+
+
+./src/app/actions/update-order-status.ts:206:9
+Parsing ecmascript source code failed
+[0m [90m 204 |[39m       entityId[33m:[39m [33mString[39m(orderId)[33m,[39m
+ [90m 205 |[39m       description[33m:[39m
+[31m[1m>[22m[39m[90m 206 |[39m         status [33m===[39m [32m"REJECTED"[39m [33m&&[39m refundReference
+ [90m     |[39m         [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 207 |[39m           [33m?[39m[33m?[39m [32m`REJECTED + IYZICO_REFUND (${refundReference})`[39m
+ [90m 208 |[39m           [33m:[39m status[33m,[39m
+ [90m 209 |[39m     })[33m;[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import traces:
+  Client Component Browser:
+    ./src/app/actions/update-order-status.ts [Client Component Browser]
+    ./src/app/admin/orders/order-list.tsx [Client Component Browser]
+    ./src/app/admin/orders/order-list.tsx [Server Component]
+    ./src/app/admin/orders/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/actions/update-order-status.ts [Client Component SSR]
+    ./src/app/admin/orders/order-list.tsx [Client Component SSR]
+    ./src/app/admin/orders/order-list.tsx [Server Component]
+    ./src/app/admin/orders/page.tsx [Server Component]
+
+
+./src/app/kitchen/page.tsx:164:11
+Parsing ecmascript source code failed
+[0m [90m 162 |[39m         exactMatchIndexes[33m.[39mlength [33m>[39m [35m0[39m
+ [90m 163 |[39m           [33m?[39m[33m?[39m exactMatchIndexes
+[31m[1m>[22m[39m[90m 164 |[39m           [33m:[39m relationOptionRows
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 165 |[39m               [33m.[39mmap((row[33m,[39m index) [33m=>[39m ({ row[33m,[39m index }))
+ [90m 166 |[39m               [33m.[39mfilter(
+ [90m 167 |[39m                 ({ row[33m,[39m index }) [33m=>[39m[0m
+
+Expression expected
+
+
+./src/app/order-success/[orderId]/page.tsx:173:19
+Parsing ecmascript source code failed
+[0m [90m 171 |[39m [32m                order.status === "PENDING_WAITER_APPROVAL"[39m
+ [90m 172 |[39m [32m                  ?? "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"[39m
+[31m[1m>[22m[39m[90m 173 |[39m [32m                  : "bg-neutral-700 text-neutral-100"[39m
+ [90m     |[39m                   [31m[1m^[22m[39m
+ [90m 174 |[39m [32m              }`[39m}
+ [90m 175 |[39m             [33m>[39m
+ [90m 176 |[39m               {order[33m.[39mstatus [33m===[39m [32m"PENDING_WAITER_APPROVAL"[39m[0m
+
+Expected '</', got ':'
+
+
+./src/app/restaurant/menu/menu-manager.tsx:157:7
+Parsing ecmascript source code failed
+[0m [90m 155 |[39m     basicIngredients[33m:[39m info[33m.[39mbasicIngredients [33m?[39m[33m?[39m [32m""[39m[33m,[39m
+ [90m 156 |[39m     caloriesKcal[33m:[39m
+[31m[1m>[22m[39m[90m 157 |[39m       info[33m.[39mcaloriesKcal [33m!==[39m [36mnull[39m [33m&&[39m info[33m.[39mcaloriesKcal [33m!==[39m undefined
+ [90m     |[39m       [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 158 |[39m         [33m?[39m[33m?[39m [33mString[39m(info[33m.[39mcaloriesKcal)
+ [90m 159 |[39m         [33m:[39m [32m""[39m[33m,[39m
+ [90m 160 |[39m     allergens[33m:[39m (info[33m.[39mallergens [33m?[39m[33m?[39m []) [36mas[39m [33mProductAllergenValue[39m[][33m,[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/menu/menu-manager.tsx
+    ./src/app/restaurant/menu/page.tsx
+
+
+./src/app/restaurant/orders/order-tracking.tsx:632:9
+Parsing ecmascript source code failed
+[0m [90m 630 |[39m           [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 631 |[39m         [33m<[39m[33m/[39m[33msection[39m[33m>[39m
+[31m[1m>[22m[39m[90m 632 |[39m       ) [33m:[39m (
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 633 |[39m         [33m<[39m[33mdiv[39m className[33m=[39m[32m"space-y-3"[39m[33m>[39m
+ [90m 634 |[39m           {sections[33m.[39mmap((section) [33m=>[39m (
+ [90m 635 |[39m             [33m<[39m[33msection[39m key[33m=[39m{section[33m.[39mkey} className[33m=[39m{[33mSECTION_CARD_CLASS[39m}[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/orders/order-tracking.tsx
+    ./src/app/restaurant/orders/page.tsx
+
+
+./src/app/restaurant/reports/reports-view.tsx:275:2
+Parsing ecmascript source code failed
+[0m [90m 273 |[39m   [36mconst[39m longestDeliveryText [33m=[39m dayEndReport[33m.[39mlongestDeliveryOrder
+ [90m 274 |[39m     [33m?[39m[33m?[39m [32m`Sipariş #${dayEndReport.longestDeliveryOrder.orderId} • Masa ${dayEndReport.longestDeliveryOrder.tableNo} • ${dayEndReport.longestDeliveryOrder.durationMinutes} dk • ${formatTime(dayEndReport.longestDeliveryOrder.completedAtIso)}`[39m
+[31m[1m>[22m[39m[90m 275 |[39m     [33m:[39m [32m"Veri yok"[39m[33m;[39m
+ [90m     |[39m  [31m[1m^[22m[39m
+ [90m 276 |[39m
+ [90m 277 |[39m   [36mconst[39m downloadCsv [33m=[39m () [33m=>[39m {
+ [90m 278 |[39m     [36mconst[39m rows[33m:[39m string[] [33m=[39m [][33m;[39m[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/reports/reports-view.tsx
+    ./src/app/restaurant/reports/page.tsx
+
+
+./src/app/restaurant/settings/page.tsx:103:15
+Parsing ecmascript source code failed
+[0m [90m 101 |[39m             restaurant[33m.[39mlocationLatitude [33m!=[39m [36mnull[39m
+ [90m 102 |[39m               [33m?[39m[33m?[39m [33mNumber[39m(restaurant[33m.[39mlocationLatitude)
+[31m[1m>[22m[39m[90m 103 |[39m               [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m               [31m[1m^[22m[39m
+ [90m 104 |[39m           locationLongitude[33m:[39m
+ [90m 105 |[39m             restaurant[33m.[39mlocationLongitude [33m!=[39m [36mnull[39m
+ [90m 106 |[39m               [33m?[39m[33m?[39m [33mNumber[39m(restaurant[33m.[39mlocationLongitude)[0m
+
+Expected '</', got ':'
+
+
+./src/app/restaurant/tables/table-manager.tsx:337:11
+Parsing ecmascript source code failed
+[0m [90m 335 |[39m             [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+ [90m 336 |[39m           [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 337 |[39m         ) [33m:[39m (
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 338 |[39m           [33m<[39m[33mdiv[39m
+ [90m 339 |[39m             className[33m=[39m{
+ [90m 340 |[39m               compactView[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/restaurant/tables/table-manager.tsx
+    ./src/app/restaurant/tables/page.tsx
+
+
+./src/app/restaurant/users/page.tsx:48:5
+Parsing ecmascript source code failed
+[0m [90m 46 |[39m   [36mconst[39m usersMax [33m=[39m limitSummary[33m.[39musage[33m.[39musers[33m.[39mmax[33m;[39m
+ [90m 47 |[39m   [36mconst[39m usagePercent [33m=[39m
+[31m[1m>[22m[39m[90m 48 |[39m     usersMax [33m==[39m [36mnull[39m [33m||[39m usersMax [33m<=[39m [35m0[39m
+ [90m    |[39m     [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 49 |[39m       [33m?[39m[33m?[39m [36mnull[39m
+ [90m 50 |[39m       [33m:[39m [33mMath[39m[33m.[39mmin([35m100[39m[33m,[39m [33mMath[39m[33m.[39mround((limitSummary[33m.[39musage[33m.[39musers[33m.[39mused [33m/[39m usersMax) [33m*[39m [35m100[39m))[33m;[39m
+ [90m 51 |[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+
+./src/app/restaurant/waiter-calls/page.tsx:79:9
+Parsing ecmascript source code failed
+[0m [90m 77 |[39m       staffName[33m:[39m c[33m.[39macknowledgedByStaff
+ [90m 78 |[39m         [33m?[39m[33m?[39m formatStaffDisplayName(c[33m.[39macknowledgedByStaff)
+[31m[1m>[22m[39m[90m 79 |[39m         [33m:[39m [36mnull[39m[33m,[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 80 |[39m     }[33m;[39m
+ [90m 81 |[39m   })[33m;[39m
+ [90m 82 |[39m[0m
+
+Expected ',', got ':'
+
+
+./src/app/staff/set-password/set-password-form.tsx:49:9
+Parsing ecmascript source code failed
+[0m [90m 47 |[39m           [33mLink[39m gecerlilik bitisi[33m:[39m {formatDate(expiresAt)}
+ [90m 48 |[39m         [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 49 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 50 |[39m
+ [90m 51 |[39m       [33m<[39m[33mform[39m
+ [90m 52 |[39m         className[33m=[39m[32m"mt-6 space-y-4"[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/app/staff/set-password/set-password-form.tsx
+    ./src/app/staff/set-password/page.tsx
+
+
+./src/app/waiter/bill-requests-section.tsx:135:9
+Parsing ecmascript source code failed
+[0m [90m 133 |[39m       paymentAmount[33m.[39mtrim() [33m!==[39m [32m""[39m
+ [90m 134 |[39m         [33m?[39m[33m?[39m paymentAmount
+[31m[1m>[22m[39m[90m 135 |[39m         [33m:[39m liveSummary [33m!=[39m [36mnull[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 136 |[39m           [33m?[39m[33m?[39m [33mString[39m(liveSummary[33m.[39mcollectibleTotal)
+ [90m 137 |[39m           [33m:[39m paymentAmount[33m;[39m
+ [90m 138 |[39m     [36mreturn[39m [33mNumber[39m(source[33m.[39mreplace([32m","[39m[33m,[39m [32m"."[39m))[33m;[39m[0m
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./src/app/waiter/bill-requests-section.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/waiter/bill-requests-section.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+
+./src/app/waiter/orders-section.tsx:503:92
+Parsing ecmascript source code failed
+[0m [90m 501 |[39m       setRuleBlockModalMessage(
+ [90m 502 |[39m         matrix[33m.[39mblockMessage [33m?[39m
+[31m[1m>[22m[39m[90m 503 |[39m           [32m"SİPARİŞ HAZIRLANIYOR AŞAMASINDA OLDUĞU İÇİN İPTAL VEYA İADE EDİLEMEZ"[39m[33m,[39m
+ [90m     |[39m                                                                                            [31m[1m^[22m[39m
+ [90m 504 |[39m       )[33m;[39m
+ [90m 505 |[39m       [36mreturn[39m[33m;[39m
+ [90m 506 |[39m     }[0m
+
+Expected ':', got ','
+
+Import traces:
+  Client Component Browser:
+    ./src/app/waiter/orders-section.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/waiter/orders-section.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+
+./src/app/waiter/payment-result-toaster.tsx:23:11
+Parsing ecmascript source code failed
+[0m [90m 21 |[39m         reason [33m===[39m [32m"missing_token"[39m
+ [90m 22 |[39m           [33m?[39m[33m?[39m [32m"Ödeme oturumu bulunamadı."[39m
+[31m[1m>[22m[39m[90m 23 |[39m           [33m:[39m reason [33m===[39m [32m"invalid_token"[39m
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 24 |[39m             [33m?[39m[33m?[39m [32m"Geçersiz ödeme oturumu."[39m
+ [90m 25 |[39m             [33m:[39m reason [33m===[39m [32m"settle_failed"[39m
+ [90m 26 |[39m               [33m?[39m[33m?[39m [32m"Hesap kapatılamadı."[39m[0m
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./src/app/waiter/payment-result-toaster.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/waiter/payment-result-toaster.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+
+./src/app/waiter/waiter-calls-section.tsx:78:25
+Parsing ecmascript source code failed
+[0m [90m 76 |[39m [32m                      call.status === "PENDING"[39m
+ [90m 77 |[39m [32m                        ?? "waiter-status-chip-warning"[39m
+[31m[1m>[22m[39m[90m 78 |[39m [32m                        : "waiter-status-chip-info"[39m
+ [90m    |[39m                         [31m[1m^[22m[39m
+ [90m 79 |[39m [32m                    }`[39m}
+ [90m 80 |[39m                   [33m>[39m
+ [90m 81 |[39m                     [33m<[39m[33mClock[39m className[33m=[39m[32m"mr-1 h-3.5 w-3.5"[39m [33m/[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/waiter/waiter-calls-section.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/waiter/waiter-calls-section.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+
+./src/app/waiter/waiter-table-and-order-section.tsx:69:7
+Parsing ecmascript source code failed
+[0m [90m 67 |[39m     paymentModalTableId [33m!=[39m [36mnull[39m
+ [90m 68 |[39m       [33m?[39m[33m?[39m tableSummaries[33m.[39mfind((s) [33m=>[39m s[33m.[39mtableId [33m===[39m paymentModalTableId) [33m?[39m[33m?[39m [36mnull[39m
+[31m[1m>[22m[39m[90m 69 |[39m       [33m:[39m [36mnull[39m[33m;[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 70 |[39m
+ [90m 71 |[39m   [36mreturn[39m (
+ [90m 72 |[39m     [33m<[39m[33m>[39m[0m
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./src/app/waiter/waiter-table-and-order-section.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component Browser]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/waiter/waiter-table-and-order-section.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Client Component SSR]
+    ./src/app/waiter/waiter-dashboard-client.tsx [Server Component]
+    ./src/app/waiter/page.tsx [Server Component]
+
+
+./src/components/ui/panel-select.tsx:91:7
+Parsing ecmascript source code failed
+[0m [90m 89 |[39m     [36mconst[39m fallbackIndex [33m=[39m findNextEnabledIndex(normalizedOptions[33m,[39m fallbackStart[33m,[39m direction)[33m;[39m
+ [90m 90 |[39m     [36mconst[39m nextIndex [33m=[39m
+[31m[1m>[22m[39m[90m 91 |[39m       selectedIndex [33m>=[39m [35m0[39m [33m&&[39m [33m![39mnormalizedOptions[selectedIndex][33m?[39m[33m.[39mdisabled
+ [90m    |[39m       [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 92 |[39m         [33m?[39m[33m?[39m selectedIndex
+ [90m 93 |[39m         [33m:[39m fallbackIndex[33m;[39m
+ [90m 94 |[39m     setActiveIndex(nextIndex)[33m;[39m[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import traces:
+  Client Component Browser:
+    ./src/components/ui/panel-select.tsx [Client Component Browser]
+    ./src/app/restaurant/menu/showcase/_components/popular-showcase-manager.tsx [Client Component Browser]
+    ./src/app/restaurant/menu/showcase/_components/popular-showcase-manager.tsx [Server Component]
+    ./src/app/restaurant/menu/showcase/popular/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/ui/panel-select.tsx [Client Component SSR]
+    ./src/app/restaurant/menu/showcase/_components/popular-showcase-manager.tsx [Client Component SSR]
+    ./src/app/restaurant/menu/showcase/_components/popular-showcase-manager.tsx [Server Component]
+    ./src/app/restaurant/menu/showcase/popular/page.tsx [Server Component]
+
+
+./src/core/tenancy/setup-progress.ts:256:79
+Parsing ecmascript source code failed
+[0m [90m 254 |[39m     required[33m:[39m [36mtrue[39m[33m,[39m
+ [90m 255 |[39m     completed[33m:[39m goLiveReady[33m,[39m
+[31m[1m>[22m[39m[90m 256 |[39m     completedAt[33m:[39m goLiveReady [33m?[39m tenant[33m.[39msetupProgress[33m?[39m[33m.[39mcompletedAt [33m?[39m [36mnull[39m [33m:[39m [36mnull[39m[33m,[39m
+ [90m     |[39m                                                                               [31m[1m^[22m[39m
+ [90m 257 |[39m     blocker[33m:[39m [32m"Canliya alma kosullari henuz tamam degil."[39m[33m,[39m
+ [90m 258 |[39m   })[33m;[39m
+ [90m 259 |[39m[0m
+
+Expected ':', got ','
+
+Import trace:
+  Server Component:
+    ./src/core/tenancy/setup-progress.ts
+    ./src/modules/hq/server/command-center-queries.ts
+    ./src/app/(hq)/hq/page.tsx
+
+
+./src/lib/end-of-day-report.ts:252:7
+Parsing ecmascript source code failed
+[0m [90m 250 |[39m           select[33m:[39m { id[33m:[39m [36mtrue[39m[33m,[39m username[33m:[39m [36mtrue[39m[33m,[39m displayName[33m:[39m [36mtrue[39m }[33m,[39m
+ [90m 251 |[39m         })
+[31m[1m>[22m[39m[90m 252 |[39m       [33m:[39m [][33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 253 |[39m   [36mconst[39m staffNameMap [33m=[39m [36mnew[39m [33mMap[39m(staffList[33m.[39mmap((staff) [33m=>[39m [staff[33m.[39mid[33m,[39m formatStaffDisplayName(staff)]))[33m;[39m
+ [90m 254 |[39m   [36mconst[39m waiterAverages [33m=[39m staffIds
+ [90m 255 |[39m     [33m.[39mmap((staffId) [33m=>[39m {[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./src/lib/end-of-day-report.ts
+    ./src/app/restaurant/page.tsx
+
+
+./src/lib/iyzico-order-checkout.ts:140:75
+Parsing ecmascript source code failed
+[0m [90m 138 |[39m     (iyzicoConfig[33m.[39misSandbox
+ [90m 139 |[39m       [33m?[39m [32m`https://sandbox-merchant.iyzipay.com/tr/?deme/form?token=${checkout.token}`[39m
+[31m[1m>[22m[39m[90m 140 |[39m       [33m:[39m [32m`https://merchant.iyzipay.com/tr/?deme/form?token=${checkout.token}`[39m)[33m;[39m
+ [90m     |[39m                                                                           [31m[1m^[22m[39m
+ [90m 141 |[39m
+ [90m 142 |[39m   [36mreturn[39m {
+ [90m 143 |[39m     success[33m:[39m [36mtrue[39m[33m,[39m[0m
+
+Expected ':', got ';'
+
+Import trace:
+  Server Component:
+    ./src/lib/iyzico-order-checkout.ts
+    ./src/app/actions/create-order.ts
+
+
+./src/lib/menu-theme.ts:123:37
+Parsing ecmascript source code failed
+[0m [90m 121 |[39m     buttonBackgroundColor[33m:[39m
+ [90m 122 |[39m       normalizeHexColor(input[33m.[39mmenuButtonBackgroundColor) [33m?[39m
+[31m[1m>[22m[39m[90m 123 |[39m       defaults[33m.[39mbuttonBackgroundColor[33m,[39m
+ [90m     |[39m                                     [31m[1m^[22m[39m
+ [90m 124 |[39m     headerBackgroundColor[33m:[39m
+ [90m 125 |[39m       normalizeHexColor(input[33m.[39mmenuHeaderBackgroundColor) [33m?[39m
+ [90m 126 |[39m       defaults[33m.[39mheaderBackgroundColor[33m,[39m[0m
+
+Expected ':', got ','
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/menu-theme.ts [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component Browser]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/menu-theme.ts [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Client Component SSR]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/menu-client.tsx [Server Component]
+    ./src/app/(storefront)/menu/[slug]/[tableId]/page.tsx [Server Component]
+
+
+./src/lib/order-location.ts:98:2
+Parsing ecmascript source code failed
+[0m [90m  96 |[39m         [33mMath[39m[33m.[39mmax([33mMIN_ORDER_RADIUS_METERS[39m[33m,[39m [33mMath[39m[33m.[39mround(radiusCandidate))[33m,[39m
+ [90m  97 |[39m       )
+[31m[1m>[22m[39m[90m  98 |[39m     [33m:[39m [33mDEFAULT_ORDER_RADIUS_METERS[39m[33m;[39m
+ [90m     |[39m  [31m[1m^[22m[39m
+ [90m  99 |[39m
+ [90m 100 |[39m   [36mif[39m ([33m![39mcustomerLocation) {
+ [90m 101 |[39m     [36mreturn[39m {[0m
+
+Expression expected
+
+Import trace:
+  Server Component:
+    ./src/lib/order-location.ts
+    ./src/app/actions/create-order.ts
+
+
+./src/lib/security/ip-risk-provider.ts:74:9
+Parsing ecmascript source code failed
+[0m [90m 72 |[39m       [33m?[39m[33m?[39m data[33m.[39mhosting
+ [90m 73 |[39m         [33m?[39m[33m?[39m [32m"high"[39m
+[31m[1m>[22m[39m[90m 74 |[39m         [33m:[39m [32m"medium"[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 75 |[39m       [33m:[39m [32m"low"[39m[33m;[39m
+ [90m 76 |[39m
+ [90m 77 |[39m     [36mreturn[39m {[0m
+
+Expression expected
+
+Import traces:
+  App Route:
+    ./src/lib/security/ip-risk-provider.ts
+    ./src/lib/security/risk-engine.ts
+    ./src/app/m/[publicCode]/route.ts
+
+  Server Component:
+    ./src/lib/security/ip-risk-provider.ts
+    ./src/lib/security/risk-engine.ts
+    ./src/app/actions/request-bill-with-method.ts
+
+
+./src/lib/security/security-event-ui.ts:64:3
+Parsing ecmascript source code failed
+[0m [90m 62 |[39m     [33mEVENT_TYPE_LABELS[39m[normalized] [33m?[39m
+ [90m 63 |[39m     prettifySecurityCode(normalized)
+[31m[1m>[22m[39m[90m 64 |[39m   )[33m;[39m
+ [90m    |[39m   [31m[1m^[22m[39m
+ [90m 65 |[39m }
+ [90m 66 |[39m
+ [90m 67 |[39m [36mexport[39m [36mfunction[39m getSecurityDecisionLabel(code[33m:[39m string [33m|[39m [36mnull[39m [33m|[39m undefined)[33m:[39m string {[0m
+
+Expected ':', got ')'
+
+Import trace:
+  Server Component:
+    ./src/lib/security/security-event-ui.ts
+    ./src/app/restaurant/security/page.tsx
+
+
+./src/modules/hq/actions/marketing.ts:465:7
+Parsing ecmascript source code failed
+[0m [90m 463 |[39m
+ [90m 464 |[39m     [36mconst[39m formTexts [33m=[39m
+[31m[1m>[22m[39m[90m 465 |[39m       demoRequestForm[33m?[39m[33m.[39mpayload [33m&&[39m [36mtypeof[39m demoRequestForm[33m.[39mpayload [33m===[39m [32m"object"[39m
+ [90m     |[39m       [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 466 |[39m         [33m?[39m[33m?[39m ((demoRequestForm[33m.[39mpayload [36mas[39m [33mRecord[39m[33m<[39m[33mstring[39m[33m,[39m unknown[33m>[39m)[33m.[39mformTexts [36mas[39m
+ [90m 467 |[39m             [33m|[39m [33mRecord[39m[33m<[39m[33mstring[39m[33m,[39m unknown[33m>[39m
+ [90m 468 |[39m             [33m|[39m undefined)[0m
+
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+
+Import traces:
+  Client Component Browser:
+    ./src/modules/hq/actions/marketing.ts [Client Component Browser]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Client Component Browser]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Server Component]
+    ./src/app/(hq)/hq/marketing/builder/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/modules/hq/actions/marketing.ts [Client Component SSR]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Client Component SSR]
+    ./src/modules/hq/components/marketing-landing-builder-form.tsx [Server Component]
+    ./src/app/(hq)/hq/marketing/builder/page.tsx [Server Component]
+
+
+./src/modules/hq/components/commercial-record-payment-form.tsx:99:9
+Parsing ecmascript source code failed
+[0m [90m  97 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m (
+ [90m  98 |[39m         [33m<[39m[33mp[39m className[33m=[39m{[32m`text-sm ${state.ok ? "text-emerald-700" : "text-rose-700"}`[39m}[33m>[39m{state[33m.[39mmessage}[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m  99 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 100 |[39m     [33m<[39m[33m/[39m[33mform[39m[33m>[39m
+ [90m 101 |[39m   )[33m;[39m
+ [90m 102 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/commercial-record-payment-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/components/lead-commercial-record-form.tsx:226:9
+Parsing ecmascript source code failed
+[0m [90m 224 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m (
+ [90m 225 |[39m         [33m<[39m[33mp[39m className[33m=[39m{[32m`text-sm ${state.ok ? "text-emerald-700" : "text-rose-700"}`[39m}[33m>[39m{state[33m.[39mmessage}[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 226 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 227 |[39m     [33m<[39m[33m/[39m[33mform[39m[33m>[39m
+ [90m 228 |[39m   )[33m;[39m
+ [90m 229 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/lead-commercial-record-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/components/lead-convert-won-form.tsx:59:9
+Parsing ecmascript source code failed
+[0m [90m 57 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m (
+ [90m 58 |[39m         [33m<[39m[33mp[39m className[33m=[39m{[32m`text-sm ${state.ok ? "text-emerald-700" : "text-rose-700"}`[39m}[33m>[39m{state[33m.[39mmessage}[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 59 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 60 |[39m     [33m<[39m[33m/[39m[33mform[39m[33m>[39m
+ [90m 61 |[39m   )[33m;[39m
+ [90m 62 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/lead-convert-won-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/components/lead-create-form.tsx:109:11
+Parsing ecmascript source code failed
+[0m [90m 107 |[39m             [33mLead[39m [33mDetayina[39m [33mGit[39m
+ [90m 108 |[39m           [33m<[39m[33m/[39m[33mLink[39m[33m>[39m
+[31m[1m>[22m[39m[90m 109 |[39m         ) [33m:[39m [36mnull[39m}
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 110 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 111 |[39m
+ [90m 112 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m ([0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/lead-create-form.tsx
+    ./src/app/(hq)/hq/leads/page.tsx
+
+
+./src/modules/hq/components/lead-mark-lost-form.tsx:48:9
+Parsing ecmascript source code failed
+[0m [90m 46 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m (
+ [90m 47 |[39m         [33m<[39m[33mp[39m className[33m=[39m{[32m`text-sm ${state.ok ? "text-emerald-700" : "text-rose-700"}`[39m}[33m>[39m{state[33m.[39mmessage}[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 48 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 49 |[39m     [33m<[39m[33m/[39m[33mform[39m[33m>[39m
+ [90m 50 |[39m   )[33m;[39m
+ [90m 51 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/lead-mark-lost-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/components/lead-start-trial-form.tsx:190:11
+Parsing ecmascript source code failed
+[0m [90m 188 |[39m             [33mTenant[39m [33mDetayina[39m [33mGit[39m
+ [90m 189 |[39m           [33m<[39m[33m/[39m[33mLink[39m[33m>[39m
+[31m[1m>[22m[39m[90m 190 |[39m         ) [33m:[39m [36mnull[39m}
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 191 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 192 |[39m
+ [90m 193 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m ([0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/lead-start-trial-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/components/lead-status-form.tsx:47:13
+Parsing ecmascript source code failed
+[0m [90m 45 |[39m           {options[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 46 |[39m             [33m<[39m[33moption[39m value[33m=[39m[32m""[39m[33m>[39m[33mDegisim[39m yok[33m<[39m[33m/[39m[33moption[39m[33m>[39m
+[31m[1m>[22m[39m[90m 47 |[39m           ) [33m:[39m (
+ [90m    |[39m             [31m[1m^[22m[39m
+ [90m 48 |[39m             options[33m.[39mmap((status) [33m=>[39m (
+ [90m 49 |[39m               [33m<[39m[33moption[39m key[33m=[39m{status} value[33m=[39m{status}[33m>[39m
+ [90m 50 |[39m                 {getSalesLeadStatusLabel(status)}[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/lead-status-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/components/lead-update-form.tsx:103:9
+Parsing ecmascript source code failed
+[0m [90m 101 |[39m       {state[33m.[39mmessage [33m?[39m[33m?[39m (
+ [90m 102 |[39m         [33m<[39m[33mp[39m className[33m=[39m{[32m`text-sm ${state.ok ? "text-emerald-700" : "text-rose-700"}`[39m}[33m>[39m{state[33m.[39mmessage}[33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 103 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 104 |[39m     [33m<[39m[33m/[39m[33mform[39m[33m>[39m
+ [90m 105 |[39m   )[33m;[39m
+ [90m 106 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/lead-update-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/components/tenant-feature-overrides.tsx:80:11
+Parsing ecmascript source code failed
+[0m [90m 78 |[39m             {state[33m.[39mmessage}
+ [90m 79 |[39m           [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 80 |[39m         ) [33m:[39m [36mnull[39m}
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 81 |[39m       [33m<[39m[33m/[39m[33mtd[39m[33m>[39m
+ [90m 82 |[39m     [33m<[39m[33m/[39m[33mtr[39m[33m>[39m
+ [90m 83 |[39m   )[33m;[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/tenant-feature-overrides.tsx
+    ./src/app/(hq)/hq/tenants/[tenantId]/page.tsx
+
+
+./src/modules/hq/components/tenant-limit-overrides.tsx:98:11
+Parsing ecmascript source code failed
+[0m [90m  96 |[39m             {state[33m.[39mmessage}
+ [90m  97 |[39m           [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m  98 |[39m         ) [33m:[39m [36mnull[39m}
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m  99 |[39m       [33m<[39m[33m/[39m[33mtd[39m[33m>[39m
+ [90m 100 |[39m     [33m<[39m[33m/[39m[33mtr[39m[33m>[39m
+ [90m 101 |[39m   )[33m;[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/tenant-limit-overrides.tsx
+    ./src/app/(hq)/hq/tenants/[tenantId]/page.tsx
+
+
+./src/modules/hq/components/tenant-permanent-delete-form.tsx:137:17
+Parsing ecmascript source code failed
+[0m [90m 135 |[39m                   {state[33m.[39mmessage}
+ [90m 136 |[39m                 [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 137 |[39m               ) [33m:[39m [36mnull[39m}
+ [90m     |[39m                 [31m[1m^[22m[39m
+ [90m 138 |[39m             [33m<[39m[33m/[39m[33mform[39m[33m>[39m
+ [90m 139 |[39m           [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 140 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/tenant-permanent-delete-form.tsx
+    ./src/app/(hq)/hq/tenants/[tenantId]/page.tsx
+
+
+./src/modules/hq/components/tenant-plan-form.tsx:53:9
+Parsing ecmascript source code failed
+[0m [90m 51 |[39m           {state[33m.[39mmessage}
+ [90m 52 |[39m         [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 53 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 54 |[39m     [33m<[39m[33m/[39m[33mform[39m[33m>[39m
+ [90m 55 |[39m   )[33m;[39m
+ [90m 56 |[39m }[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/tenant-plan-form.tsx
+    ./src/app/(hq)/hq/tenants/[tenantId]/page.tsx
+
+
+./src/modules/hq/components/tenant-status-form.tsx:74:13
+Parsing ecmascript source code failed
+[0m [90m 72 |[39m           {options[33m.[39mlength [33m===[39m [35m0[39m [33m?[39m[33m?[39m (
+ [90m 73 |[39m             [33m<[39m[33moption[39m value[33m=[39m[32m""[39m[33m>[39m[33mGecis[39m yok[33m<[39m[33m/[39m[33moption[39m[33m>[39m
+[31m[1m>[22m[39m[90m 74 |[39m           ) [33m:[39m (
+ [90m    |[39m             [31m[1m^[22m[39m
+ [90m 75 |[39m             options[33m.[39mmap((option) [33m=>[39m (
+ [90m 76 |[39m               [33m<[39m[33moption[39m key[33m=[39m{option} value[33m=[39m{option}[33m>[39m
+ [90m 77 |[39m                 {statusLabel(option)}[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/tenant-status-form.tsx
+    ./src/app/(hq)/hq/tenants/[tenantId]/page.tsx
+
+
+./src/modules/hq/components/trial-manager-password-link-form.tsx:90:11
+Parsing ecmascript source code failed
+[0m [90m 88 |[39m             {formatDate(latestToken[33m.[39mexpiresAt)}
+ [90m 89 |[39m           [33m<[39m[33m/[39m[33mp[39m[33m>[39m
+[31m[1m>[22m[39m[90m 90 |[39m         ) [33m:[39m [36mnull[39m}
+ [90m    |[39m           [31m[1m^[22m[39m
+ [90m 91 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 92 |[39m
+ [90m 93 |[39m       [33m<[39m[33mform[39m action[33m=[39m{action} className[33m=[39m[32m"space-y-2"[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/components/trial-manager-password-link-form.tsx
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+
+./src/modules/hq/server/lead-queries.ts:63:9
+Parsing ecmascript source code failed
+[0m [90m 61 |[39m     [33m...[39m(statusFilter [33m!==[39m [32m"ALL"[39m [33m?[39m { status[33m:[39m statusFilter } [33m:[39m {})[33m,[39m
+ [90m 62 |[39m     [33m...[39m(sourceFilter [33m!==[39m [32m"ALL"[39m [33m?[39m { source[33m:[39m sourceFilter } [33m:[39m {})[33m,[39m
+[31m[1m>[22m[39m[90m 63 |[39m     [33m...[39m(search
+ [90m    |[39m         [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 64 |[39m       [33m?[39m[33m?[39m {
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 65 |[39m           [33mOR[39m[33m:[39m [
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 66 |[39m             { businessName[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 67 |[39m             { contactName[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 68 |[39m             { email[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 69 |[39m             { phone[33m:[39m { contains[33m:[39m search[33m,[39m mode[33m:[39m [32m"insensitive"[39m } }[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 70 |[39m           ][33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 71 |[39m         }
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 72 |[39m       [33m:[39m {})[33m,[39m
+ [90m 73 |[39m   }[33m;[39m
+ [90m 74 |[39m[0m
+
+Not a pattern
+
+Import trace:
+  Server Component:
+    ./src/modules/hq/server/lead-queries.ts
+    ./src/app/(hq)/hq/leads/page.tsx
+
+
+./src/modules/hq/server/tenant-provisioning.ts:166:7
+Parsing ecmascript source code failed
+[0m [90m 164 |[39m     domainInput[33m.[39mlength [33m>[39m [35m0[39m
+ [90m 165 |[39m       [33m?[39m[33m?[39m domainInput
+[31m[1m>[22m[39m[90m 166 |[39m       [33m:[39m [32m`${validated.normalizedSlug}.${process.env.DEFAULT_SUBDOMAIN_SUFFIX ?? "menu.local"}`[39m[33m;[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 167 |[39m
+ [90m 168 |[39m   [36mconst[39m tenant [33m=[39m [36mawait[39m tx[33m.[39mtenant[33m.[39mcreate({
+ [90m 169 |[39m     data[33m:[39m {[0m
+
+Expression expected
+
+Import traces:
+  #1 [Server Component]:
+    ./src/modules/hq/server/tenant-provisioning.ts
+    ./src/app/(hq)/hq/leads/[leadId]/page.tsx
+
+  #2 [Server Component]:
+    ./src/modules/hq/server/tenant-provisioning.ts
+    ./src/modules/hq/actions/create-tenant.ts
+
+
+./src/modules/marketing/components/landing-homepage-view.tsx:510:45
+Parsing ecmascript source code failed
+[0m [90m 508 |[39m
+ [90m 509 |[39m   [36mconst[39m headerNavigationItems [33m=[39m
+[31m[1m>[22m[39m[90m 510 |[39m     (data[33m?[39m[33m.[39mlandingNavigationItems[33m.[39mlength [33m?[39m [35m0[39m) [33m>[39m [35m0[39m [33m?[39m data[33m?[39m[33m.[39mlandingNavigationItems [33m?[39m [] [33m:[39m fallbackNavigationItems[33m;[39m
+ [90m     |[39m                                             [31m[1m^[22m[39m
+ [90m 511 |[39m
+ [90m 512 |[39m   [36mconst[39m metricCardsFromCms [33m=[39m
+ [90m 513 |[39m     trustSection[33m?[39m[33m.[39mpayload[33m.[39mstats[0m
+
+Expected ':', got ')'
+
+Import trace:
+  Server Component:
+    ./src/modules/marketing/components/landing-homepage-view.tsx
+    ./src/app/page.tsx
+
+
+./src/modules/onboarding/components/hq-tenant-setup-panel.tsx:57:9
+Parsing ecmascript source code failed
+[0m [90m 55 |[39m           [33m<[39m[33m/[39m[33mul[39m[33m>[39m
+ [90m 56 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 57 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 58 |[39m
+ [90m 59 |[39m       [33m<[39m[33mdiv[39m className[33m=[39m[32m"mt-4 overflow-x-auto"[39m[33m>[39m
+ [90m 60 |[39m         [33m<[39m[33mtable[39m className[33m=[39m[32m"min-w-full text-sm"[39m[33m>[39m[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/onboarding/components/hq-tenant-setup-panel.tsx
+    ./src/app/(hq)/hq/tenants/[tenantId]/page.tsx
+
+
+./src/modules/onboarding/components/tenant-setup-checklist.tsx:45:9
+Parsing ecmascript source code failed
+[0m [90m 43 |[39m           [33m<[39m[33m/[39m[33mul[39m[33m>[39m
+ [90m 44 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 45 |[39m       ) [33m:[39m [36mnull[39m}
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 46 |[39m
+ [90m 47 |[39m       [33m<[39m[33mdiv[39m className[33m=[39m[32m"mt-4 grid gap-2"[39m[33m>[39m
+ [90m 48 |[39m         {steps[33m.[39mmap((step) [33m=>[39m {[0m
+
+Expected '</', got ':'
+
+Import trace:
+  Server Component:
+    ./src/modules/onboarding/components/tenant-setup-checklist.tsx
+    ./src/app/restaurant/page.tsx
+
+
+    at <unknown> (./src/app/(storefront)/[tableId]/menu-client.tsx:202:5)
+    at <unknown> (./src/app/actions/update-order-status.ts:206:9)
+    at <unknown> (./src/app/kitchen/page.tsx:164:11)
+    at <unknown> (./src/app/order-success/[orderId]/page.tsx:173:19)
+    at <unknown> (./src/app/restaurant/menu/menu-manager.tsx:157:7)
+    at <unknown> (./src/app/restaurant/orders/order-tracking.tsx:632:9)
+    at <unknown> (./src/app/restaurant/reports/reports-view.tsx:275:2)
+    at <unknown> (./src/app/restaurant/settings/page.tsx:103:15)
+    at <unknown> (./src/app/restaurant/tables/table-manager.tsx:337:11)
+    at <unknown> (./src/app/restaurant/users/page.tsx:48:5)
+    at <unknown> (./src/app/restaurant/waiter-calls/page.tsx:79:9)
+    at <unknown> (./src/app/staff/set-password/set-password-form.tsx:49:9)
+    at <unknown> (./src/app/waiter/bill-requests-section.tsx:135:9)
+    at <unknown> (./src/app/waiter/orders-section.tsx:503:92)
+    at <unknown> (./src/app/waiter/payment-result-toaster.tsx:23:11)
+    at <unknown> (./src/app/waiter/waiter-calls-section.tsx:78:25)
+    at <unknown> (./src/app/waiter/waiter-table-and-order-section.tsx:69:7)
+    at <unknown> (./src/components/ui/panel-select.tsx:91:7)
+    at <unknown> (./src/core/tenancy/setup-progress.ts:256:79)
+    at <unknown> (./src/lib/end-of-day-report.ts:252:7)
+    at <unknown> (./src/lib/iyzico-order-checkout.ts:140:75)
+    at <unknown> (./src/lib/menu-theme.ts:123:37)
+    at <unknown> (./src/lib/order-location.ts:98:2)
+    at <unknown> (./src/lib/security/ip-risk-provider.ts:74:9)
+    at <unknown> (./src/lib/security/security-event-ui.ts:64:3)
+    at <unknown> (./src/modules/hq/actions/marketing.ts:465:7)
+    at <unknown> (./src/modules/hq/components/commercial-record-payment-form.tsx:99:9)
+    at <unknown> (./src/modules/hq/components/lead-commercial-record-form.tsx:226:9)
+    at <unknown> (./src/modules/hq/components/lead-convert-won-form.tsx:59:9)
+    at <unknown> (./src/modules/hq/components/lead-create-form.tsx:109:11)
+    at <unknown> (./src/modules/hq/components/lead-mark-lost-form.tsx:48:9)
+    at <unknown> (./src/modules/hq/components/lead-start-trial-form.tsx:190:11)
+    at <unknown> (./src/modules/hq/components/lead-status-form.tsx:47:13)
+    at <unknown> (./src/modules/hq/components/lead-update-form.tsx:103:9)
+    at <unknown> (./src/modules/hq/components/tenant-feature-overrides.tsx:80:11)
+    at <unknown> (./src/modules/hq/components/tenant-limit-overrides.tsx:98:11)
+    at <unknown> (./src/modules/hq/components/tenant-permanent-delete-form.tsx:137:17)
+    at <unknown> (./src/modules/hq/components/tenant-plan-form.tsx:53:9)
+    at <unknown> (./src/modules/hq/components/tenant-status-form.tsx:74:13)
+    at <unknown> (./src/modules/hq/components/trial-manager-password-link-form.tsx:90:11)
+    at <unknown> (./src/modules/hq/server/lead-queries.ts:63:9)
+    at <unknown> (./src/modules/hq/server/tenant-provisioning.ts:166:7)
+    at <unknown> (./src/modules/marketing/components/landing-homepage-view.tsx:510:45)
+    at <unknown> (./src/modules/onboarding/components/hq-tenant-setup-panel.tsx:57:9)
+    at <unknown> (./src/modules/onboarding/components/tenant-setup-checklist.tsx:45:9)

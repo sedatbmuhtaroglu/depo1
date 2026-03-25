@@ -1,0 +1,96 @@
+
+> qrmenu-order@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 12.6s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/35) ...
+  Generating static pages using 7 workers (8/35) 
+  Generating static pages using 7 workers (17/35) 
+  Generating static pages using 7 workers (26/35) 
+✓ Generating static pages using 7 workers (35/35) in 2.4s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /[tableId]
+├ ƒ /admin/orders
+├ ƒ /api/internal/redirects/resolve
+├ ƒ /api/payment/iyzico/callback
+├ ƒ /api/payment/iyzico/order-callback
+├ ƒ /api/table-session/waiter-call
+├ ○ /blog
+├ ƒ /blog/[slug]
+├ ƒ /blog/category/[slug]
+├ ƒ /glidragiris
+├ ƒ /hq
+├ ƒ /hq/accounting
+├ ƒ /hq/accounting/payments
+├ ƒ /hq/accounting/records
+├ ƒ /hq/content/blog
+├ ƒ /hq/content/blog/[postId]/edit
+├ ƒ /hq/content/blog/[postId]/preview
+├ ƒ /hq/content/blog/categories
+├ ƒ /hq/content/blog/new
+├ ƒ /hq/content/pages
+├ ƒ /hq/content/pages/[pageId]/edit
+├ ƒ /hq/content/pages/[pageId]/preview
+├ ƒ /hq/content/pages/new
+├ ƒ /hq/content/redirects
+├ ƒ /hq/leads
+├ ƒ /hq/leads/[leadId]
+├ ƒ /hq/marketing
+├ ƒ /hq/marketing/builder
+├ ƒ /hq/marketing/categories
+├ ƒ /hq/marketing/homepage
+├ ƒ /hq/marketing/settings
+├ ƒ /hq/marketing/submissions
+├ ƒ /hq/media
+├ ƒ /hq/settings/seo
+├ ƒ /hq/tenants
+├ ƒ /hq/tenants/[tenantId]
+├ ƒ /hq/tenants/new
+├ ƒ /kitchen
+├ ƒ /m/[publicCode]
+├ ƒ /menu/[slug]/[tableId]
+├ ƒ /order-success/[orderId]
+├ ○ /pages
+├ ƒ /pages/[slug]
+├ ƒ /payment/iyzico/mock
+├ ƒ /restaurant
+├ ƒ /restaurant/allergens
+├ ƒ /restaurant/audit
+├ ƒ /restaurant/cancellations
+├ ƒ /restaurant/cash-register
+├ ƒ /restaurant/invoicing
+├ ƒ /restaurant/menu
+├ ƒ /restaurant/menu/showcase/frequent
+├ ƒ /restaurant/menu/showcase/popular
+├ ƒ /restaurant/orders
+├ ƒ /restaurant/performance
+├ ƒ /restaurant/reports
+├ ƒ /restaurant/reports/day-end-pdf
+├ ƒ /restaurant/security
+├ ƒ /restaurant/settings
+├ ƒ /restaurant/stocks
+├ ƒ /restaurant/tables
+├ ƒ /restaurant/tables/qr/[tableId]
+├ ƒ /restaurant/users
+├ ƒ /restaurant/waiter-calls
+├ ○ /robots.txt
+├ ○ /sitemap.xml
+├ ƒ /staff/set-password
+└ ƒ /waiter
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
