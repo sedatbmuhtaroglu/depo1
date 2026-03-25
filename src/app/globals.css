@@ -2114,114 +2114,113 @@ body {
 
 /* Landing-only premium dark marketing surface */
 .marketing-surface {
-  --landing-background: #020817;
-  --landing-surface: #071224;
-  --landing-surface-alt: #16233f;
-  --landing-card: #0f1b33;
-  --landing-border: #243252;
-  --landing-text-primary: #f3f7ff;
+  --landing-background: #020617; /* Deep midnight blue */
+  --landing-surface: #070e24;
+  --landing-surface-alt: #0f1b3d;
+  --landing-card: #0d1730;
+  --landing-border: #1e293b;
+  --landing-text-primary: #f8fafc;
   --landing-text-secondary: #94a3b8;
-  --landing-accent: #22c55e;
-  --landing-accent-hover: #16a34a;
-  --landing-success: #22c55e;
+  --landing-accent: #38bdf8; /* Sky blue accent */
+  --landing-accent-hover: #7dd3fc;
+  --landing-success: #10b981;
   --landing-warning: #f59e0b;
-  --landing-hero-badge-bg: #16233f;
-  --landing-hero-badge-text: #dbeafe;
-  --landing-button-primary-bg: #22c55e;
-  --landing-button-primary-text: #04110b;
-  --landing-button-secondary-bg: #0f1b33;
-  --landing-button-secondary-text: #f3f7ff;
+  --landing-hero-badge-bg: #1e293b;
+  --landing-hero-badge-text: #e2e8f0;
+  
+  /* Premium Primary Button (White/Light) */
+  --landing-button-primary-bg: #ffffff;
+  --landing-button-primary-text: #020617;
+  --landing-button-secondary-bg: #1e293b;
+  --landing-button-secondary-text: #f8fafc;
 
   --ui-bg-canvas: var(--landing-background);
   --ui-surface-bg: var(--landing-surface);
   --ui-surface-elevated: var(--landing-card);
   --ui-surface-subtle: var(--landing-surface-alt);
-  --ui-surface-muted: color-mix(in srgb, var(--landing-surface-alt) 78%, #000);
+  --ui-surface-muted: color-mix(in srgb, var(--landing-surface-alt) 82%, var(--landing-background));
 
   --ui-border: var(--landing-border);
-  --ui-border-strong: color-mix(in srgb, var(--landing-border) 82%, #7f95bf);
-  --ui-border-subtle: color-mix(in srgb, var(--landing-border) 70%, transparent);
+  --ui-border-strong: color-mix(in srgb, var(--landing-border) 85%, var(--landing-text-secondary));
+  --ui-border-subtle: rgba(255, 255, 255, 0.08);
 
   --ui-text-primary: var(--landing-text-primary);
   --ui-text-secondary: var(--landing-text-secondary);
-  --ui-text-muted: color-mix(in srgb, var(--landing-text-secondary) 80%, #64748b);
+  --ui-text-muted: color-mix(in srgb, var(--landing-text-secondary) 75%, transparent);
 
   --ui-primary: var(--landing-accent);
   --ui-primary-hover: var(--landing-accent-hover);
-  --ui-primary-soft: color-mix(in srgb, var(--landing-accent) 14%, transparent);
+  --ui-primary-soft: rgba(56, 189, 248, 0.12);
   --ui-primary-foreground: var(--landing-button-primary-text);
   --ui-accent: var(--landing-accent);
 
   --ui-success: var(--landing-success);
-  --ui-success-soft: color-mix(in srgb, var(--landing-success) 14%, transparent);
-  --ui-success-border: color-mix(in srgb, var(--landing-success) 35%, transparent);
-  --ui-success-foreground: #ecfff3;
+  --ui-success-soft: rgba(16, 185, 129, 0.12);
+  --ui-success-border: rgba(16, 185, 129, 0.25);
+  --ui-success-foreground: var(--landing-text-primary);
 
   --ui-warning: var(--landing-warning);
-  --ui-warning-soft: color-mix(in srgb, var(--landing-warning) 14%, transparent);
-  --ui-warning-border: color-mix(in srgb, var(--landing-warning) 32%, transparent);
-  --ui-warning-foreground: #fffaf0;
+  --ui-warning-soft: rgba(245, 158, 11, 0.12);
+  --ui-warning-border: rgba(245, 158, 11, 0.25);
+  --ui-warning-foreground: var(--landing-text-primary);
 
-  --ui-field-bg: var(--landing-card);
-  --ui-field-border: var(--landing-border);
-  --ui-field-border-hover: color-mix(in srgb, var(--landing-border) 76%, #7f95bf);
+  --ui-field-bg: #0f172a;
+  --ui-field-border: #1e293b;
+  --ui-field-border-hover: #334155;
   --ui-field-focus: var(--landing-accent);
-  --ui-field-focus-ring: color-mix(in srgb, var(--landing-accent) 24%, transparent);
-  --ui-field-disabled-bg: var(--landing-surface-alt);
-  --ui-field-disabled-fg: var(--ui-text-muted);
+  --ui-field-focus-ring: rgba(56, 189, 248, 0.2);
+  --ui-field-disabled-bg: #1e293b;
+  --ui-field-disabled-fg: #64748b;
 
   --btn-primary-bg: var(--landing-button-primary-bg);
-  --btn-primary-bg-hover: var(--landing-accent-hover);
+  --btn-primary-bg-hover: #f1f5f9;
   --btn-primary-fg: var(--landing-button-primary-text);
 
   --btn-secondary-bg: var(--landing-button-secondary-bg);
-  --btn-secondary-bg-hover: color-mix(in srgb, var(--landing-button-secondary-bg) 80%, #334155);
+  --btn-secondary-bg-hover: #334155;
   --btn-secondary-fg: var(--landing-button-secondary-text);
 
-  --btn-outline-border: color-mix(in srgb, var(--landing-border) 82%, #7f95bf);
-  --btn-outline-bg-hover: color-mix(in srgb, var(--landing-surface-alt) 88%, #1f2f52);
+  --btn-outline-border: rgba(255, 255, 255, 0.2);
+  --btn-outline-bg-hover: rgba(255, 255, 255, 0.05);
 
-  --focus-ring: color-mix(in srgb, var(--landing-accent) 24%, transparent);
+  --focus-ring: rgba(56, 189, 248, 0.3);
 }
 
 .marketing-surface :where(.ui-btn-outline) {
-  --ui-btn-bg: var(--landing-button-secondary-bg);
-  --ui-btn-border: color-mix(in srgb, var(--landing-border) 82%, #7f95bf);
-  --ui-btn-fg: var(--landing-button-secondary-text);
-  --ui-btn-bg-hover: color-mix(in srgb, var(--landing-surface-alt) 92%, #1f2f52);
-  --ui-btn-border-hover: color-mix(in srgb, var(--landing-border) 72%, #9ab2dd);
-  --ui-btn-fg-hover: var(--landing-button-secondary-text);
-  --ui-btn-disabled-bg: var(--landing-button-secondary-bg);
-  --ui-btn-disabled-border: var(--landing-border);
-  --ui-btn-disabled-fg: var(--ui-text-secondary);
+  --ui-btn-bg: transparent;
+  --ui-btn-border: rgba(255, 255, 255, 0.15);
+  --ui-btn-fg: #f8fafc;
+  --ui-btn-bg-hover: rgba(255, 255, 255, 0.05);
+  --ui-btn-border-hover: rgba(255, 255, 255, 0.3);
+  --ui-btn-fg-hover: #ffffff;
 }
 
 .marketing-backdrop {
   background:
     radial-gradient(
-      1150px 520px at 10% -18%,
-      color-mix(in srgb, var(--landing-accent) 12%, transparent),
-      transparent 62%
+      1200px 600px at 15% -20%,
+      rgba(56, 189, 248, 0.15),
+      transparent 70%
     ),
     radial-gradient(
-      980px 520px at 90% -10%,
-      color-mix(in srgb, var(--landing-border) 62%, transparent),
-      transparent 60%
+      1000px 600px at 85% -10%,
+      rgba(30, 41, 59, 0.8),
+      transparent 65%
     ),
     linear-gradient(
       180deg,
-      var(--landing-background) 0%,
-      var(--landing-surface) 55%,
-      var(--landing-background) 100%
+      #020617 0%,
+      #070e24 45%,
+      #020617 100%
     );
 }
 
 .marketing-grid-bg {
   background-image:
-    linear-gradient(to right, rgba(36, 50, 82, 0.22) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(36, 50, 82, 0.18) 1px, transparent 1px);
-  background-size: 34px 34px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.64), rgba(0, 0, 0, 0));
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at 50% 0%, black, transparent 85%);
 }
 
 .cms-rich-editor:empty::before {

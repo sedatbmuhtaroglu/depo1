@@ -13,6 +13,11 @@ type BillingPrismaClient = Pick<
   "billRequest" | "order" | "payment" | "orderItemCancellation" | "cashOrderAdjustment"
 >;
 
+type TableCycleBoundary = {
+  cycleStartAt: Date | null;
+  settledBillRequestId: number | null;
+};
+
 type BillableOrderSnapshot = {
   id: number;
   items: unknown;
@@ -110,11 +115,11 @@ function getEffectiveOrderTotal(params: {
   return roundCurrency(total);
 }
 
-export async function getCurrentTableCycleStart(params: {
+async function getCurrentTableCycleBoundary(params: {
   tenantId: number;
   tableId: number;
   prismaClient?: BillingPrismaClient;
-}): Promise<Date | null> {
+}): Promise<TableCycleBoundary> {
   const db = params.prismaClient ?? prisma;
   const latestSettledBill = await db.billRequest.findFirst({
     where: {
@@ -127,11 +132,24 @@ export async function getCurrentTableCycleStart(params: {
       settledAt: "desc",
     },
     select: {
+      id: true,
       settledAt: true,
     },
   });
 
-  return latestSettledBill?.settledAt ?? null;
+  return {
+    cycleStartAt: latestSettledBill?.settledAt ?? null,
+    settledBillRequestId: latestSettledBill?.id ?? null,
+  };
+}
+
+export async function getCurrentTableCycleStart(params: {
+  tenantId: number;
+  tableId: number;
+  prismaClient?: BillingPrismaClient;
+}): Promise<Date | null> {
+  const boundary = await getCurrentTableCycleBoundary(params);
+  return boundary.cycleStartAt;
 }
 
 export async function getTableBillingSnapshot(params: {
@@ -141,11 +159,13 @@ export async function getTableBillingSnapshot(params: {
 }) {
   const { tenantId, tableId, prismaClient } = params;
   const db = prismaClient ?? prisma;
-  const cycleStartAt = await getCurrentTableCycleStart({
+  const cycleBoundary = await getCurrentTableCycleBoundary({
     tenantId,
     tableId,
     prismaClient: db,
   });
+  const cycleStartAt = cycleBoundary.cycleStartAt;
+  const boundarySettledBillRequestId = cycleBoundary.settledBillRequestId;
 
   const cycleTimestampFilter = cycleStartAt ? { gt: cycleStartAt } : undefined;
 
@@ -184,6 +204,10 @@ export async function getTableBillingSnapshot(params: {
         tenantId,
         tableId,
         ...(cycleTimestampFilter ? { createdAt: cycleTimestampFilter } : {}),
+        // Prevent previous cycle settlement payment from leaking into the next cycle.
+        ...(boundarySettledBillRequestId != null
+          ? { NOT: { billRequestId: boundarySettledBillRequestId } }
+          : {}),
       },
       select: { amount: true },
     }),

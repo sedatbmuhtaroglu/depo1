@@ -60,6 +60,15 @@ export type EndOfDayReportResult = {
   cashRevenue: number;
   iyzicoRevenue: number;
   creditCardRevenue: number;
+  sodexoRevenue: number;
+  multinetRevenue: number;
+  ticketRevenue: number;
+  metropolRevenue: number;
+  paymentMethodBreakdown: Array<{
+    method: string;
+    total: number;
+    count: number;
+  }>;
   waiterAverages: Array<{
     staffId: number;
     name: string;
@@ -74,6 +83,16 @@ export type EndOfDayReportResult = {
     revenueInclusion: string;
   };
 };
+
+const REPORT_METHOD_ORDER = [
+  "CASH",
+  "IYZICO",
+  "CREDIT_CARD",
+  "SODEXO",
+  "MULTINET",
+  "TICKET",
+  "METROPOL",
+] as const;
 
 export async function getEndOfDayReportForTenant(params: {
   tenantId: number;
@@ -181,6 +200,11 @@ export async function getEndOfDayReportForTenant(params: {
       totalAmountDelta: row.totalAmountDelta,
     })),
   });
+  const paymentMethodBreakdown = REPORT_METHOD_ORDER.map((method) => ({
+    method,
+    total: unifiedMetrics.byMethod[method]?.total ?? 0,
+    count: unifiedMetrics.byMethod[method]?.count ?? 0,
+  }));
 
   const deliveryDurations = completedOrders
     .map((order) => {
@@ -287,6 +311,11 @@ export async function getEndOfDayReportForTenant(params: {
     cashRevenue: unifiedMetrics.byMethod.CASH?.total ?? 0,
     iyzicoRevenue: unifiedMetrics.byMethod.IYZICO?.total ?? 0,
     creditCardRevenue: unifiedMetrics.byMethod.CREDIT_CARD?.total ?? 0,
+    sodexoRevenue: unifiedMetrics.byMethod.SODEXO?.total ?? 0,
+    multinetRevenue: unifiedMetrics.byMethod.MULTINET?.total ?? 0,
+    ticketRevenue: unifiedMetrics.byMethod.TICKET?.total ?? 0,
+    metropolRevenue: unifiedMetrics.byMethod.METROPOL?.total ?? 0,
+    paymentMethodBreakdown,
     waiterAverages,
     definitions: {
       longestDelivery:
@@ -301,4 +330,3 @@ export async function getEndOfDayReportForTenant(params: {
     },
   };
 }
-

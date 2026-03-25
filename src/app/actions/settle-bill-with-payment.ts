@@ -1,8 +1,8 @@
-﻿"use server";
+"use server";
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireWaiterOrManagerSession } from "@/lib/auth";
+import { requireCashierWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { opLog } from "@/lib/op-logger";
@@ -58,7 +58,7 @@ export async function settleBillWithPayment(options: {
   const gatewayIdentity = gatewayIdentityResolution.identity;
 
   try {
-    const { username, tenantId, staffId } = await requireWaiterOrManagerSession();
+    const { username, tenantId, staffId } = await requireCashierWaiterOrManagerSession("cash.settle");
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
@@ -216,3 +216,5 @@ export async function settleBillWithPayment(options: {
     };
   }
 }
+
+

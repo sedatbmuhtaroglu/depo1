@@ -1,13 +1,13 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireWaiterOrManagerSession } from "@/lib/auth";
+import { requireCashierWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 
 /** Masadan kart ile ödeme için hesap isteği oluşturur (iyzico akışında kullanılır). */
 export async function createBillRequestForTable(tableId: number) {
   try {
-    const { tenantId } = await requireWaiterOrManagerSession();
+    const { tenantId } = await requireCashierWaiterOrManagerSession("billrequest.view");
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz.", billRequestId: null };
@@ -42,3 +42,5 @@ export async function createBillRequestForTable(tableId: number) {
     };
   }
 }
+
+

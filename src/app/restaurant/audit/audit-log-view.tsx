@@ -103,6 +103,7 @@ function actionToneVariant(code: string) {
 function roleLabel(role?: string) {
   if (!role) return null;
   if (role === "MANAGER") return "Müdür";
+  if (role === "CASHIER") return "Kasiyer";
   if (role === "WAITER") return "Garson";
   if (role === "KITCHEN") return "Mutfak";
   return role;
@@ -116,6 +117,7 @@ function actorKindLabel(actorType?: string) {
 
 function roleBadgeVariant(role?: string) {
   if (role === "MANAGER") return "info";
+  if (role === "CASHIER") return "success";
   if (role === "WAITER") return "neutral";
   if (role === "KITCHEN") return "warning";
   return "neutral";

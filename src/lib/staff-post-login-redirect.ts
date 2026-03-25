@@ -1,5 +1,6 @@
 import type { StaffRole, Weekday } from "@prisma/client";
 import { evaluateStaffAvailability } from "@/lib/staff-availability";
+import { resolveRestaurantHomePath } from "@/lib/restaurant-panel-access";
 
 export type StaffPostLoginTarget =
   | { kind: "redirect"; path: string }
@@ -27,6 +28,9 @@ export function resolveStaffPostLoginTarget(staff: {
   if (staff.role === "MANAGER") {
     return { kind: "redirect", path: "/restaurant" };
   }
+  if (staff.role === "CASHIER") {
+    return { kind: "redirect", path: resolveRestaurantHomePath(staff.role) };
+  }
   if (staff.role === "WAITER" || staff.role === "KITCHEN") {
     const availability = evaluateStaffAvailability({
       isActive: staff.isActive,
@@ -43,7 +47,7 @@ export function resolveStaffPostLoginTarget(staff: {
       path: staff.role === "WAITER" ? "/waiter" : "/kitchen",
     };
   }
-  return { kind: "redirect", path: "/restaurant" };
+  return { kind: "redirect", path: resolveRestaurantHomePath(staff.role) };
 }
 
 export function staffPostLoginErrorMessage(code: string | undefined): string | null {

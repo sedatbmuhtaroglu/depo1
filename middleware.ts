@@ -75,6 +75,7 @@ export async function middleware(request: NextRequest) {
   }
   requestHeaders.set("x-app-surface", surface);
   requestHeaders.set("x-security-surface", securitySurface);
+  requestHeaders.set("x-request-pathname", request.nextUrl.pathname);
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },

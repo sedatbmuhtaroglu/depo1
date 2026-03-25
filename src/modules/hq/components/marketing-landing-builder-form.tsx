@@ -381,7 +381,7 @@ function ThemeEditor({
   theme: LandingThemeTokens;
   onChange: (next: LandingThemeTokens) => void;
 }) {
-  const fields: Array<{ key: keyof LandingThemeTokens; label: string }> = [
+  const standardFields: Array<{ key: keyof LandingThemeTokens; label: string }> = [
     { key: "background", label: "Background" },
     { key: "surface", label: "Surface" },
     { key: "surfaceAlt", label: "Surface Alt" },
@@ -401,26 +401,63 @@ function ThemeEditor({
     { key: "buttonSecondaryText", label: "Secondary Button Text" },
   ];
 
+  const visualOverrideFields: Array<{ key: keyof LandingThemeTokens; label: string; type: "color" | "text" }> = [
+    { key: "heroGradientFrom", label: "Hero Gradient From (Hex)", type: "color" },
+    { key: "heroGradientVia", label: "Hero Gradient Via (Hex)", type: "color" },
+    { key: "heroGradientTo", label: "Hero Gradient To (Hex)", type: "color" },
+    { key: "headerBackground", label: "Header Background (Hex)", type: "color" },
+    { key: "headerBorderColor", label: "Header Border (Hex or RGBA)", type: "text" },
+  ];
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {fields.map((field) => (
-        <div key={field.key} className="space-y-1.5 rounded-xl border border-[var(--ui-border-subtle)] p-3">
-          <label className={labelClasses()}>{field.label}</label>
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={theme[field.key]}
-              onChange={(event) => onChange({ ...theme, [field.key]: event.target.value })}
-              className="h-9 w-11 rounded border border-[var(--ui-border)] bg-transparent"
-            />
-            <input
-              value={theme[field.key]}
-              onChange={(event) => onChange({ ...theme, [field.key]: event.target.value })}
-              className={fieldClasses()}
-            />
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {standardFields.map((field) => (
+          <div key={field.key} className="space-y-1.5 rounded-xl border border-[var(--ui-border-subtle)] p-3">
+            <label className={labelClasses()}>{field.label}</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={theme[field.key] as string}
+                onChange={(event) => onChange({ ...theme, [field.key]: event.target.value })}
+                className="h-9 w-11 rounded border border-[var(--ui-border)] bg-transparent"
+              />
+              <input
+                value={theme[field.key] as string}
+                onChange={(event) => onChange({ ...theme, [field.key]: event.target.value })}
+                className={fieldClasses()}
+              />
+            </div>
           </div>
+        ))}
+      </div>
+
+      <div className="border-t border-[var(--ui-border-subtle)] pt-6">
+        <h4 className="mb-4 text-sm font-semibold text-[var(--ui-text-primary)] uppercase tracking-wider">Visual Overrides (Görsel Özelleştirme)</h4>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {visualOverrideFields.map((field) => (
+            <div key={field.key} className="space-y-1.5 rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-subtle)]/20 p-3">
+              <label className={labelClasses()}>{field.label}</label>
+              <div className="flex items-center gap-2">
+                {field.type === "color" && (
+                  <input
+                    type="color"
+                    value={(theme[field.key] as string) || "#000000"}
+                    onChange={(event) => onChange({ ...theme, [field.key]: event.target.value })}
+                    className="h-9 w-11 rounded border border-[var(--ui-border)] bg-transparent"
+                  />
+                )}
+                <input
+                  value={(theme[field.key] as string) || ""}
+                  onChange={(event) => onChange({ ...theme, [field.key]: event.target.value })}
+                  className={fieldClasses()}
+                  placeholder={field.type === "text" ? "rgba(255,255,255,0.1)" : "#hex"}
+                />
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }
@@ -741,6 +778,217 @@ function NavigationEditor({
   );
 }
 
+function SectionVisualsEditor({
+  visuals = {},
+  onChange,
+}: {
+  visuals?: LandingSectionVisuals;
+  onChange: (next: LandingSectionVisuals) => void;
+}) {
+  return (
+    <div className="mt-4 border-t border-[var(--ui-border-subtle)] pt-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--ui-text-muted)]">Görsel Özelleştirme (Visual Overrides)</h4>
+        <label className="flex items-center gap-2 text-xs text-[var(--ui-text-secondary)]">
+          <input
+            type="checkbox"
+            className={checkboxInputClasses()}
+            checked={!!visuals.isEnabledVisuals}
+            onChange={(e) => onChange({ ...visuals, isEnabledVisuals: e.target.checked })}
+          />
+          Override Aktif
+        </label>
+      </div>
+
+      {visuals.isEnabledVisuals && (
+        <div className="space-y-4 animate-in fade-in slide-in-from-top-1">
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 text-xs text-[var(--ui-text-secondary)]">
+              <input
+                type="radio"
+                checked={visuals.backgroundMode !== "custom"}
+                onChange={() => onChange({ ...visuals, backgroundMode: "default" })}
+              />
+              Varsayılan (Default)
+            </label>
+            <label className="flex items-center gap-2 text-xs text-[var(--ui-text-secondary)]">
+              <input
+                type="radio"
+                checked={visuals.backgroundMode === "custom"}
+                onChange={() => onChange({ ...visuals, backgroundMode: "custom" })}
+              />
+              Özel (Custom)
+            </label>
+          </div>
+
+          {visuals.backgroundMode === "custom" && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-1.5">
+                <label className={labelClasses()}>Background Color</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={visuals.backgroundColor || "#020617"}
+                    onChange={(e) => onChange({ ...visuals, backgroundColor: e.target.value })}
+                    className="h-8 w-10 rounded border border-[var(--ui-border)]"
+                  />
+                  <input
+                    value={visuals.backgroundColor || ""}
+                    onChange={(e) => onChange({ ...visuals, backgroundColor: e.target.value })}
+                    className={fieldClasses()}
+                    placeholder="#hex"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelClasses()}>Gradient From</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={visuals.gradientFrom || "#020617"}
+                    onChange={(e) => onChange({ ...visuals, gradientFrom: e.target.value })}
+                    className="h-8 w-10 rounded border border-[var(--ui-border)]"
+                  />
+                  <input
+                    value={visuals.gradientFrom || ""}
+                    onChange={(e) => onChange({ ...visuals, gradientFrom: e.target.value })}
+                    className={fieldClasses()}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelClasses()}>Gradient Via</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={visuals.gradientVia || "#0b3b8f"}
+                    onChange={(e) => onChange({ ...visuals, gradientVia: e.target.value })}
+                    className="h-8 w-10 rounded border border-[var(--ui-border)]"
+                  />
+                  <input
+                    value={visuals.gradientVia || ""}
+                    onChange={(e) => onChange({ ...visuals, gradientVia: e.target.value })}
+                    className={fieldClasses()}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelClasses()}>Gradient To</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={visuals.gradientTo || "#071a3a"}
+                    onChange={(e) => onChange({ ...visuals, gradientTo: e.target.value })}
+                    className="h-8 w-10 rounded border border-[var(--ui-border)]"
+                  />
+                  <input
+                    value={visuals.gradientTo || ""}
+                    onChange={(e) => onChange({ ...visuals, gradientTo: e.target.value })}
+                    className={fieldClasses()}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelClasses()}>Border Color</label>
+                <input
+                  value={visuals.borderColor || ""}
+                  onChange={(e) => onChange({ ...visuals, borderColor: e.target.value })}
+                  className={fieldClasses()}
+                  placeholder="rgba(255,255,255,0.08)"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FooterEditor({
+  config,
+  onChange,
+}: {
+  config: LandingFooterConfig;
+  onChange: (next: LandingFooterConfig) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <label className="flex items-center gap-2 text-sm text-[var(--ui-text-secondary)]">
+        <input
+          type="checkbox"
+          className={checkboxInputClasses()}
+          checked={config.isEnabled}
+          onChange={(e) => onChange({ ...config, isEnabled: e.target.checked })}
+        />
+        Footer Aktif
+      </label>
+
+      {config.isEnabled && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 border-t border-[var(--ui-border-subtle)] pt-4">
+          <div className="space-y-1.5">
+            <label className={labelClasses()}>Background Color</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={config.background || "#020617"}
+                onChange={(e) => onChange({ ...config, background: e.target.value })}
+                className="h-9 w-11 rounded border border-[var(--ui-border)]"
+              />
+              <input
+                value={config.background || ""}
+                onChange={(e) => onChange({ ...config, background: e.target.value })}
+                className={fieldClasses()}
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className={labelClasses()}>Border Color</label>
+            <input
+              value={config.borderColor || ""}
+              onChange={(e) => onChange({ ...config, borderColor: e.target.value })}
+              className={fieldClasses()}
+              placeholder="rgba(255,255,255,0.08)"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className={labelClasses()}>Text Color</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={config.textColor || "#94a3b8"}
+                onChange={(e) => onChange({ ...config, textColor: e.target.value })}
+                className="h-9 w-11 rounded border border-[var(--ui-border)]"
+              />
+              <input
+                value={config.textColor || ""}
+                onChange={(e) => onChange({ ...config, textColor: e.target.value })}
+                className={fieldClasses()}
+              />
+            </div>
+          </div>
+          <div className="md:col-span-2 lg:col-span-3">
+            <CmsRichTextEditor
+              label="Footer Ana İçerik (Rich Text)"
+              value={config.contentRichText || ""}
+              onChange={(next) => onChange({ ...config, contentRichText: next })}
+            />
+          </div>
+          <div className="md:col-span-2 lg:col-span-3 space-y-1.5">
+            <label className={labelClasses()}>Custom HTML / Code Snippet (Embed, Script vb.)</label>
+            <textarea
+              value={config.customCode || ""}
+              onChange={(e) => onChange({ ...config, customCode: e.target.value })}
+              className={`${fieldClasses()} min-h-[120px] font-mono text-xs`}
+              placeholder="<!-- Google Analytics, Meta Pixel vb. -->"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function MarketingLandingBuilderForm({ site }: MarketingLandingBuilderFormProps) {
   const landingSectionsConfig = (site.landingSections ?? []).map((section) => ({
     sectionType: section.sectionType,
@@ -759,6 +1007,18 @@ export function MarketingLandingBuilderForm({ site }: MarketingLandingBuilderFor
     mediaCaptionHtml: section.mediaCaptionHtml ?? "",
     payload: section.payload && typeof section.payload === "object" && !Array.isArray(section.payload) ? section.payload : {},
   })) as LandingSectionConfig[];
+
+  const initialFooterConfig = (site.footerConfig && typeof site.footerConfig === "object" && !Array.isArray(site.footerConfig))
+    ? (site.footerConfig as unknown as LandingFooterConfig)
+    : DEFAULT_LANDING_FOOTER;
+
+  const [footerConfig, setFooterConfig] = useState<LandingFooterConfig>(initialFooterConfig);
+
+  // ... rest of the component state ...
+  // ... in return:
+  // <input type="hidden" name="footerConfigPayload" value={JSON.stringify(footerConfig)} />
+  // ... new Footer section ...
+
   const landingNavigationItems = (site.landingNavItems ?? []).map((item) => ({
     id: item.id,
     title: item.title,
@@ -797,6 +1057,12 @@ export function MarketingLandingBuilderForm({ site }: MarketingLandingBuilderFor
         buttonPrimaryText: site.landingTheme.buttonPrimaryText,
         buttonSecondaryBg: site.landingTheme.buttonSecondaryBg,
         buttonSecondaryText: site.landingTheme.buttonSecondaryText,
+        // New fields
+        heroGradientFrom: site.landingTheme.heroGradientFrom,
+        heroGradientVia: site.landingTheme.heroGradientVia,
+        heroGradientTo: site.landingTheme.heroGradientTo,
+        headerBackground: site.landingTheme.headerBackground,
+        headerBorderColor: site.landingTheme.headerBorderColor,
       }
     : DEFAULT_LANDING_THEME;
 

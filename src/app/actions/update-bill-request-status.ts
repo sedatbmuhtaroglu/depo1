@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { requireWaiterOrManagerSession } from "@/lib/auth";
+import { requireCashierWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { logServerError } from "@/lib/server-error-log";
@@ -18,7 +18,7 @@ export async function updateBillRequestStatus(
   status: BillRequestStatusValue,
 ) {
   try {
-    const { username, tenantId, staffId } = await requireWaiterOrManagerSession();
+    const { username, tenantId, staffId } = await requireCashierWaiterOrManagerSession("billrequest.view");
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
@@ -144,3 +144,5 @@ export async function updateBillRequestStatus(
     };
   }
 }
+
+

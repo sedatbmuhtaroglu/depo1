@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { requireWaiterOrManagerSession } from "@/lib/auth";
+import { requireCashierWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { opLog } from "@/lib/op-logger";
@@ -29,7 +29,7 @@ export async function recordTablePayment(options: {
   }
 
   try {
-    const { username, tenantId } = await requireWaiterOrManagerSession();
+    const { username, tenantId } = await requireCashierWaiterOrManagerSession("cash.collect");
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
@@ -82,3 +82,5 @@ export async function recordTablePayment(options: {
     return { success: false, message: "Ödeme kaydedilemedi." };
   }
 }
+
+

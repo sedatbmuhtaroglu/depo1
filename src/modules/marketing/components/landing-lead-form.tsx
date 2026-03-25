@@ -13,6 +13,7 @@ import { submitLandingLeadFormAction } from "@/modules/marketing/actions/landing
 type LandingLeadFormProps = {
   submitLabel: string;
   consentText: string | null;
+  successMessage?: string | null;
   trustBullets: string[];
   tracking: {
     utmSource: string;
@@ -38,6 +39,7 @@ const INITIAL_STATE: FormState = {
 export function LandingLeadForm({
   submitLabel,
   consentText,
+  successMessage,
   trustBullets,
   tracking,
 }: LandingLeadFormProps) {
@@ -158,11 +160,11 @@ export function LandingLeadForm({
           <p
             className={`rounded-lg border px-3 py-2 text-sm ${
               state.ok
-                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
-                : "border-rose-500/40 bg-rose-500/10 text-rose-200"
+                ? "border-[color:var(--ui-success-border)] bg-[color:var(--ui-success-soft)] text-[color:var(--ui-success)]"
+                : "border-[color:var(--ui-danger-border)] bg-[color:var(--ui-danger-soft)] text-[color:var(--ui-danger)]"
             }`}
           >
-            {state.message}
+            {state.ok && successMessage ? successMessage : state.message}
           </p>
         ) : null}
       </div>

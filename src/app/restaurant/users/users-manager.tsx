@@ -25,7 +25,7 @@ type TenantStaffListItem = {
   id: number;
   displayName: string | null;
   username: string;
-  role: "MANAGER" | "WAITER" | "KITCHEN";
+  role: "MANAGER" | "CASHIER" | "WAITER" | "KITCHEN";
   isActive: boolean;
   workingDays: Weekday[];
   shiftStart: string | null;
@@ -77,7 +77,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [role, setRole] = useState<"RESTAURANT_MANAGER" | "WAITER" | "KITCHEN">("WAITER");
+  const [role, setRole] = useState<"RESTAURANT_MANAGER" | "CASHIER" | "WAITER" | "KITCHEN">("WAITER");
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [managerPasswordInputs, setManagerPasswordInputs] = useState<Record<number, string>>({});
@@ -98,7 +98,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
     const temporaryPassword = String(formData.get("temporaryPassword") ?? "");
     const rawRole = String(formData.get("role") ?? role);
     const normalizedRole =
-      rawRole === "RESTAURANT_MANAGER" || rawRole === "WAITER" || rawRole === "KITCHEN"
+      rawRole === "RESTAURANT_MANAGER" || rawRole === "CASHIER" || rawRole === "WAITER" || rawRole === "KITCHEN"
         ? rawRole
         : role;
 
@@ -207,11 +207,12 @@ export default function UsersManager({ users }: UsersManagerProps) {
               name="role"
               value={role}
               onChange={(e) =>
-                setRole(e.target.value as "RESTAURANT_MANAGER" | "WAITER" | "KITCHEN")
+                setRole(e.target.value as "RESTAURANT_MANAGER" | "CASHIER" | "WAITER" | "KITCHEN")
               }
               className={INPUT_CLASS}
             >
               <option value="RESTAURANT_MANAGER">Restoran Müdürü</option>
+              <option value="CASHIER">Kasiyer</option>
               <option value="WAITER">Garson</option>
               <option value="KITCHEN">Mutfak</option>
             </select>
@@ -476,7 +477,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
                   const result = await updateTenantStaffUser({
                     id: editTarget.id,
                     displayName: String(formData.get("displayName") ?? ""),
-                    role: String(formData.get("role") ?? "WAITER") as "RESTAURANT_MANAGER" | "WAITER" | "KITCHEN",
+                    role: String(formData.get("role") ?? "WAITER") as "RESTAURANT_MANAGER" | "CASHIER" | "WAITER" | "KITCHEN",
                     isActive: formData.get("isActive") === "on",
                     weeklyShiftSchedule: weeklyEdit,
                     notes: String(formData.get("notes") ?? "") || null,
@@ -519,6 +520,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
                       className={`${INPUT_CLASS} w-full min-w-0`}
                     >
                       <option value="RESTAURANT_MANAGER">Restoran Müdürü</option>
+                      <option value="CASHIER">Kasiyer</option>
                       <option value="WAITER">Garson</option>
                       <option value="KITCHEN">Mutfak</option>
                     </select>

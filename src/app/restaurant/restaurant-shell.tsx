@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { StaffRole } from "@prisma/client";
 import {
   BarChart3,
   Boxes,
@@ -33,6 +34,10 @@ import {
   RESTAURANT_THEME_STORAGE_KEY,
   type RestaurantThemeMode,
 } from "./theme/restaurant-theme";
+import {
+  canAccessRestaurantNavItem,
+  getRestaurantPanelRoleTitle,
+} from "@/lib/restaurant-panel-access";
 
 type NavItem = {
   href: string;
@@ -249,11 +254,13 @@ function applyRestaurantTheme(theme: RestaurantThemeMode) {
 type RestaurantShellProps = {
   children: React.ReactNode;
   headerAction?: React.ReactNode;
+  role: StaffRole;
 };
 
 export default function RestaurantShell({
   children,
   headerAction,
+  role,
 }: RestaurantShellProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -289,6 +296,9 @@ export default function RestaurantShell({
     "restaurant-shell-nav-item group flex items-center rounded-xl text-sm font-medium";
 
   const navGroups = useMemo(() => {
+    const visibleItems = NAV_ITEMS.filter((item) =>
+      canAccessRestaurantNavItem({ role, href: item.href }),
+    );
     const groups: Array<{ label: NavItem["group"]; items: NavItem[] }> = [
       { label: "Operasyon", items: [] },
       { label: "Menü & Stok", items: [] },
@@ -296,13 +306,13 @@ export default function RestaurantShell({
       { label: "Sistem & Güvenlik", items: [] },
     ];
     const index = new Map(groups.map((g, i) => [g.label, i]));
-    for (const item of NAV_ITEMS) {
+    for (const item of visibleItems) {
       const i = index.get(item.group);
       if (i == null) continue;
       groups[i]!.items.push(item);
     }
     return groups;
-  }, []);
+  }, [role]);
 
   const renderNavItems = (mode: "desktop" | "mobile") => {
     const isDesktop = mode === "desktop";
@@ -368,7 +378,7 @@ export default function RestaurantShell({
                   Menucy
                 </p>
                 <p className="text-sm font-semibold text-[var(--rm-sidebar-foreground)]">
-                  Restoran Müdürü
+                  {getRestaurantPanelRoleTitle(role)}
                 </p>
               </div>
             )}
@@ -487,7 +497,7 @@ export default function RestaurantShell({
               Menucy
             </p>
                 <p className="text-sm font-semibold text-[var(--rm-sidebar-foreground)]">
-              Restoran Müdürü
+              {getRestaurantPanelRoleTitle(role)}
             </p>
           </div>
           <button

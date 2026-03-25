@@ -19,6 +19,11 @@ export const CAPABILITIES = [
   "MARKETING_CONTENT_MANAGE",
   "REQUEST_WAITER",
   "PAYMENT_WEBHOOK_PROCESS",
+  "cash.view",
+  "cash.collect",
+  "cash.settle",
+  "billrequest.view",
+  "table.open_balance.view",
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];

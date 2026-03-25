@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 const MAIN_SITE_KEY = "main";
 
@@ -6,44 +7,44 @@ const DEFAULT_MARKETING_SITE_CREATE = {
   key: MAIN_SITE_KEY,
   isPublished: true,
   brandName: "MENUCY",
-  brandTagline: "QR menu ve siparis operasyonunu hizlandiran restoran platformu",
+  brandTagline: "Yeni Nesil QR Menü ve Sipariş Yönetim Platformu",
   announcementEnabled: true,
-  announcementText: "Yeni nesil restoran akisi: menu, siparis, odeme ve servis tek panelde.",
-  announcementCtaLabel: "Demo Talep Et",
+  announcementText: "Operasyonunuzu hızlandırın: Temassız sipariş, dijital ödeme ve mutfak yönetimi tek panelde.",
+  announcementCtaLabel: "Ücretsiz QR Menü Oluştur",
   announcementCtaHref: "#lead-form",
-  heroKicker: "Restoranlar Icin Satisa Donusen Dijital Deneyim",
-  heroTitle: "Masaya gelen QR ile siparis surecini hizlandirin, satisi buyutun.",
+  heroKicker: "Restoranlar İçin Premium Dijital Deneyim",
+  heroTitle: "Sıradan bir menü değil, satışları artıran bir operasyon motoru.",
   heroDescription:
-    "MENUCY; musteri deneyimini, garson operasyonunu ve mutfak gorunurlugunu tek bir akista birlestirir.",
-  heroPrimaryCtaLabel: "Hemen Demo Al",
+    "MENUCY; müşteri, garson ve mutfak akışlarını kusursuz bir hibrit operasyonda birleştirir. Hız kazanın, maliyetleri düşürün ve misafirlerinize modern bir deneyim sunun.",
+  heroPrimaryCtaLabel: "QR Menü Oluştur",
   heroPrimaryCtaHref: "#lead-form",
-  heroSecondaryCtaLabel: "Ozellikleri Incele",
+  heroSecondaryCtaLabel: "Özellikleri İncele",
   heroSecondaryCtaHref: "#features",
-  trustSectionTitle: "Tercih Eden Ekipler",
-  trustSectionDescription: "Sahada hiz, netlik ve kontrol arayan restoran operasyonlari.",
-  featuresSectionTitle: "Operasyonu Hızlandıran Yetenekler",
-  featuresSectionDescription: "Siparis hattini yavaslatan noktalari azaltmak icin tasarlandi.",
-  howItWorksSectionTitle: "Nasil Calisir",
-  howItWorksSectionDescription: "Kurulumdan canliya gecise kadar sade bir akis.",
-  categorySectionTitle: "Kullanim Alanlari",
-  categorySectionDescription: "Farkli restoran tipleri ve ekip ihtiyaclari icin net paketler.",
-  ctaSectionTitle: "Restoraniniz icin en dogru akisi birlikte kuralim.",
-  ctaSectionDescription: "Kisa bir demo ile mevcut operasyonunuza uygun plani netlestirelim.",
-  ctaPrimaryLabel: "Demo Randevusu Al",
+  trustSectionTitle: "Güvenle Kullanan Ekipler",
+  trustSectionDescription: "Sahada hız, netlik ve tam kontrol arayan profesyonel işletmeler.",
+  featuresSectionTitle: "Operasyonunuzu Güçlendiren Yetenekler",
+  featuresSectionDescription: "Sipariş hattındaki darboğazları ortadan kaldırmak için özel olarak tasarlandı.",
+  howItWorksSectionTitle: "Nasıl Çalışır?",
+  howItWorksSectionDescription: "Kurulumdan canlıya geçişe kadar her adımda yanınızdayız.",
+  categorySectionTitle: "İşletmenize Özel Çözümler",
+  categorySectionDescription: "Farklı servis modelleri ve ekip ihtiyaçları için optimize edilmiş akışlar.",
+  ctaSectionTitle: "Restoranınız için en doğru dijital akışı birlikte kuralim.",
+  ctaSectionDescription: "Kısa bir demo ile mevcut operasyonunuzdaki verimsizlikleri belirleyelim.",
+  ctaPrimaryLabel: "Hemen Başlayın",
   ctaPrimaryHref: "#lead-form",
-  faqSectionTitle: "Sik Sorulan Sorular",
-  faqSectionDescription: "Karar surecinde en cok gelen sorular.",
-  formSectionTitle: "Satis Ekibi Sizi Arasin",
-  formSectionDescription: "Kisa bir form doldurun, en uygun paketi birlikte belirleyelim.",
-  formSubmitLabel: "Basvuru Gonder",
-  formConsentText: "Bilgilerimin satis ekibiyle iletisim icin kullanilmasini kabul ediyorum.",
-  seoTitle: "MENUCY | QR Menu ve Restoran Siparis Platformu",
+  faqSectionTitle: "Sıkça Sorulan Sorular",
+  faqSectionDescription: "Karar sürecinde size yardımcı olacak temel bilgiler.",
+  formSectionTitle: "Uzman Ekibimiz Sizi Arasın",
+  formSectionDescription: "Formu doldurun; işletmenize en uygun paketi ve kurulum planını birlikte netleştirelim.",
+  formSubmitLabel: "Bilgi Almak İstiyorum",
+  formConsentText: "Verilerimin satış ekibiyle iletişime geçilmesi amacıyla kullanılmasını onaylıyorum.",
+  seoTitle: "MENUCY | Premium QR Menü ve Restoran Otomasyon Sistemi",
   seoDescription:
-    "MENUCY ile restoran operasyonunda hiz, gorunurluk ve satis odakli dijital deneyim elde edin.",
+    "MENUCY ile restoranınızda dijital sipariş, mutfak yönetimi ve detaylı raporlama ile operasyonel mükemmelliğe ulaşın.",
   seoCanonicalUrl: "https://www.menucy.com/",
-  seoOgTitle: "MENUCY ile QR Menu ve Siparis Operasyonunu Buyutun",
+  seoOgTitle: "MENUCY ile QR Menü ve Sipariş Yönetimini Modernleştirin",
   seoOgDescription:
-    "Masa QR deneyimi, garson paneli ve mutfak akisiyla restoran operasyonunu modernlestirin.",
+    "Masa başı QR deneyimi, garson paneli ve mutfak akışıyla satışlarınızı ve verimliliğinizi artırın.",
   seoOgImageUrl: null,
 } as const;
 
@@ -178,6 +179,7 @@ export async function ensureMainMarketingSiteId(): Promise<number> {
 }
 
 export async function getMarketingSiteConfigForHq() {
+  noStore();
   const siteId = await ensureMainMarketingSiteId();
   return prisma.marketingSiteConfig.findUnique({
     where: { id: siteId },
@@ -206,6 +208,7 @@ export async function getMarketingSiteConfigForHq() {
 }
 
 export async function getMarketingSiteConfigForPublic() {
+  noStore();
   const site = await getMarketingSiteConfigForHq();
   if (!site) return null;
   if (!site.isPublished) return null;

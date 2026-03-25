@@ -24,7 +24,7 @@ export type StaffSetPasswordTokenSnapshot = {
   tenantStaffId: number;
   username: string;
   displayName: string | null;
-  role: "MANAGER" | "WAITER" | "KITCHEN";
+  role: "MANAGER" | "CASHIER" | "WAITER" | "KITCHEN";
   tenantId: number;
   tenantSlug: string;
   expiresAt: Date;
@@ -73,7 +73,7 @@ type RawTokenRow = {
     tenantId: number;
     username: string;
     displayName: string | null;
-    role: "MANAGER" | "WAITER" | "KITCHEN";
+    role: "MANAGER" | "CASHIER" | "WAITER" | "KITCHEN";
     isActive: boolean;
     mustSetPassword: boolean;
     tenant: {

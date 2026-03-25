@@ -18,6 +18,16 @@ function formatMinutes(value: number | null): string {
   return `${value} dk`;
 }
 
+const METHOD_LABELS: Record<string, string> = {
+  CASH: "Nakit",
+  IYZICO: "Online (Iyzico)",
+  CREDIT_CARD: "Kredi Kartı",
+  SODEXO: "Sodexo",
+  MULTINET: "Multinet",
+  TICKET: "Ticket",
+  METROPOL: "Metropol",
+};
+
 export default async function DayEndPdfPage({
   searchParams,
 }: {
@@ -95,6 +105,30 @@ export default async function DayEndPdfPage({
         </div>
         <div className="rounded-xl border border-neutral-200 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Sodexo
+          </p>
+          <p className="mt-2 text-xl font-bold">{formatCurrency(report.sodexoRevenue)}</p>
+        </div>
+        <div className="rounded-xl border border-neutral-200 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Multinet
+          </p>
+          <p className="mt-2 text-xl font-bold">{formatCurrency(report.multinetRevenue)}</p>
+        </div>
+        <div className="rounded-xl border border-neutral-200 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Ticket
+          </p>
+          <p className="mt-2 text-xl font-bold">{formatCurrency(report.ticketRevenue)}</p>
+        </div>
+        <div className="rounded-xl border border-neutral-200 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Metropol
+          </p>
+          <p className="mt-2 text-xl font-bold">{formatCurrency(report.metropolRevenue)}</p>
+        </div>
+        <div className="rounded-xl border border-neutral-200 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
             Ort. Teslim
           </p>
           <p className="mt-2 text-xl font-bold">
@@ -108,6 +142,30 @@ export default async function DayEndPdfPage({
           <p className="mt-2 text-xl font-bold">
             {formatMinutes(report.averagePreparationMinutes)}
           </p>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-neutral-200 p-4">
+        <h2 className="text-sm font-semibold text-neutral-700">Ödeme Yöntemi Kırılımı</h2>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-neutral-200 text-left text-neutral-600">
+                <th className="pb-2 pr-4">Yöntem</th>
+                <th className="pb-2 pr-4">Adet</th>
+                <th className="pb-2">Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {report.paymentMethodBreakdown.map((row) => (
+                <tr key={row.method} className="border-b border-neutral-100">
+                  <td className="py-2 pr-4">{METHOD_LABELS[row.method] ?? row.method}</td>
+                  <td className="py-2 pr-4">{row.count}</td>
+                  <td className="py-2 font-semibold">{formatCurrency(row.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 

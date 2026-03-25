@@ -41,6 +41,7 @@ export default async function RestaurantUsersPage() {
   const totalUsers = users.length;
   const activeUsers = users.filter((user) => user.isActive).length;
   const managerCount = users.filter((user) => user.role === "MANAGER").length;
+  const cashierCount = users.filter((user) => user.role === "CASHIER").length;
   const waiterCount = users.filter((user) => user.role === "WAITER").length;
   const kitchenCount = users.filter((user) => user.role === "KITCHEN").length;
   const usersMax = limitSummary.usage.users.max;
@@ -101,7 +102,7 @@ export default async function RestaurantUsersPage() {
         <article className={cardClasses({ className: "p-3.5 shadow-none" })}>
           <p className="text-xs font-medium text-[color:var(--ui-text-secondary)]">Rol dağılımı</p>
           <p className="mt-1 text-sm font-semibold text-[color:var(--ui-text-primary)]">
-            Garson {waiterCount} · Mutfak {kitchenCount}
+            Kasiyer {cashierCount} · Garson {waiterCount} · Mutfak {kitchenCount}
           </p>
         </article>
       </section>

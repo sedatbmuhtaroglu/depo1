@@ -40,6 +40,15 @@ type DayEndReport = {
   cashRevenue: number;
   iyzicoRevenue: number;
   creditCardRevenue: number;
+  sodexoRevenue: number;
+  multinetRevenue: number;
+  ticketRevenue: number;
+  metropolRevenue: number;
+  paymentMethodBreakdown: Array<{
+    method: string;
+    total: number;
+    count: number;
+  }>;
   waiterAverages: Array<{
     staffId: number;
     name: string;
@@ -53,6 +62,16 @@ type DayEndReport = {
     waiterResponseAverage: string;
     revenueInclusion: string;
   };
+};
+
+const DAY_END_METHOD_LABELS: Record<string, string> = {
+  CASH: "Nakit",
+  IYZICO: "Online (Iyzico)",
+  CREDIT_CARD: "Kredi Kartı",
+  SODEXO: "Sodexo",
+  MULTINET: "Multinet",
+  TICKET: "Ticket",
+  METROPOL: "Metropol",
 };
 
 type BadgeVariant = "neutral" | "info" | "success" | "warning" | "danger";
@@ -293,6 +312,10 @@ export default function ReportsView({
     rows.push(`Nakit ciro,${dayEndReport.cashRevenue.toFixed(2)}`);
     rows.push(`Online ciro,${dayEndReport.iyzicoRevenue.toFixed(2)}`);
     rows.push(`Kart ciro,${dayEndReport.creditCardRevenue.toFixed(2)}`);
+    rows.push(`Sodexo ciro,${dayEndReport.sodexoRevenue.toFixed(2)}`);
+    rows.push(`Multinet ciro,${dayEndReport.multinetRevenue.toFixed(2)}`);
+    rows.push(`Ticket ciro,${dayEndReport.ticketRevenue.toFixed(2)}`);
+    rows.push(`Metropol ciro,${dayEndReport.metropolRevenue.toFixed(2)}`);
     rows.push("");
     rows.push("Donem ozeti");
     rows.push(`Toplam tahsilat,${revenue.toFixed(2)}`);
@@ -395,6 +418,10 @@ export default function ReportsView({
           <MetricCard label="Nakit ciro" value={formatTryCurrency(dayEndReport.cashRevenue)} />
           <MetricCard label="Online ciro" value={formatTryCurrency(dayEndReport.iyzicoRevenue)} />
           <MetricCard label="Kart ciro" value={formatTryCurrency(dayEndReport.creditCardRevenue)} />
+          <MetricCard label="Sodexo" value={formatTryCurrency(dayEndReport.sodexoRevenue)} />
+          <MetricCard label="Multinet" value={formatTryCurrency(dayEndReport.multinetRevenue)} />
+          <MetricCard label="Ticket" value={formatTryCurrency(dayEndReport.ticketRevenue)} />
+          <MetricCard label="Metropol" value={formatTryCurrency(dayEndReport.metropolRevenue)} />
         </div>
 
         {dayEndReport.waiterAverages.length > 0 && (
@@ -442,6 +469,36 @@ export default function ReportsView({
             <li>{dayEndReport.definitions.waiterResponseAverage}</li>
             <li>{dayEndReport.definitions.revenueInclusion}</li>
           </ul>
+          <div className="mt-3 overflow-x-auto rounded-xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-bg)]">
+            <table className="min-w-full text-xs">
+              <thead className="bg-[color:var(--ui-surface-subtle)]">
+                <tr className="border-b border-[color:var(--ui-border)]">
+                  <th className="px-3 py-2 text-left font-semibold uppercase tracking-wide text-[color:var(--ui-text-secondary)]">
+                    Yöntem
+                  </th>
+                  <th className="px-3 py-2 text-left font-semibold uppercase tracking-wide text-[color:var(--ui-text-secondary)]">
+                    Adet
+                  </th>
+                  <th className="px-3 py-2 text-left font-semibold uppercase tracking-wide text-[color:var(--ui-text-secondary)]">
+                    Tutar
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {dayEndReport.paymentMethodBreakdown.map((row) => (
+                  <tr key={row.method} className="border-b border-[color:var(--ui-border-subtle)]">
+                    <td className="px-3 py-2 text-[color:var(--ui-text-primary)]">
+                      {DAY_END_METHOD_LABELS[row.method] ?? row.method}
+                    </td>
+                    <td className="px-3 py-2 text-[color:var(--ui-text-primary)]">{row.count}</td>
+                    <td className="px-3 py-2 font-semibold text-[color:var(--ui-text-primary)]">
+                      {formatTryCurrency(row.total)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 

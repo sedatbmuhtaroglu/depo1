@@ -113,7 +113,9 @@ function normalizeThemePayload(input: unknown): LandingThemeTokens {
   for (const key of keys) {
     const value = source[key];
     if (typeof value === "string" && value.trim()) {
-      normalized[key] = value.trim().slice(0, 16);
+      // Increase limit for custom overrides like rgba or complex hex
+      const limit = key === "headerBorderColor" ? 48 : 24;
+      normalized[key] = value.trim().slice(0, limit);
     }
   }
   return normalized;
@@ -654,6 +656,7 @@ export async function saveMarketingLandingBuilderAction(formData: FormData): Pro
     const theme = normalizeThemePayload(parseJsonPayload(formData.get("themePayload"), DEFAULT_LANDING_THEME));
     const sections = normalizeLandingSectionsPayload(parseJsonPayload(formData.get("sectionsPayload"), getDefaultLandingSections()));
     const navItems = normalizeLandingNavigationPayload(parseJsonPayload(formData.get("navItemsPayload"), []));
+    const footerConfig = parseJsonPayload(formData.get("footerConfigPayload"), DEFAULT_LANDING_FOOTER);
     const siteId = await ensureMainSiteId();
 
     await prisma.$transaction(async (tx) => {
@@ -669,6 +672,7 @@ export async function saveMarketingLandingBuilderAction(formData: FormData): Pro
           seoOgTitle,
           seoOgDescription,
           seoOgImageUrl,
+          footerConfig: footerConfig as any,
         },
       });
 
@@ -737,6 +741,8 @@ export async function saveMarketingLandingBuilderAction(formData: FormData): Pro
     revalidateMarketingPaths();
     return { success: true, message: "Landing builder ayarlari kaydedildi." };
   } catch (error) {
+    console.error("[MARKETING_ACTION_ERROR]:", error);
+    
     if (error instanceof Error && error.message === "LANDING_BUILDER_PAYLOAD") {
       return { success: false, message: "Landing builder payload formati gecersiz." };
     }
@@ -746,6 +752,12 @@ export async function saveMarketingLandingBuilderAction(formData: FormData): Pro
     if (error instanceof Error && error.message === "LANDING_BUILDER_NAV_HREF") {
       return { success: false, message: "Navigation link degeri gecersiz." };
     }
-    return { success: false, message: "Landing builder ayari kaydedilemedi." };
+    
+    // Database or schema mismatch errors
+    const errorMessage = error instanceof Error ? error.message : "Bilinmeyen bir hata olustu";
+    return { 
+      success: false, 
+      message: `Landing builder ayari kaydedilemedi: ${errorMessage.includes("Unknown argument") ? "Schema uyumsuzlugu (generate/push gerekli)" : "Sistemsel hata"}` 
+    };
   }
 }

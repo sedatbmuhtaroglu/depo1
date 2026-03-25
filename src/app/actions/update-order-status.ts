@@ -25,7 +25,7 @@ type OrderStatusValue =
   | "REJECTED";
 
 type TransitionRule = `${OrderStatusValue}->${OrderStatusValue}`;
-type RoleValue = "MANAGER" | "WAITER" | "KITCHEN";
+type RoleValue = "MANAGER" | "CASHIER" | "WAITER" | "KITCHEN";
 type UpdateOrderStatusErrorCode =
   | "ROLE_NOT_ALLOWED"
   | "UNAUTHORIZED_STATUS_TRANSITION"
@@ -45,6 +45,7 @@ const VALID_STATUS_FLOW = new Set<TransitionRule>([
 ]);
 
 const ROLE_ALLOWED_TRANSITIONS: Record<RoleValue, Set<TransitionRule>> = {
+  CASHIER: new Set<TransitionRule>([]),
   WAITER: new Set<TransitionRule>([
     "PENDING_WAITER_APPROVAL->PENDING",
     "PENDING_WAITER_APPROVAL->REJECTED",

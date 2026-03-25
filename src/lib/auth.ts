@@ -2,10 +2,15 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Prisma, type StaffRole } from "@prisma/client";
+import type { Capability } from "@/core/authz/capabilities";
 import { createHqAdminActor, createStaffActor } from "@/core/authz/actors";
 import { assertSurfaceGuard } from "@/core/surfaces/guard";
 import { prisma } from "@/lib/prisma";
 import { evaluateStaffAvailability } from "@/lib/staff-availability";
+import {
+  isCashCollectionRole,
+  resolveRestaurantHomePath,
+} from "@/lib/restaurant-panel-access";
 import { resolveStaffPostLoginTarget } from "@/lib/staff-post-login-redirect";
 import { assertPrivilegedServerActionOrigin } from "@/lib/server-action-guard";
 
@@ -369,7 +374,7 @@ export async function getStaffRoleForTenant(
 
 export async function getPrivilegedSessionForTenant(tenantId: number): Promise<{
   username: string;
-  role: "MANAGER" | "WAITER" | "KITCHEN";
+  role: "MANAGER" | "CASHIER" | "WAITER" | "KITCHEN";
   staffId: number | null;
 } | null> {
   const session = await getAuthenticatedAdminSession();
@@ -378,7 +383,12 @@ export async function getPrivilegedSessionForTenant(tenantId: number): Promise<{
 
   const staff = await getStaffRoleForTenant(tenantId, session.username);
   if (!staff.isActive || !staff.role) return null;
-  if (staff.role !== "MANAGER" && staff.role !== "WAITER" && staff.role !== "KITCHEN") {
+  if (
+    staff.role !== "MANAGER" &&
+    staff.role !== "CASHIER" &&
+    staff.role !== "WAITER" &&
+    staff.role !== "KITCHEN"
+  ) {
     return null;
   }
 
@@ -469,6 +479,9 @@ export async function requireManagerSession() {
   });
 
   if (role !== "MANAGER") {
+    if (role === "CASHIER") {
+      redirect("/restaurant/cash");
+    }
     if (role === "WAITER") {
       redirect("/waiter");
     }
@@ -484,6 +497,130 @@ export async function requireManagerSession() {
   });
 
   return { username: session.username, tenantId, role: "MANAGER" as const };
+}
+
+/** Kasa paneli: CASHIER veya MANAGER. */
+export async function requireCashierOrManagerSession(
+  requiredCapability?: Capability,
+): Promise<{
+  username: string;
+  tenantId: number;
+  role: "MANAGER" | "CASHIER";
+  staffId: number | null;
+  homePath: string;
+}> {
+  const { getCurrentTenantOrThrow } = await import("@/lib/tenancy/context");
+  const { tenantId } = await getCurrentTenantOrThrow();
+  const session = await requireTenantBoundAdminSession(tenantId);
+
+  const staff = await loadTenantStaffForAuth(tenantId, session.username);
+  const role = staff?.role ?? null;
+  const staffId = staff?.id ?? null;
+  await ensureActiveRoleSession({
+    isActive: Boolean(staff?.isActive),
+    hasRole: role != null,
+    mustSetPassword: Boolean(staff?.mustSetPassword),
+    role,
+    workingDays: staff?.workingDays ?? [],
+    shiftStart: staff?.shiftStart ?? null,
+    shiftEnd: staff?.shiftEnd ?? null,
+    weeklyShiftSchedule: staff?.weeklyShiftSchedule ?? null,
+  });
+
+  if (!role || !isCashCollectionRole(role)) {
+    if (role === "WAITER") {
+      redirect("/waiter");
+    }
+    if (role === "KITCHEN") {
+      redirect("/kitchen");
+    }
+    redirect("/glidragiris");
+  }
+
+  const permittedRole = role as "MANAGER" | "CASHIER";
+
+  await assertStaffSurfaceOrRedirect({
+    tenantId,
+    username: session.username,
+    role: permittedRole,
+    surface: "ops-private",
+    operation: "interactive",
+  });
+
+  if (requiredCapability) {
+    try {
+      await assertSurfaceGuard({
+        surface: "ops-private",
+        actor: createStaffActor({
+          tenantId,
+          username: session.username,
+          role: permittedRole,
+        }),
+        tenantId,
+        operation: "interactive",
+        requiredCapability,
+      });
+    } catch {
+      await clearAdminSessionBestEffort();
+      redirect(resolveRestaurantHomePath(permittedRole));
+    }
+  }
+
+  return {
+    username: session.username,
+    tenantId,
+    role: permittedRole,
+    staffId,
+    homePath: resolveRestaurantHomePath(permittedRole),
+  };
+}
+
+/** Tahsilat islemleri: WAITER, CASHIER veya MANAGER. */
+export async function requireCashierWaiterOrManagerSession(requiredCapabilityForCashier?: Capability) {
+  const { getCurrentTenantOrThrow } = await import("@/lib/tenancy/context");
+  const { tenantId } = await getCurrentTenantOrThrow();
+  const session = await requireTenantBoundAdminSession(tenantId);
+
+  const staff = await loadTenantStaffForAuth(tenantId, session.username);
+  const role = staff?.role ?? null;
+  const staffId = staff?.id ?? null;
+
+  await ensureActiveRoleSession({
+    isActive: Boolean(staff?.isActive),
+    hasRole: role != null,
+    mustSetPassword: Boolean(staff?.mustSetPassword),
+    role,
+    workingDays: staff?.workingDays ?? [],
+    shiftStart: staff?.shiftStart ?? null,
+    shiftEnd: staff?.shiftEnd ?? null,
+    weeklyShiftSchedule: staff?.weeklyShiftSchedule ?? null,
+  });
+
+  if (role === "WAITER" || role === "MANAGER") {
+    await assertStaffSurfaceOrRedirect({
+      tenantId,
+      username: session.username,
+      role,
+      surface: "waiter-private",
+      operation: "interactive",
+    });
+    return { username: session.username, tenantId, role, staffId };
+  }
+
+  if (role === "CASHIER") {
+    const cashierSession = await requireCashierOrManagerSession(requiredCapabilityForCashier);
+    return {
+      username: cashierSession.username,
+      tenantId: cashierSession.tenantId,
+      role: cashierSession.role,
+      staffId: cashierSession.staffId,
+    };
+  }
+
+  if (role === "KITCHEN") {
+    redirect("/kitchen");
+  }
+  redirect("/glidragiris");
 }
 
 /** Garson paneli: WAITER veya MANAGER. */

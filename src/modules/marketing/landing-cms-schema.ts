@@ -31,26 +31,38 @@ export type LandingThemeTokens = {
   buttonPrimaryText: string;
   buttonSecondaryBg: string;
   buttonSecondaryText: string;
+  // Custom Visual Overrides
+  heroGradientFrom?: string | null;
+  heroGradientVia?: string | null;
+  heroGradientTo?: string | null;
+  headerBackground?: string | null;
+  headerBorderColor?: string | null;
 };
 
 export const DEFAULT_LANDING_THEME: LandingThemeTokens = {
-  background: "#020817",
-  surface: "#071224",
-  surfaceAlt: "#16233f",
-  card: "#0f1b33",
-  border: "#243252",
-  textPrimary: "#f3f7ff",
+  background: "#020617",
+  surface: "#070e24",
+  surfaceAlt: "#0f1b3d",
+  card: "#0d1730",
+  border: "#1e293b",
+  textPrimary: "#f8fafc",
   textSecondary: "#94a3b8",
-  accent: "#22c55e",
-  accentHover: "#16a34a",
-  success: "#22c55e",
+  accent: "#38bdf8",
+  accentHover: "#7dd3fc",
+  success: "#10b981",
   warning: "#f59e0b",
-  heroBadgeBg: "#16233f",
-  heroBadgeText: "#dbeafe",
-  buttonPrimaryBg: "#22c55e",
-  buttonPrimaryText: "#04110b",
-  buttonSecondaryBg: "#0f1b33",
-  buttonSecondaryText: "#f3f7ff",
+  heroBadgeBg: "#1e293b",
+  heroBadgeText: "#e2e8f0",
+  buttonPrimaryBg: "#ffffff",
+  buttonPrimaryText: "#020617",
+  buttonSecondaryBg: "#1e293b",
+  buttonSecondaryText: "#f8fafc",
+  // Fallbacks
+  heroGradientFrom: "#020617",
+  heroGradientVia: "#0b3b8f",
+  heroGradientTo: "#071a3a",
+  headerBackground: "#020617",
+  headerBorderColor: "rgba(255,255,255,0.08)",
 };
 
 export type LandingBadgeItem = {
@@ -83,12 +95,41 @@ export type LandingFormTexts = {
   successMessage?: string;
 };
 
+export type LandingSectionVisuals = {
+  isEnabledVisuals?: boolean;
+  backgroundMode?: "default" | "custom";
+  backgroundColor?: string;
+  gradientFrom?: string;
+  gradientVia?: string;
+  gradientTo?: string;
+  borderColor?: string;
+};
+
+export type LandingFooterConfig = {
+  isEnabled: boolean;
+  background?: string;
+  borderColor?: string;
+  textColor?: string;
+  contentRichText?: string;
+  customCode?: string;
+};
+
+export const DEFAULT_LANDING_FOOTER: LandingFooterConfig = {
+  isEnabled: true,
+  background: "#020617",
+  borderColor: "rgba(255,255,255,0.08)",
+  textColor: "#94a3b8",
+  contentRichText: "",
+  customCode: "",
+};
+
 export type LandingSectionPayload = {
   bullets?: string[];
   badges?: LandingBadgeItem[];
   stats?: LandingStatItem[];
   cards?: LandingCardItem[];
   formTexts?: LandingFormTexts;
+  visuals?: LandingSectionVisuals; // Section based visual overrides
 };
 
 export type LandingSectionConfig = {

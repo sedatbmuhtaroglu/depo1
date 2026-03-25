@@ -95,12 +95,14 @@ export const CANCELLATION_REASON_LABEL: Record<string, string> = {
 
 export const STAFF_ROLE_LABEL: Record<string, string> = {
   MANAGER: "Restoran Müdürü",
+  CASHIER: "Kasiyer",
   WAITER: "Garson",
   KITCHEN: "Mutfak",
 };
 
 export const STAFF_ROLE_TONE: Record<string, "warning" | "info" | "success" | "danger" | "neutral"> = {
   MANAGER: "info",
+  CASHIER: "success",
   WAITER: "neutral",
   KITCHEN: "warning",
 };

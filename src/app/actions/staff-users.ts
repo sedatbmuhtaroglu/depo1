@@ -27,12 +27,13 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { assertPrivilegedServerActionOrigin } from "@/lib/server-action-guard";
 import { consumeStaffSetPasswordToken } from "@/lib/staff-set-password-token";
 
-type CreateStaffRoleInput = "RESTAURANT_MANAGER" | "WAITER" | "KITCHEN";
+type CreateStaffRoleInput = "RESTAURANT_MANAGER" | "CASHIER" | "WAITER" | "KITCHEN";
 type StaffRoleInput = CreateStaffRoleInput;
 type ActionResult = { success: true; message: string } | { success: false; message: string; fieldErrors?: Record<string, string> };
 
 const ROLE_MAP = {
   RESTAURANT_MANAGER: "MANAGER",
+  CASHIER: "CASHIER",
   WAITER: "WAITER",
   KITCHEN: "KITCHEN",
 } as const;
@@ -58,7 +59,7 @@ function validatePasswordComplexity(password: string): { ok: boolean; message?: 
   return { ok: true };
 }
 
-async function assertNotLastManager(params: { tenantId: number; userId: number; nextRole?: "MANAGER" | "WAITER" | "KITCHEN"; nextIsActive?: boolean }) {
+async function assertNotLastManager(params: { tenantId: number; userId: number; nextRole?: "MANAGER" | "CASHIER" | "WAITER" | "KITCHEN"; nextIsActive?: boolean }) {
   const target = await prisma.tenantStaff.findUnique({
     where: { id: params.userId },
     select: { id: true, tenantId: true, role: true, isActive: true },

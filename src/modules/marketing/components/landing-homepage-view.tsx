@@ -153,7 +153,7 @@ function HeaderSection({
 }) {
   return (
     <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
-      <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{title}</h2>
+      <h2 className="text-2xl font-semibold tracking-tight text-[var(--ui-text-primary)] sm:text-3xl">{title}</h2>
       {description && description.length > 0 ? (
         <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)] sm:text-base">
           {description}
@@ -192,13 +192,13 @@ function ProductPreviewMock({
       <div className="absolute -left-6 top-8 h-24 w-24 rounded-full bg-[var(--ui-accent)]/20 blur-2xl" />
       <div className="absolute -right-6 -top-8 h-32 w-32 rounded-full bg-[var(--ui-primary)]/20 blur-2xl" />
 
-      <div className="relative rounded-3xl border border-[var(--ui-border)] bg-[color-mix(in_srgb,var(--ui-surface-elevated)_88%,black)] p-4 shadow-[0_24px_70px_rgba(5,10,22,0.6)] sm:p-5">
+      <div className="relative rounded-3xl border border-[var(--ui-border)] bg-[var(--ui-surface-elevated)] p-4 shadow-[var(--ui-card-shadow)] sm:p-5">
         <div className="flex items-center justify-between rounded-2xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-bg)] px-3 py-2">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-[var(--ui-text-muted)]">Canli panel</p>
-            <p className="text-sm font-semibold text-white">{brandName}</p>
+            <p className="text-sm font-semibold text-[var(--ui-text-primary)]">{brandName}</p>
           </div>
-          <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-medium text-emerald-200">
+          <span className="rounded-full border border-[color:var(--ui-success-border)] bg-[color:var(--ui-success-soft)] px-2 py-1 text-[10px] font-medium text-[color:var(--ui-success)]">
             Operasyon Aktif
           </span>
         </div>
@@ -209,7 +209,7 @@ function ProductPreviewMock({
               key={block.key}
               className="rounded-2xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-subtle)]/70 p-3"
             >
-              <p className="text-sm font-semibold text-white">{plainText(block.title)}</p>
+              <p className="text-sm font-semibold text-[var(--ui-text-primary)]">{plainText(block.title)}</p>
               <p className="mt-1 text-xs leading-relaxed text-[var(--ui-text-secondary)]">
                 {plainText(block.bullets[0] ?? block.description)}
               </p>
@@ -238,12 +238,12 @@ function ProductPreviewMock({
 function ValueBlockCard({ block, reverse }: { block: ValueBlock; reverse?: boolean }) {
   return (
     <article
-      className={`grid items-center gap-6 rounded-3xl border border-[var(--ui-border)] bg-[color-mix(in_srgb,var(--ui-surface-elevated)_82%,black)] p-5 shadow-[0_18px_55px_rgba(4,9,20,0.5)] md:grid-cols-2 md:p-8 ${
+      className={`grid items-center gap-6 rounded-3xl border border-[var(--ui-border)] bg-[var(--ui-surface-elevated)] p-5 shadow-[var(--ui-card-shadow)] md:grid-cols-2 md:p-8 ${
         reverse ? "md:[&>*:first-child]:order-2" : ""
       }`}
     >
       <div>
-        <h3 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">{plainText(block.title)}</h3>
+        <h3 className="text-xl font-semibold tracking-tight text-[var(--ui-text-primary)] sm:text-2xl">{plainText(block.title)}</h3>
         <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)] sm:text-base">
           {plainText(block.description)}
         </p>
@@ -420,28 +420,41 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
     "Demo Randevusu Al",
   );
   const ctaPrimaryHref = hrefOrFallback(finalCtaSection?.ctaPrimaryHref || data?.ctaPrimaryHref);
+  const ctaSecondaryLabel = plainTextOr(
+    finalCtaSection?.ctaSecondaryLabelHtml || data?.heroSecondaryCtaLabel,
+    heroSecondaryLabel,
+  );
+  const ctaSecondaryHref = hrefOrFallback(finalCtaSection?.ctaSecondaryHref || data?.heroSecondaryCtaHref);
 
   // Theme integration
   const theme = data?.landingTheme;
-  const themeVars = theme ? {
-    "--ui-bg": theme.background,
-    "--ui-surface": theme.surface,
-    "--ui-surface-alt": theme.surfaceAlt,
-    "--ui-card": theme.card,
-    "--ui-border": theme.border,
-    "--ui-text-primary": theme.textPrimary,
-    "--ui-text-secondary": theme.textSecondary,
-    "--ui-accent": theme.accent,
-    "--ui-accent-hover": theme.accentHover,
-    "--ui-success": theme.success,
-    "--ui-warning": theme.warning,
-    "--ui-hero-badge-bg": theme.heroBadgeBg,
-    "--ui-hero-badge-text": theme.heroBadgeText,
-    "--ui-button-primary-bg": theme.buttonPrimaryBg,
-    "--ui-button-primary-text": theme.buttonPrimaryText,
-    "--ui-button-secondary-bg": theme.buttonSecondaryBg,
-    "--ui-button-secondary-text": theme.buttonSecondaryText,
-  } as React.CSSProperties : undefined;
+  const themeVars = theme
+    ? ({
+        "--landing-background": theme.background,
+        "--landing-surface": theme.surface,
+        "--landing-surface-alt": theme.surfaceAlt,
+        "--landing-card": theme.card,
+        "--landing-border": theme.border,
+        "--landing-text-primary": theme.textPrimary,
+        "--landing-text-secondary": theme.textSecondary,
+        "--landing-accent": theme.accent,
+        "--landing-accent-hover": theme.accentHover,
+        "--landing-success": theme.success,
+        "--landing-warning": theme.warning,
+        "--landing-hero-badge-bg": theme.heroBadgeBg,
+        "--landing-hero-badge-text": theme.heroBadgeText,
+        "--landing-button-primary-bg": theme.buttonPrimaryBg,
+        "--landing-button-primary-text": theme.buttonPrimaryText,
+        "--landing-button-secondary-bg": theme.buttonSecondaryBg,
+        "--landing-button-secondary-text": theme.buttonSecondaryText,
+        // Dynamic Visuals
+        "--landing-header-bg": theme.headerBackground || "#020617",
+        "--landing-header-border": theme.headerBorderColor || "rgba(255,255,255,0.08)",
+        "--landing-hero-from": theme.heroGradientFrom || "#020617",
+        "--landing-hero-via": theme.heroGradientVia || "#0b3b8f",
+        "--landing-hero-to": theme.heroGradientTo || "#071a3a",
+      } as React.CSSProperties)
+    : undefined;
 
   return (
     <main 
@@ -466,50 +479,57 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
         </section>
       ) : null}
 
-      <header className="sticky top-0 z-30 border-b border-[var(--ui-border-subtle)]/80 bg-[#070b12]/80 backdrop-blur">
+      <header 
+        className="sticky top-0 z-50 border-b bg-[var(--landing-header-bg)]/80 backdrop-blur-md"
+        style={{ borderColor: "var(--landing-header-border)" }}
+      >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="group">
-              <p className="text-base font-semibold tracking-tight text-white group-hover:text-[var(--ui-accent)] transition-colors">{brandName}</p>
-              <p className="hidden text-[10px] text-[var(--ui-text-muted)] sm:block">{brandTagline}</p>
+          <div className="flex items-center gap-10">
+            <Link href="/" className="group flex flex-col">
+              <span className="text-lg font-bold tracking-tight text-[#f8fafc] group-hover:text-[var(--ui-accent)] transition-colors">
+                {brandName}
+              </span>
+              <span className="hidden text-[10px] font-medium uppercase tracking-widest text-slate-500 sm:block">
+                {brandTagline}
+              </span>
             </Link>
 
             {data?.landingNavItems && data.landingNavItems.length > 0 && (
-              <nav className="hidden lg:flex items-center gap-6">
+              <nav className="hidden lg:flex items-center gap-8">
                 {data.landingNavItems.map((item) => (
                   <div key={item.slug} className="relative group/nav">
                     <Link
                       href={item.href}
                       target={item.openInNewTab ? "_blank" : undefined}
-                      className="text-sm font-medium text-[var(--ui-text-secondary)] hover:text-white transition-colors flex items-center gap-1"
+                      className="text-[13px] font-semibold tracking-wide text-slate-400 hover:text-white transition-colors flex items-center gap-1"
                     >
                       {plainText(item.title)}
                       {item.badgeText && (
-                        <span className="rounded-full bg-[var(--ui-accent)]/20 px-1.5 py-0.5 text-[9px] font-bold text-[var(--ui-accent)] uppercase">
+                        <span className="rounded-full bg-[var(--ui-accent)]/10 px-1.5 py-0.5 text-[8px] font-bold text-[var(--ui-accent)] uppercase">
                           {plainText(item.badgeText)}
                         </span>
                       )}
                       {item.subitems && item.subitems.length > 0 && (
-                        <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-3.5 h-3.5 opacity-40 group-hover/nav:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       )}
                     </Link>
 
                     {item.subitems && item.subitems.length > 0 && (
-                      <div className="absolute left-0 top-full pt-2 hidden group-hover/nav:block w-48 animate-in fade-in slide-in-from-top-1">
-                        <div className="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-2 shadow-xl">
+                      <div className="absolute -left-4 top-full pt-3 hidden group-hover/nav:block w-56 animate-in fade-in slide-in-from-top-2">
+                        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0f172a] p-1.5 shadow-2xl">
                           {item.subitems.map((sub) => (
                             <Link
                               key={sub.href}
                               href={sub.href}
                               target={sub.openInNewTab ? "_blank" : undefined}
-                              className="block rounded-lg px-3 py-2 text-xs font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-alt)] hover:text-white transition-colors"
+                              className="block rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <span>{plainText(sub.title)}</span>
                                 {sub.badgeText && (
-                                  <span className="rounded-full bg-[var(--ui-accent)]/20 px-1.5 py-0.5 text-[8px] font-bold text-[var(--ui-accent)]">
+                                  <span className="rounded-full bg-[var(--ui-accent)]/10 px-1.5 py-0.5 text-[9px] font-bold text-[var(--ui-accent)]">
                                     {plainText(sub.badgeText)}
                                   </span>
                                 )}
@@ -524,16 +544,16 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
               </nav>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link
               href={heroSecondaryHref}
-              className={buttonClasses({ variant: "outline", size: "sm", className: "hidden sm:inline-flex" })}
+              className={buttonClasses({ variant: "ghost", size: "sm", className: "hidden sm:inline-flex text-slate-400 hover:text-white" })}
             >
               {heroSecondaryLabel}
             </Link>
             <Link
               href={heroPrimaryHref}
-              className={buttonClasses({ variant: "primary", size: "sm" })}
+              className={buttonClasses({ variant: "primary", size: "sm", className: "shadow-lg shadow-white/5" })}
             >
               {heroPrimaryLabel}
             </Link>
@@ -541,30 +561,38 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
         </div>
       </header>
 
-      <section className="relative">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pb-14 pt-12 sm:px-6 md:pt-16 lg:grid-cols-12 lg:px-8 lg:pt-20">
-          <div className="space-y-6 lg:col-span-6">
-            <span className="inline-flex rounded-full border border-[var(--ui-border-strong)] bg-[var(--ui-surface-subtle)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--ui-text-secondary)]">
-              {heroKicker}
-            </span>
+      <section 
+        className="relative overflow-hidden pt-12 md:pt-20 lg:pt-24"
+        style={{
+          background: "radial-gradient(1200px 600px at 15% -20%, rgba(56, 189, 248, 0.15), transparent 70%), radial-gradient(1000px 600px at 85% -10%, rgba(30, 41, 59, 0.8), transparent 65%), linear-gradient(180deg, var(--landing-hero-from) 0%, var(--landing-hero-via) 45%, var(--landing-hero-to) 100%)"
+        }}
+      >
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-12 lg:px-8 lg:pb-24">
+          <div className="relative z-10 space-y-8 lg:col-span-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-sm">
+              <span className="flex h-2 w-2 rounded-full bg-[var(--ui-accent)] animate-pulse" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">
+                {heroKicker}
+              </span>
+            </div>
 
-            <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
+            <h1 className="text-balance text-4xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl lg:text-6xl">
               {heroTitle}
             </h1>
-            <p className="max-w-2xl text-pretty text-base leading-relaxed text-[var(--ui-text-secondary)] sm:text-lg">
+            <p className="max-w-xl text-pretty text-base leading-relaxed text-slate-400 sm:text-lg lg:text-xl">
               {heroDescription}
             </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
                 href={heroPrimaryHref}
-                className={buttonClasses({ variant: "primary", className: "w-full justify-center sm:w-auto" })}
+                className={buttonClasses({ variant: "primary", className: "h-12 px-8 text-base shadow-xl shadow-white/10 w-full justify-center sm:w-auto" })}
               >
                 {heroPrimaryLabel}
               </Link>
               <Link
                 href={heroSecondaryHref}
-                className={buttonClasses({ variant: "secondary", className: "w-full justify-center sm:w-auto" })}
+                className={buttonClasses({ variant: "outline", className: "h-12 px-8 text-base w-full justify-center sm:w-auto" })}
               >
                 {heroSecondaryLabel}
               </Link>
@@ -615,7 +643,7 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
                   key={metric.title}
                   className="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface-elevated)]/85 p-4"
                 >
-                  <p className="text-base font-semibold text-white">{metric.title}</p>
+                  <p className="text-base font-semibold text-[var(--ui-text-primary)]">{metric.title}</p>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)]">
                     {metric.description}
                   </p>
@@ -643,12 +671,12 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
       ) : null}
 
       <section id="lead-form" className="relative px-4 pb-14 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-full max-w-6xl gap-6 rounded-3xl border border-[var(--ui-border)] bg-[color-mix(in_srgb,var(--ui-surface-elevated)_86%,black)] p-5 shadow-[0_20px_65px_rgba(5,10,24,0.5)] md:grid-cols-12 md:p-8">
+        <div className="mx-auto grid w-full max-w-6xl gap-6 rounded-3xl border border-[var(--ui-border)] bg-[var(--ui-surface-elevated)] p-5 shadow-[var(--ui-card-shadow)] md:grid-cols-12 md:p-8">
           <div className="md:col-span-5">
             <span className="inline-flex rounded-full border border-[var(--ui-border-strong)] bg-[var(--ui-surface-subtle)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--ui-text-secondary)]">
               Demo Talep Formu
             </span>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--ui-text-primary)] sm:text-3xl">
               {formTitle}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--ui-text-secondary)] sm:text-base">
@@ -666,8 +694,12 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
           <div className="md:col-span-7">
             <div className="rounded-2xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-bg)] p-4 sm:p-5">
               <LandingLeadForm
-                submitLabel={plainTextOr(data?.formSubmitLabel, "Basvuru Gonder")}
-                consentText={plainText(data?.formConsentText) || null}
+                submitLabel={plainTextOr(
+                  formPayload?.formTexts?.submitLabel || data?.formSubmitLabel,
+                  "Basvuru Gonder",
+                )}
+                consentText={plainText(formPayload?.formTexts?.consentText || data?.formConsentText) || null}
+                successMessage={plainText(formPayload?.formTexts?.successMessage) || null}
                 trustBullets={heroBenefits.map((item) => plainText(item)).filter((item) => item.length > 0)}
                 tracking={tracking}
               />
@@ -702,7 +734,7 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--ui-accent)]/15 text-sm font-semibold text-[var(--ui-accent)]">
                     {index + 1}
                   </span>
-                  <h3 className="mt-4 text-lg font-semibold text-white">{step.title}</h3>
+                  <h3 className="mt-4 text-lg font-semibold text-[var(--ui-text-primary)]">{step.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)]">
                     {step.description}
                   </p>
@@ -723,7 +755,7 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
                   key={item.title}
                   className="rounded-2xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-elevated)]/85 p-4"
                 >
-                  <h3 className="text-base font-semibold text-white">{item.title}</h3>
+                  <h3 className="text-base font-semibold text-[var(--ui-text-primary)]">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)]">
                     {item.description}
                   </p>
@@ -748,7 +780,7 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
                   key={faq.id}
                   className="rounded-2xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-elevated)]/85 p-4 sm:p-5"
                 >
-                  <h3 className="text-base font-semibold text-white">{faq.question}</h3>
+                  <h3 className="text-base font-semibold text-[var(--ui-text-primary)]">{faq.question}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)]">{faq.answer}</p>
                 </article>
               ))}
@@ -758,10 +790,10 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
       ) : null}
 
       <section className="relative px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
-        <div className="mx-auto w-full max-w-6xl rounded-3xl border border-[var(--ui-border-strong)] bg-[linear-gradient(145deg,rgba(20,31,50,0.96),rgba(15,22,36,0.88))] p-6 shadow-[0_20px_70px_rgba(4,8,20,0.58)] sm:p-8">
+        <div className="mx-auto w-full max-w-6xl rounded-3xl border border-[var(--ui-border-strong)] bg-[linear-gradient(145deg,color-mix(in_srgb,var(--ui-surface-elevated)_94%,transparent),color-mix(in_srgb,var(--ui-surface-subtle)_88%,transparent))] p-6 shadow-[var(--ui-card-shadow)] sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <h2 className="text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              <h2 className="text-balance text-2xl font-semibold tracking-tight text-[var(--ui-text-primary)] sm:text-3xl">
                 {ctaTitle}
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-[var(--ui-text-secondary)] sm:text-base">
@@ -776,10 +808,10 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
                 {ctaPrimaryLabel}
               </Link>
               <Link
-                href={hrefOrFallback(data?.heroSecondaryCtaHref)}
+                href={ctaSecondaryHref}
                 className={buttonClasses({ variant: "secondary", className: "w-full justify-center sm:w-auto" })}
               >
-                {heroSecondaryLabel}
+                {ctaSecondaryLabel}
               </Link>
             </div>
           </div>
