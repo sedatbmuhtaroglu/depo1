@@ -14,6 +14,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Phone,
+  Landmark,
   Receipt,
   Repeat2,
   Settings,
@@ -118,6 +119,13 @@ const NAV_ITEMS: NavItem[] = [
     group: "Operasyon",
   },
   {
+    href: "/restaurant/cash",
+    label: "Kasa",
+    icon: Landmark,
+    description: "Gun ici tahsilatlar, odeme hareketleri ve acik hesaplar",
+    group: "Operasyon",
+  },
+  {
     href: "/restaurant/reports",
     label: "Raporlar",
     icon: BarChart3,
@@ -197,6 +205,7 @@ function getCurrentPageMeta(pathname: string) {
     if (pathname.startsWith("/restaurant/orders")) return "Sipariş Akışı";
     if (pathname.startsWith("/restaurant/cancellations")) return "İptal / İade Yönetimi";
     if (pathname.startsWith("/restaurant/invoicing")) return "Tahsilat / Fiş";
+    if (pathname.startsWith("/restaurant/cash")) return "Kasa Operasyonu";
     if (pathname.startsWith("/restaurant/menu/showcase")) return "Vitrin Yönetimi";
     if (pathname.startsWith("/restaurant/menu")) return "Menü & Ürün Düzenleme";
     if (pathname.startsWith("/restaurant/stocks")) return "Stok Takibi";
