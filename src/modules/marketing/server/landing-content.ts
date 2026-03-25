@@ -223,6 +223,13 @@ export async function getMarketingSiteConfigForPublic() {
         subcategories: category.subcategories.filter((item) => item.isEnabled),
       })),
     faqs: site.faqs.filter((item) => item.isEnabled),
+    landingSections: site.landingSections.filter((item) => item.isEnabled),
+    landingNavItems: site.landingNavItems
+      .filter((item) => item.isActive)
+      .map((item) => ({
+        ...item,
+        subitems: item.subitems.filter((sub) => sub.isActive),
+      })),
   };
 }
 

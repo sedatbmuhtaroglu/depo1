@@ -17,13 +17,49 @@ function normalizeInput(value: string, maxLength: number): string {
 }
 
 function decodeHtmlEntities(value: string): string {
-  return value
+  const decodedNamed = value
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+    .replace(/&#39;/g, "'")
+    .replace(/&ccedil;/gi, "ç")
+    .replace(/&Ccedil;/g, "Ç")
+    .replace(/&uuml;/gi, "ü")
+    .replace(/&Uuml;/g, "Ü")
+    .replace(/&ouml;/gi, "ö")
+    .replace(/&Ouml;/g, "Ö")
+    .replace(/&iacute;/gi, "í")
+    .replace(/&Iacute;/g, "Í")
+    .replace(/&iuml;/gi, "ï")
+    .replace(/&Iuml;/g, "Ï")
+    .replace(/&acirc;/gi, "â")
+    .replace(/&Acirc;/g, "Â")
+    .replace(/&icirc;/gi, "î")
+    .replace(/&Icirc;/g, "Î")
+    .replace(/&ucirc;/gi, "û")
+    .replace(/&Ucirc;/g, "Û")
+    .replace(/&eacute;/gi, "é")
+    .replace(/&Eacute;/g, "É")
+    .replace(/&aacute;/gi, "á")
+    .replace(/&Aacute;/g, "Á")
+    .replace(/&igrave;/gi, "ì")
+    .replace(/&Igrave;/g, "Ì")
+    .replace(/&copy;/gi, "©")
+    .replace(/&reg;/gi, "®");
+
+  return decodedNamed
+    .replace(/&#(\d+);/g, (_, code: string) => {
+      const value = Number.parseInt(code, 10);
+      if (!Number.isFinite(value)) return _;
+      return String.fromCodePoint(value);
+    })
+    .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => {
+      const value = Number.parseInt(code, 16);
+      if (!Number.isFinite(value)) return _;
+      return String.fromCodePoint(value);
+    });
 }
 
 export function escapeHtml(value: string): string {

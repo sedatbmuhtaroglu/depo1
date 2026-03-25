@@ -1,7 +1,10 @@
+import React from "react";
 import Link from "next/link";
 import { buttonClasses } from "@/lib/ui/button-variants";
 import { LandingLeadForm } from "@/modules/marketing/components/landing-lead-form";
 import type { MarketingLandingPublicData } from "@/modules/marketing/server/landing-content";
+import type { LandingSectionPayload } from "@/modules/marketing/landing-cms-schema";
+import { sanitizeRichTextHtml, stripHtml } from "@/modules/marketing/server/rich-text";
 
 type LandingHomepageViewProps = {
   data: MarketingLandingPublicData;
@@ -37,14 +40,14 @@ function hrefOrFallback(value: string | null | undefined, fallback = "#lead-form
 
 function buildHeroBenefits(data: NonNullable<MarketingLandingPublicData>): string[] {
   if (data.trustBadges.length > 0) {
-    return data.trustBadges.slice(0, 4).map((item) => item.label);
+    return data.trustBadges.slice(0, 4).map((item) => plainText(item.label)).filter((v) => v.length > 0);
   }
   return [];
 }
 
 function buildBusinessSegments(data: NonNullable<MarketingLandingPublicData>): string[] {
   if (data.categories.length > 0) {
-    return data.categories.slice(0, 4).map((category) => category.title);
+    return data.categories.slice(0, 4).map((category) => plainText(category.title)).filter((v) => v.length > 0);
   }
   return [];
 }
@@ -52,8 +55,8 @@ function buildBusinessSegments(data: NonNullable<MarketingLandingPublicData>): s
 function buildMetricCards(data: NonNullable<MarketingLandingPublicData>): MetricCard[] {
   if (data.trustBadges.length > 0) {
     return data.trustBadges.slice(0, 4).map((item) => ({
-      title: item.label,
-      description: item.sublabel ?? "Sahada olculebilir operasyon etkisi.",
+      title: plainText(item.label),
+      description: plainText(item.sublabel) || "Sahada olculebilir operasyon etkisi.",
     }));
   }
   return [];
@@ -104,15 +107,15 @@ function buildValueBlocks(data: NonNullable<MarketingLandingPublicData>): ValueB
     const categoryBullets =
       category?.subcategories
         .slice(0, 3)
-        .map((sub) => sub.title)
+        .map((sub) => plainText(sub.title))
         .filter((value) => value.length > 0) ?? [];
 
     return {
       key: item.key,
-      title: feature?.title ?? item.title,
-      description: feature?.description ?? item.description,
+      title: plainText(feature?.title) || item.title,
+      description: plainText(feature?.description) || item.description,
       bullets: categoryBullets.length > 0 ? categoryBullets : item.bullets,
-      ctaLabel: feature?.ctaLabel ?? null,
+      ctaLabel: plainText(feature?.ctaLabel) || null,
       ctaHref: feature?.ctaHref ?? null,
     };
   });
@@ -120,7 +123,11 @@ function buildValueBlocks(data: NonNullable<MarketingLandingPublicData>): ValueB
 
 function buildHowSteps(data: NonNullable<MarketingLandingPublicData>) {
   if (data.howItWorks.length > 0) {
-    return data.howItWorks.slice(0, 3);
+    return data.howItWorks.slice(0, 3).map((step) => ({
+      ...step,
+      title: plainText(step.title),
+      description: plainText(step.description),
+    }));
   }
   return [];
 }
@@ -128,8 +135,8 @@ function buildHowSteps(data: NonNullable<MarketingLandingPublicData>) {
 function buildUseCaseCards(data: NonNullable<MarketingLandingPublicData>) {
   if (data.categories.length > 0) {
     return data.categories.slice(0, 4).map((category) => ({
-      title: category.title,
-      description: category.description ?? "Bu segmente uygun operasyon kurgusuyla hizli baslangic.",
+      title: plainText(category.title),
+      description: plainText(category.description) || "Bu segmente uygun operasyon kurgusuyla hizli baslangic.",
     }));
   }
   return [];
@@ -147,7 +154,7 @@ function HeaderSection({
   return (
     <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
       <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{title}</h2>
-      {description ? (
+      {description && description.length > 0 ? (
         <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)] sm:text-base">
           {description}
         </p>
@@ -160,8 +167,15 @@ function hasText(value: string | null | undefined): boolean {
   return (value ?? "").trim().length > 0;
 }
 
-function textOr(value: string | null | undefined, fallback: string): string {
-  return hasText(value) ? value!.trim() : fallback;
+function plainText(value: string | null | undefined): string {
+  const sanitized = sanitizeRichTextHtml(value ?? "");
+  return stripHtml(sanitized);
+}
+
+function plainTextOr(value: string | null | undefined, fallback: string): string {
+  const candidate = plainText(value);
+  if (candidate.length > 0) return candidate;
+  return plainText(fallback);
 }
 
 function ProductPreviewMock({
@@ -195,9 +209,9 @@ function ProductPreviewMock({
               key={block.key}
               className="rounded-2xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-subtle)]/70 p-3"
             >
-              <p className="text-sm font-semibold text-white">{block.title}</p>
+              <p className="text-sm font-semibold text-white">{plainText(block.title)}</p>
               <p className="mt-1 text-xs leading-relaxed text-[var(--ui-text-secondary)]">
-                {block.bullets[0] ?? block.description}
+                {plainText(block.bullets[0] ?? block.description)}
               </p>
             </article>
           ))}
@@ -211,7 +225,7 @@ function ProductPreviewMock({
                 <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--ui-accent)]/20 text-[11px] font-semibold text-[var(--ui-accent)]">
                   {index + 1}
                 </span>
-                <span>{step.title}</span>
+                <span>{plainText(step.title)}</span>
               </li>
             ))}
           </ul>
@@ -229,15 +243,15 @@ function ValueBlockCard({ block, reverse }: { block: ValueBlock; reverse?: boole
       }`}
     >
       <div>
-        <h3 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">{block.title}</h3>
+        <h3 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">{plainText(block.title)}</h3>
         <p className="mt-2 text-sm leading-relaxed text-[var(--ui-text-secondary)] sm:text-base">
-          {block.description}
+          {plainText(block.description)}
         </p>
         <ul className="mt-4 space-y-2">
           {block.bullets.slice(0, 3).map((item) => (
             <li key={item} className="flex items-start gap-2 text-sm text-[var(--ui-text-secondary)]">
               <span className="mt-1 inline-flex h-2 w-2 shrink-0 rounded-full bg-[var(--ui-accent)]" />
-              <span>{item}</span>
+              <span>{plainText(item)}</span>
             </li>
           ))}
         </ul>
@@ -250,7 +264,7 @@ function ValueBlockCard({ block, reverse }: { block: ValueBlock; reverse?: boole
               key={`preview-${item}`}
               className="rounded-xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-subtle)] px-3 py-2 text-xs text-[var(--ui-text-secondary)]"
             >
-              {item}
+              {plainText(item)}
             </div>
           ))}
         </div>
@@ -260,7 +274,7 @@ function ValueBlockCard({ block, reverse }: { block: ValueBlock; reverse?: boole
               href={hrefOrFallback(block.ctaHref)}
               className={buttonClasses({ variant: "outline", size: "sm", className: "gap-2" })}
             >
-              {block.ctaLabel}
+              {plainText(block.ctaLabel)}
             </Link>
           </div>
         ) : null}
@@ -270,99 +284,182 @@ function ValueBlockCard({ block, reverse }: { block: ValueBlock; reverse?: boole
 }
 
 export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps) {
-  const brandName = textOr(data?.brandName, "CATAL APP");
-  const brandTagline = textOr(
+  const brandName = plainTextOr(data?.brandName, "CATAL APP");
+  const brandTagline = plainTextOr(
     data?.brandTagline,
     "QR menu ve siparis operasyonunu hizlandiran restoran platformu",
   );
 
-  const heroKicker = textOr(data?.heroKicker, "Restoranlar Icin Satisa Donusen Dijital Deneyim");
-  const heroTitle = textOr(
-    data?.heroTitle,
+  // Schema-driven content resolver
+  const getSection = (type: string) => data?.landingSections?.find((s) => s.sectionType === type);
+
+  const heroSection = getSection("hero");
+  const announcementSection = getSection("announcement");
+  const trustBarSection = getSection("trustBar");
+  const featureGridSection = getSection("featureGrid");
+  const howItWorksSection = getSection("howItWorks");
+  const faqSection = getSection("faq");
+  const finalCtaSection = getSection("finalCta");
+  const formSection = getSection("demoRequestForm");
+  const categoriesSection = getSection("useCases");
+
+  const heroPayload = heroSection?.payload as LandingSectionPayload | undefined;
+  const trustBarPayload = trustBarSection?.payload as LandingSectionPayload | undefined;
+  const featureGridPayload = featureGridSection?.payload as LandingSectionPayload | undefined;
+  const howItWorksPayload = howItWorksSection?.payload as LandingSectionPayload | undefined;
+  const categoriesPayload = categoriesSection?.payload as LandingSectionPayload | undefined;
+  const faqPayload = faqSection?.payload as LandingSectionPayload | undefined;
+  const formPayload = formSection?.payload as LandingSectionPayload | undefined;
+
+  // Hero overrides — all plain text to avoid hydration mismatch
+  const heroKicker = plainTextOr(heroSection?.eyebrowHtml || data?.heroKicker, "Restoranlar Icin Satisa Donusen Dijital Deneyim");
+  const heroTitle = plainTextOr(
+    heroSection?.titleHtml || data?.heroTitle,
     "Masaya gelen QR ile siparis surecini hizlandirin, servis kalitesini kontrollu sekilde buyutun.",
   );
-  const heroDescription = textOr(
-    data?.heroDescription,
+  const heroDescription = plainTextOr(
+    heroSection?.bodyHtml || data?.heroDescription,
     "CATAL APP; musteri, garson ve mutfak akislarini tek operasyonda birlestirerek restoraniniza hiz ve netlik kazandirir.",
   );
-  const heroPrimaryLabel = textOr(data?.heroPrimaryCtaLabel, "Demo Talep Et");
-  const heroSecondaryLabel = textOr(data?.heroSecondaryCtaLabel, "Canli Onizleme");
+  const heroPrimaryLabel = plainTextOr(heroSection?.ctaPrimaryLabelHtml || data?.heroPrimaryCtaLabel, "Demo Talep Et");
+  const heroPrimaryHref = hrefOrFallback(heroSection?.ctaPrimaryHref || data?.heroPrimaryCtaHref);
+  const heroSecondaryLabel = plainTextOr(
+    heroSection?.ctaSecondaryLabelHtml || data?.heroSecondaryCtaLabel,
+    "Canli Onizleme",
+  );
+  const heroSecondaryHref = hrefOrFallback(heroSection?.ctaSecondaryHref || data?.heroSecondaryCtaHref);
 
-  const announcementText = data?.announcementText?.trim() ?? "";
-  const showAnnouncement = Boolean(data?.announcementEnabled && announcementText.length > 0);
+  // Announcement
+  const announcementText = plainText(announcementSection?.bodyHtml || data?.announcementText);
+  const announcementCtaLabel = plainText(announcementSection?.ctaPrimaryLabelHtml || data?.announcementCtaLabel);
+  const announcementCtaHref = hrefOrFallback(announcementSection?.ctaPrimaryHref || data?.announcementCtaHref);
+  const showAnnouncement = Boolean(
+    (announcementSection?.isEnabled ?? data?.announcementEnabled) && announcementText.length > 0,
+  );
 
-  const heroBenefits = data ? buildHeroBenefits(data) : [];
+  const heroBenefits = heroPayload?.bullets?.length ? heroPayload.bullets.map(plainText).filter(v => v.length > 0) : (data ? buildHeroBenefits(data) : []);
   const businessSegments = data ? buildBusinessSegments(data) : [];
-  const metricCards = data ? buildMetricCards(data) : [];
-  const valueBlocks = data ? buildValueBlocks(data) : [];
-  const howSteps = data ? buildHowSteps(data) : [];
-  const useCaseCards = data ? buildUseCaseCards(data) : [];
+  const metricCards = trustBarPayload?.badges?.length 
+    ? trustBarPayload.badges.map(b => ({ title: plainText(b.label), description: plainText(b.sublabel ?? "") }))
+    : (data ? buildMetricCards(data) : []);
+  const valueBlocks = featureGridPayload?.cards?.length
+    ? featureGridPayload.cards.map((c, idx) => ({
+        key: plainText(c.title) || `feature-card-${idx}`,
+        title: plainText(c.title),
+        description: plainText(c.body),
+        bullets: (c.bullets || []).map((item) => plainText(item)).filter((item) => item.length > 0),
+        ctaLabel: plainText(c.ctaLabel) || null,
+        ctaHref: c.ctaHref || null,
+      }))
+    : (data ? buildValueBlocks(data) : []);
+  const howSteps = howItWorksPayload?.cards?.length
+    ? howItWorksPayload.cards.map((c, i) => ({ id: i, title: plainText(c.title), description: plainText(c.body) }))
+    : (data ? buildHowSteps(data) : []);
+  const useCaseCards = categoriesPayload?.cards?.length
+    ? categoriesPayload.cards.map((c, index) => ({
+        title: plainText(c.title) || `card-${index + 1}`,
+        description: plainText(c.body),
+      }))
+    : (data ? buildUseCaseCards(data) : []);
 
   const logos = data?.logos ?? [];
-  const faqs = data?.faqs ?? [];
+  const faqs = faqPayload?.cards?.length
+    ? faqPayload.cards.map((c, i) => ({ id: i, question: plainText(c.title), answer: plainText(c.body) }))
+    : (data?.faqs ?? []).map((f) => ({ ...f, question: plainText(f.question), answer: plainText(f.answer) }));
 
   const showBusinessBand = businessSegments.length > 0;
-  const showMetricSection = metricCards.length > 0;
-  const showValueSection = valueBlocks.length > 0;
-  const showHowSection = howSteps.length > 0;
-  const showUseCases = useCaseCards.length > 0;
-  const showFaqSection = faqs.length > 0;
+  const showMetricSection = (trustBarSection?.isEnabled ?? true) && metricCards.length > 0;
+  const showValueSection = (featureGridSection?.isEnabled ?? true) && valueBlocks.length > 0;
+  const showHowSection = (howItWorksSection?.isEnabled ?? true) && howSteps.length > 0;
+  const showUseCases = (categoriesSection?.isEnabled ?? true) && useCaseCards.length > 0;
+  const showFaqSection = (faqSection?.isEnabled ?? true) && faqs.length > 0;
 
-  const trustTitle = textOr(data?.trustSectionTitle, "Sahada guvenle calisan ekiplerin tercihi");
-  const trustDescription = textOr(
-    data?.trustSectionDescription,
+  const trustTitle = plainTextOr(trustBarSection?.titleHtml || data?.trustSectionTitle, "Sahada guvenle calisan ekiplerin tercihi");
+  const trustDescription = plainTextOr(
+    trustBarSection?.subtitleHtml || data?.trustSectionDescription,
     "Canli operasyon odagi, mobil siparis deneyimi ve merkezi kontrol tek akis icinde bulusur.",
   );
 
-  const featuresTitle = textOr(data?.featuresSectionTitle, "Operasyonu guclendiren urun katmanlari");
-  const featuresDescription = textOr(
-    data?.featuresSectionDescription,
+  const featuresTitle = plainTextOr(featureGridSection?.titleHtml || data?.featuresSectionTitle, "Operasyonu guclendiren urun katmanlari");
+  const featuresDescription = plainTextOr(
+    featureGridSection?.subtitleHtml || data?.featuresSectionDescription,
     "QR siparis, ekip koordinasyonu ve yonetim kontrolunu tek bir satis motorunda birlestirin.",
   );
 
-  const howTitle = textOr(data?.howItWorksSectionTitle, "Nasil calisir");
-  const howDescription = textOr(
-    data?.howItWorksSectionDescription,
+  const howTitle = plainTextOr(howItWorksSection?.titleHtml || data?.howItWorksSectionTitle, "Nasil calisir");
+  const howDescription = plainTextOr(
+    howItWorksSection?.subtitleHtml || data?.howItWorksSectionDescription,
     "Kurulum adimlari net oldugu icin ekip hizli adapte olur ve operasyon aksatmadan ilerler.",
   );
 
-  const categoryTitle = textOr(data?.categorySectionTitle, "Kullanim alanlari");
-  const categoryDescription = textOr(
-    data?.categorySectionDescription,
+  const categoryTitle = plainTextOr(categoriesSection?.titleHtml || data?.categorySectionTitle, "Kullanim alanlari");
+  const categoryDescription = plainTextOr(
+    categoriesSection?.subtitleHtml || data?.categorySectionDescription,
     "Farkli servis modellerine uygun akislarla restoran tipinize en dogru kurguyu secin.",
   );
 
-  const formTitle = textOr(data?.formSectionTitle, "Operasyonunuza uygun demo plani olusturalim");
-  const formDescription = textOr(
-    data?.formSectionDescription,
+  const formTitle = plainTextOr(
+    formSection?.titleHtml || formPayload?.formTexts?.title || data?.formSectionTitle,
+    "Operasyonunuza uygun demo plani olusturalim",
+  );
+  const formDescription = plainTextOr(
+    formSection?.subtitleHtml || formPayload?.formTexts?.description || data?.formSectionDescription,
     "Kisa formu doldurun; ekip yapiniza ve servis modelinize uygun kurulum akisini birlikte netlestirelim.",
   );
 
-  const ctaTitle = textOr(
-    data?.ctaSectionTitle,
+  const ctaTitle = plainTextOr(
+    finalCtaSection?.titleHtml || data?.ctaSectionTitle,
     "Restoraninizi hizlandiran operasyon modelini birlikte kuralim",
   );
-  const ctaDescription = textOr(
-    data?.ctaSectionDescription,
+  const ctaDescription = plainTextOr(
+    finalCtaSection?.subtitleHtml || data?.ctaSectionDescription,
     "Canli bir gorusme ile mevcut akisinizdaki yavaslatan adimlari belirleyip net bir uygulama plani cikaralim.",
   );
-  const ctaPrimaryLabel = textOr(data?.ctaPrimaryLabel, "Demo Randevusu Al");
-  const ctaPrimaryHref = hrefOrFallback(data?.ctaPrimaryHref);
+  const ctaPrimaryLabel = plainTextOr(
+    finalCtaSection?.ctaPrimaryLabelHtml || data?.ctaPrimaryLabel,
+    "Demo Randevusu Al",
+  );
+  const ctaPrimaryHref = hrefOrFallback(finalCtaSection?.ctaPrimaryHref || data?.ctaPrimaryHref);
+
+  // Theme integration
+  const theme = data?.landingTheme;
+  const themeVars = theme ? {
+    "--ui-bg": theme.background,
+    "--ui-surface": theme.surface,
+    "--ui-surface-alt": theme.surfaceAlt,
+    "--ui-card": theme.card,
+    "--ui-border": theme.border,
+    "--ui-text-primary": theme.textPrimary,
+    "--ui-text-secondary": theme.textSecondary,
+    "--ui-accent": theme.accent,
+    "--ui-accent-hover": theme.accentHover,
+    "--ui-success": theme.success,
+    "--ui-warning": theme.warning,
+    "--ui-hero-badge-bg": theme.heroBadgeBg,
+    "--ui-hero-badge-text": theme.heroBadgeText,
+    "--ui-button-primary-bg": theme.buttonPrimaryBg,
+    "--ui-button-primary-text": theme.buttonPrimaryText,
+    "--ui-button-secondary-bg": theme.buttonSecondaryBg,
+    "--ui-button-secondary-text": theme.buttonSecondaryText,
+  } as React.CSSProperties : undefined;
 
   return (
-    <main className="marketing-surface marketing-backdrop relative min-h-screen overflow-hidden pb-14 text-[var(--ui-text-primary)]">
+    <main 
+      className="marketing-surface marketing-backdrop relative min-h-screen overflow-hidden pb-14 text-[var(--ui-text-primary)]"
+      style={themeVars}
+    >
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[360px] marketing-grid-bg opacity-70" />
 
       {showAnnouncement ? (
         <section className="relative border-b border-[var(--ui-border-subtle)]/80 bg-[var(--ui-surface-bg)]/75">
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-xs text-[var(--ui-text-secondary)] sm:px-6 lg:px-8">
             <p>{announcementText}</p>
-            {hasText(data?.announcementCtaLabel) ? (
+            {hasText(announcementCtaLabel) ? (
               <Link
-                href={hrefOrFallback(data?.announcementCtaHref)}
+                href={announcementCtaHref}
                 className="text-[var(--ui-accent)] hover:text-[var(--ui-text-primary)]"
               >
-                {data?.announcementCtaLabel}
+                {announcementCtaLabel}
               </Link>
             ) : null}
           </div>
@@ -371,19 +468,71 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
 
       <header className="sticky top-0 z-30 border-b border-[var(--ui-border-subtle)]/80 bg-[#070b12]/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div>
-            <p className="text-base font-semibold tracking-tight text-white">{brandName}</p>
-            <p className="hidden text-xs text-[var(--ui-text-muted)] sm:block">{brandTagline}</p>
+          <div className="flex items-center gap-8">
+            <Link href="/" className="group">
+              <p className="text-base font-semibold tracking-tight text-white group-hover:text-[var(--ui-accent)] transition-colors">{brandName}</p>
+              <p className="hidden text-[10px] text-[var(--ui-text-muted)] sm:block">{brandTagline}</p>
+            </Link>
+
+            {data?.landingNavItems && data.landingNavItems.length > 0 && (
+              <nav className="hidden lg:flex items-center gap-6">
+                {data.landingNavItems.map((item) => (
+                  <div key={item.slug} className="relative group/nav">
+                    <Link
+                      href={item.href}
+                      target={item.openInNewTab ? "_blank" : undefined}
+                      className="text-sm font-medium text-[var(--ui-text-secondary)] hover:text-white transition-colors flex items-center gap-1"
+                    >
+                      {plainText(item.title)}
+                      {item.badgeText && (
+                        <span className="rounded-full bg-[var(--ui-accent)]/20 px-1.5 py-0.5 text-[9px] font-bold text-[var(--ui-accent)] uppercase">
+                          {plainText(item.badgeText)}
+                        </span>
+                      )}
+                      {item.subitems && item.subitems.length > 0 && (
+                        <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      )}
+                    </Link>
+
+                    {item.subitems && item.subitems.length > 0 && (
+                      <div className="absolute left-0 top-full pt-2 hidden group-hover/nav:block w-48 animate-in fade-in slide-in-from-top-1">
+                        <div className="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-2 shadow-xl">
+                          {item.subitems.map((sub) => (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              target={sub.openInNewTab ? "_blank" : undefined}
+                              className="block rounded-lg px-3 py-2 text-xs font-medium text-[var(--ui-text-secondary)] hover:bg-[var(--ui-surface-alt)] hover:text-white transition-colors"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span>{plainText(sub.title)}</span>
+                                {sub.badgeText && (
+                                  <span className="rounded-full bg-[var(--ui-accent)]/20 px-1.5 py-0.5 text-[8px] font-bold text-[var(--ui-accent)]">
+                                    {plainText(sub.badgeText)}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </nav>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Link
-              href={hrefOrFallback(data?.heroSecondaryCtaHref)}
+              href={heroSecondaryHref}
               className={buttonClasses({ variant: "outline", size: "sm", className: "hidden sm:inline-flex" })}
             >
               {heroSecondaryLabel}
             </Link>
             <Link
-              href={hrefOrFallback(data?.heroPrimaryCtaHref)}
+              href={heroPrimaryHref}
               className={buttonClasses({ variant: "primary", size: "sm" })}
             >
               {heroPrimaryLabel}
@@ -408,13 +557,13 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
-                href={hrefOrFallback(data?.heroPrimaryCtaHref)}
+                href={heroPrimaryHref}
                 className={buttonClasses({ variant: "primary", className: "w-full justify-center sm:w-auto" })}
               >
                 {heroPrimaryLabel}
               </Link>
               <Link
-                href={hrefOrFallback(data?.heroSecondaryCtaHref)}
+                href={heroSecondaryHref}
                 className={buttonClasses({ variant: "secondary", className: "w-full justify-center sm:w-auto" })}
               >
                 {heroSecondaryLabel}
@@ -499,7 +648,9 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
             <span className="inline-flex rounded-full border border-[var(--ui-border-strong)] bg-[var(--ui-surface-subtle)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--ui-text-secondary)]">
               Demo Talep Formu
             </span>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{formTitle}</h2>
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              {formTitle}
+            </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--ui-text-secondary)] sm:text-base">
               {formDescription}
             </p>
@@ -515,9 +666,9 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
           <div className="md:col-span-7">
             <div className="rounded-2xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-bg)] p-4 sm:p-5">
               <LandingLeadForm
-                submitLabel={textOr(data?.formSubmitLabel, "Basvuru Gonder")}
-                consentText={data?.formConsentText ?? null}
-                trustBullets={heroBenefits}
+                submitLabel={plainTextOr(data?.formSubmitLabel, "Basvuru Gonder")}
+                consentText={plainText(data?.formConsentText) || null}
+                trustBullets={heroBenefits.map((item) => plainText(item)).filter((item) => item.length > 0)}
                 tracking={tracking}
               />
             </div>
@@ -587,8 +738,8 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
         <section className="relative px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
           <div className="mx-auto w-full max-w-4xl space-y-8">
             <HeaderSection
-              title={textOr(data?.faqSectionTitle, "Sik Sorulan Sorular")}
-              description={data?.faqSectionDescription}
+              title={plainTextOr(data?.faqSectionTitle, "Sik Sorulan Sorular")}
+              description={plainText(data?.faqSectionDescription) || null}
               align="center"
             />
             <div className="space-y-3">

@@ -88,6 +88,7 @@ function revalidateMarketingPaths() {
   revalidatePath("/");
   revalidatePath("/hq/marketing");
   revalidatePath("/hq/marketing/builder");
+  revalidatePath("/hq/marketing/builder/preview");
   revalidatePath("/hq/marketing/settings");
   revalidatePath("/hq/marketing/homepage");
   revalidatePath("/hq/marketing/categories");
