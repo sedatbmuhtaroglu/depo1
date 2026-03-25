@@ -283,6 +283,31 @@ function ValueBlockCard({ block, reverse }: { block: ValueBlock; reverse?: boole
   );
 }
 
+function getSectionStyles(visuals?: LandingSectionVisuals) {
+  if (!visuals?.isEnabledVisuals || visuals.backgroundMode === "default") {
+    return {};
+  }
+  
+  const styles: React.CSSProperties = {};
+  if (visuals.backgroundColor) {
+    styles.backgroundColor = visuals.backgroundColor;
+  }
+  
+  if (visuals.gradientFrom || visuals.gradientVia || visuals.gradientTo) {
+    const from = visuals.gradientFrom || "transparent";
+    const via = visuals.gradientVia ? `, ${visuals.gradientVia}` : "";
+    const to = visuals.gradientTo || "transparent";
+    styles.background = `linear-gradient(180deg, ${from} 0%${via} 45%, ${to} 100%)`;
+  }
+  
+  if (visuals.borderColor) {
+    styles.borderTop = `1px solid ${visuals.borderColor}`;
+    styles.borderBottom = `1px solid ${visuals.borderColor}`;
+  }
+  
+  return styles;
+}
+
 export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps) {
   const brandName = plainTextOr(data?.brandName, "CATAL APP");
   const brandTagline = plainTextOr(
@@ -428,6 +453,8 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
 
   // Theme integration
   const theme = data?.landingTheme;
+  const footerConfig = (data?.footerConfig as unknown as LandingFooterConfig) || DEFAULT_LANDING_FOOTER;
+
   const themeVars = theme
     ? ({
         "--landing-background": theme.background,
@@ -458,13 +485,16 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
 
   return (
     <main 
-      className="marketing-surface marketing-backdrop relative min-h-screen overflow-hidden pb-14 text-[var(--ui-text-primary)]"
+      className="marketing-surface marketing-backdrop relative min-h-screen overflow-hidden pb-0 text-[var(--ui-text-primary)]"
       style={themeVars}
     >
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[360px] marketing-grid-bg opacity-70" />
 
       {showAnnouncement ? (
-        <section className="relative border-b border-[var(--ui-border-subtle)]/80 bg-[var(--ui-surface-bg)]/75">
+        <section 
+          className="relative border-b border-[var(--ui-border-subtle)]/80 bg-[var(--ui-surface-bg)]/75"
+          style={getSectionStyles(announcementSection?.payload.visuals)}
+        >
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-xs text-[var(--ui-text-secondary)] sm:px-6 lg:px-8">
             <p>{announcementText}</p>
             {hasText(announcementCtaLabel) ? (
@@ -480,51 +510,51 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
       ) : null}
 
       <header 
-        className="sticky top-0 z-50 border-b bg-[var(--landing-header-bg)]/80 backdrop-blur-md"
+        className="sticky top-0 z-50 border-b bg-[var(--landing-header-bg)]"
         style={{ borderColor: "var(--landing-header-border)" }}
       >
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-10">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-12">
             <Link href="/" className="group flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-[#f8fafc] group-hover:text-[var(--ui-accent)] transition-colors">
+              <span className="text-xl font-bold tracking-tight text-white group-hover:text-[var(--ui-accent)] transition-colors">
                 {brandName}
               </span>
-              <span className="hidden text-[10px] font-medium uppercase tracking-widest text-slate-500 sm:block">
+              <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 sm:block">
                 {brandTagline}
               </span>
             </Link>
 
             {data?.landingNavItems && data.landingNavItems.length > 0 && (
-              <nav className="hidden lg:flex items-center gap-8">
+              <nav className="hidden lg:flex items-center gap-10">
                 {data.landingNavItems.map((item) => (
                   <div key={item.slug} className="relative group/nav">
                     <Link
                       href={item.href}
                       target={item.openInNewTab ? "_blank" : undefined}
-                      className="text-[13px] font-semibold tracking-wide text-slate-400 hover:text-white transition-colors flex items-center gap-1"
+                      className="text-[13px] font-bold tracking-wide text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"
                     >
                       {plainText(item.title)}
                       {item.badgeText && (
-                        <span className="rounded-full bg-[var(--ui-accent)]/10 px-1.5 py-0.5 text-[8px] font-bold text-[var(--ui-accent)] uppercase">
+                        <span className="rounded-full bg-[var(--ui-accent)]/10 px-1.5 py-0.5 text-[8px] font-extrabold text-[var(--ui-accent)] uppercase">
                           {plainText(item.badgeText)}
                         </span>
                       )}
                       {item.subitems && item.subitems.length > 0 && (
-                        <svg className="w-3.5 h-3.5 opacity-40 group-hover/nav:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        <svg className="w-3.5 h-3.5 opacity-30 group-hover/nav:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                         </svg>
                       )}
                     </Link>
 
                     {item.subitems && item.subitems.length > 0 && (
-                      <div className="absolute -left-4 top-full pt-3 hidden group-hover/nav:block w-56 animate-in fade-in slide-in-from-top-2">
-                        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0f172a] p-1.5 shadow-2xl">
+                      <div className="absolute -left-4 top-full pt-4 hidden group-hover/nav:block w-64 animate-in fade-in slide-in-from-top-3">
+                        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#070e24] p-2 shadow-2xl">
                           {item.subitems.map((sub) => (
                             <Link
                               key={sub.href}
                               href={sub.href}
                               target={sub.openInNewTab ? "_blank" : undefined}
-                              className="block rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
+                              className="block rounded-xl px-4 py-3 text-[13px] font-semibold text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <span>{plainText(sub.title)}</span>
@@ -544,16 +574,10 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
               </nav>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href={heroSecondaryHref}
-              className={buttonClasses({ variant: "ghost", size: "sm", className: "hidden sm:inline-flex text-slate-400 hover:text-white" })}
-            >
-              {heroSecondaryLabel}
-            </Link>
+          <div className="flex items-center gap-4">
             <Link
               href={heroPrimaryHref}
-              className={buttonClasses({ variant: "primary", size: "sm", className: "shadow-lg shadow-white/5" })}
+              className={buttonClasses({ variant: "primary", size: "sm", className: "h-10 rounded-full px-6 text-[13px] font-bold shadow-lg shadow-white/5" })}
             >
               {heroPrimaryLabel}
             </Link>
@@ -562,11 +586,342 @@ export function LandingHomepageView({ data, tracking }: LandingHomepageViewProps
       </header>
 
       <section 
-        className="relative overflow-hidden pt-12 md:pt-20 lg:pt-24"
+        className="relative overflow-hidden pt-12 md:pt-20 lg:pt-28"
         style={{
-          background: "radial-gradient(1200px 600px at 15% -20%, rgba(56, 189, 248, 0.15), transparent 70%), radial-gradient(1000px 600px at 85% -10%, rgba(30, 41, 59, 0.8), transparent 65%), linear-gradient(180deg, var(--landing-hero-from) 0%, var(--landing-hero-via) 45%, var(--landing-hero-to) 100%)"
+          ...getSectionStyles(heroPayload?.visuals),
+          ...(!heroPayload?.visuals?.isEnabledVisuals ? {
+            background: "radial-gradient(1200px 600px at 15% -20%, rgba(56, 189, 248, 0.15), transparent 70%), radial-gradient(1000px 600px at 85% -10%, rgba(30, 41, 59, 0.8), transparent 65%), linear-gradient(180deg, var(--landing-hero-from) 0%, var(--landing-hero-via) 45%, var(--landing-hero-to) 100%)"
+          } : {})
         }}
       >
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-20 sm:px-6 lg:grid-cols-12 lg:px-8 lg:pb-32">
+          <div className="relative z-10 space-y-10 lg:col-span-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-sm">
+              <span className="flex h-2 w-2 rounded-full bg-[var(--ui-accent)] animate-pulse" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                {heroKicker}
+              </span>
+            </div>
+
+            <h1 className="text-balance text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              {heroTitle}
+            </h1>
+            <p className="max-w-xl text-pretty text-lg leading-relaxed text-slate-400 sm:text-xl lg:text-2xl">
+              {heroDescription}
+            </p>
+
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <Link
+                href={heroPrimaryHref}
+                className={buttonClasses({ variant: "primary", className: "h-14 rounded-full px-10 text-base font-bold shadow-2xl shadow-white/10 w-full justify-center sm:w-auto" })}
+              >
+                {heroPrimaryLabel}
+              </Link>
+              <Link
+                href={heroSecondaryHref}
+                className={buttonClasses({ variant: "outline", className: "h-14 rounded-full px-10 text-base font-bold w-full justify-center sm:w-auto" })}
+              >
+                {heroSecondaryLabel}
+              </Link>
+            </div>
+
+            {heroBenefits.length > 0 ? (
+              <ul className="flex flex-wrap gap-3 pt-2">
+                {heroBenefits.slice(0, 4).map((item) => (
+                  <li
+                    key={item}
+                    className="rounded-full border border-white/5 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-400"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+
+          <div className="lg:col-span-5">
+            <ProductPreviewMock brandName={brandName} valueBlocks={valueBlocks} howSteps={howSteps} />
+          </div>
+        </div>
+      </section>
+
+      {showBusinessBand ? (
+        <section 
+          className="relative border-y border-[var(--ui-border-subtle)]/90 bg-[var(--ui-surface-bg)]/75"
+          style={getSectionStyles(categoriesSection?.payload.visuals)}
+        >
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap gap-2 px-4 py-6 sm:px-6 lg:px-8">
+            {businessSegments.map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface-elevated)] px-5 py-2.5 text-xs font-bold tracking-wide text-slate-400"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {showMetricSection ? (
+        <section 
+          className="relative px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          style={getSectionStyles(trustBarSection?.payload.visuals)}
+        >
+          <div className="mx-auto w-full max-w-6xl space-y-12">
+            <HeaderSection title={trustTitle} description={trustDescription} align="center" />
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {metricCards.map((metric) => (
+                <article
+                  key={metric.title}
+                  className="rounded-3xl border border-[var(--ui-border)] bg-[var(--ui-surface-elevated)]/85 p-6 shadow-xl"
+                >
+                  <p className="text-lg font-bold text-white">{metric.title}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-400">
+                    {metric.description}
+                  </p>
+                </article>
+              ))}
+            </div>
+
+            {logos.length > 0 ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {logos.slice(0, 6).map((logo) => (
+                  <div
+                    key={logo.id}
+                    className="flex min-h-[64px] items-center justify-between rounded-2xl border border-white/5 bg-white/5 px-6"
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                      Referans
+                    </span>
+                    <span className="text-sm font-semibold text-slate-400">{logo.name}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
+      <section 
+        id="lead-form" 
+        className="relative px-4 pb-20 sm:px-6 lg:px-8"
+        style={getSectionStyles(formSection?.payload.visuals)}
+      >
+        <div className="mx-auto grid w-full max-w-6xl gap-10 rounded-[2.5rem] border border-[var(--ui-border)] bg-[#070e24] p-8 shadow-2xl md:grid-cols-12 md:p-12">
+          <div className="md:col-span-5 space-y-6">
+            <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--ui-accent)]">
+              Sizi Arıyalım
+            </div>
+            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              {formTitle}
+            </h2>
+            <p className="text-base leading-relaxed text-slate-400 sm:text-lg">
+              {formDescription}
+            </p>
+            <ul className="space-y-4 pt-2">
+              {heroBenefits.slice(0, 3).map((item) => (
+                <li key={`form-benefit-${item}`} className="flex items-start gap-3 text-sm font-medium text-slate-400">
+                  <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--ui-accent)]/10">
+                    <svg className="w-3 h-3 text-[var(--ui-accent)]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                    </svg>
+                  </div>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="md:col-span-7">
+            <div className="rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8">
+              <LandingLeadForm
+                submitLabel={plainTextOr(
+                  formPayload?.formTexts?.submitLabel || data?.formSubmitLabel,
+                  "Bilgi Almak İstiyorum",
+                )}
+                consentText={plainText(formPayload?.formTexts?.consentText || data?.formConsentText) || null}
+                successMessage={plainText(formPayload?.formTexts?.successMessage) || null}
+                trustBullets={heroBenefits.map((item) => plainText(item)).filter((item) => item.length > 0)}
+                tracking={tracking}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {showValueSection ? (
+        <section 
+          id="features" 
+          className="relative px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          style={getSectionStyles(featureGridSection?.payload.visuals)}
+        >
+          <div className="mx-auto w-full max-w-6xl space-y-12">
+            <HeaderSection title={featuresTitle} description={featuresDescription} align="center" />
+            <div className="space-y-8">
+              {valueBlocks.map((block, index) => (
+                <ValueBlockCard key={block.key} block={block} reverse={index % 2 === 1} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {showHowSection ? (
+        <section 
+          className="relative px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          style={getSectionStyles(howItWorksSection?.payload.visuals)}
+        >
+          <div className="mx-auto w-full max-w-6xl space-y-12">
+            <HeaderSection title={howTitle} description={howDescription} align="center" />
+            <div className="grid gap-6 md:grid-cols-3">
+              {howSteps.map((step, index) => (
+                <article
+                  key={`${step.id}`}
+                  className="rounded-3xl border border-[var(--ui-border)] bg-[var(--ui-surface-elevated)]/85 p-8 shadow-lg"
+                >
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--ui-accent)]/15 text-base font-bold text-[var(--ui-accent)]">
+                    {index + 1}
+                  </span>
+                  <h3 className="mt-6 text-xl font-bold text-white">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-400">
+                    {step.description}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {showUseCases ? (
+        <section 
+          className="relative px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          style={getSectionStyles(categoriesSection?.payload.visuals)}
+        >
+          <div className="mx-auto w-full max-w-6xl space-y-12">
+            <HeaderSection title={categoryTitle} description={categoryDescription} align="center" />
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {useCaseCards.map((item) => (
+                <article
+                  key={item.title}
+                  className="rounded-[2rem] border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-elevated)]/85 p-6"
+                >
+                  <h3 className="text-lg font-bold text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-400">
+                    {item.description}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {showFaqSection ? (
+        <section 
+          className="relative px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          style={getSectionStyles(faqSection?.payload.visuals)}
+        >
+          <div className="mx-auto w-full max-w-4xl space-y-12">
+            <HeaderSection
+              title={plainTextOr(data?.faqSectionTitle, "Sik Sorulan Sorular")}
+              description={plainText(data?.faqSectionDescription) || null}
+              align="center"
+            />
+            <div className="space-y-4">
+              {faqs.map((faq) => (
+                <article
+                  key={faq.id}
+                  className="rounded-[1.5rem] border border-white/5 bg-white/5 p-6 sm:p-8"
+                >
+                  <h3 className="text-lg font-bold text-white">{faq.question}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-400">{faq.answer}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <section 
+        className="relative px-4 py-16 sm:px-6 sm:py-24 lg:px-8"
+        style={getSectionStyles(finalCtaSection?.payload.visuals)}
+      >
+        <div className="mx-auto w-full max-w-6xl rounded-[3rem] border border-white/10 bg-gradient-to-br from-[#0f172a] to-[#020617] p-8 shadow-2xl sm:p-12">
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl space-y-6">
+              <h2 className="text-balance text-4xl font-bold leading-tight text-white sm:text-5xl">
+                {ctaTitle}
+              </h2>
+              <p className="text-lg leading-relaxed text-slate-400">
+                {ctaDescription}
+              </p>
+            </div>
+            <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+              <Link
+                href={ctaPrimaryHref}
+                className={buttonClasses({ variant: "primary", className: "h-14 rounded-full px-10 text-base font-bold w-full justify-center sm:w-auto" })}
+              >
+                {ctaPrimaryLabel}
+              </Link>
+              <Link
+                href={ctaSecondaryHref}
+                className={buttonClasses({ variant: "outline", className: "h-14 rounded-full px-10 text-base font-bold w-full justify-center sm:w-auto" })}
+              >
+                {ctaSecondaryLabel}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {footerConfig.isEnabled && (
+        <footer 
+          className="relative border-t px-4 py-16 sm:px-6 lg:px-8"
+          style={{ 
+            backgroundColor: footerConfig.background || "var(--landing-background)",
+            borderColor: footerConfig.borderColor || "var(--ui-border-subtle)",
+            color: footerConfig.textColor || "var(--ui-text-muted)"
+          }}
+        >
+          <div className="mx-auto max-w-6xl space-y-12">
+            <div className="grid gap-12 lg:grid-cols-2">
+              <div className="space-y-6">
+                <Link href="/" className="text-xl font-bold tracking-tight text-white">
+                  {brandName}
+                </Link>
+                {footerConfig.contentRichText ? (
+                  <div 
+                    className="prose prose-sm prose-invert max-w-none text-current"
+                    dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(footerConfig.contentRichText) }}
+                  />
+                ) : (
+                  <p className="text-sm leading-relaxed max-w-md">
+                    QR menu, siparis ve operasyon yonetimi icin merkezi platform. 
+                    Restoraninizin dijital donusumunu MENUCY ile guclendirin.
+                  </p>
+                )}
+              </div>
+              
+              {footerConfig.customCode && (
+                <div 
+                  className="footer-custom-code"
+                  dangerouslySetInnerHTML={{ __html: footerConfig.customCode }}
+                />
+              )}
+            </div>
+            
+            <div className="pt-8 border-t border-white/5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-[10px] font-bold uppercase tracking-widest">
+              <p>© {new Date().getFullYear()} {brandName}. Tüm hakları saklıdır.</p>
+              <p>Yeni Nesil Restoran İşletim Sistemi</p>
+            </div>
+          </div>
+        </footer>
+      )}
+    </main>
+  );
+}
+
         <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-12 lg:px-8 lg:pb-24">
           <div className="relative z-10 space-y-8 lg:col-span-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-sm">
