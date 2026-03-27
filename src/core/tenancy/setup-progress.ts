@@ -198,40 +198,40 @@ export async function resolveTenantSetupProgress(
       required: true,
       completed: hasDomain,
       completedAt: primaryDomain?.createdAt ?? null,
-      blocker: "Primary domain veya subdomain tanimi eksik.",
+      blocker: "Primary domain veya subdomain tanımı eksik.",
     }),
     buildStep({
       code: "first_restaurant_created",
       required: true,
       completed: hasRestaurant,
-      blocker: "En az 1 restoran kaydi gerekli.",
+      blocker: "En az 1 restoran kaydı gerekli.",
     }),
     buildStep({
       code: "menu_seeded_or_created",
       required: true,
       completed: hasMenuOrProduct,
       completedAt: menuSummary._min.createdAt ?? null,
-      blocker: "En az 1 menu veya ?r?n girilmesi gerekli.",
+      blocker: "En az 1 menü veya ürün girilmesi gerekli.",
     }),
     buildStep({
       code: "tables_created",
       required: true,
       completed: hasTables,
-      blocker: "En az 1 masa olusturulmasi gerekli.",
+      blocker: "En az 1 masa oluşturulması gerekli.",
     }),
     buildStep({
       code: "staff_invited_or_created",
       required: true,
       completed: hasStaff,
       completedAt: staffSummary._min.createdAt ?? null,
-      blocker: "En az 1 personel hesabi gerekli.",
+      blocker: "En az 1 personel hesabı gerekli.",
     }),
     buildStep({
       code: "payment_configured",
       required: false,
       completed: paymentConfigured,
       completedAt: activePaymentConfig?.createdAt ?? null,
-      blocker: "Odeme ayarlari henuz tamamlanmadi.",
+      blocker: "Ödeme ayarları henüz tamamlanmadı.",
     }),
   ];
 
@@ -240,11 +240,11 @@ export async function resolveTenantSetupProgress(
     .map((step) => step.blocker as string);
 
   if (!GO_LIVE_ALLOWED_LIFECYCLE.has(lifecycle.normalizedStatus)) {
-    blockers.push(`Lifecycle durumu canliya uygun degil (${lifecycle.normalizedStatus}).`);
+    blockers.push(`Lifecycle durumu canlıya uygun değil (${lifecycle.normalizedStatus}).`);
   }
 
   if (!orderingFeatureEnabled) {
-    blockers.push("ORDERING ozelligi tenant icin kapali.");
+    blockers.push("ORDERING özelliği tenant için kapalı.");
   }
 
   const goLiveReady = blockers.length === 0;
@@ -254,7 +254,7 @@ export async function resolveTenantSetupProgress(
     required: true,
     completed: goLiveReady,
     completedAt: goLiveReady ? tenant.setupProgress?.completedAt ?? null : null,
-    blocker: "Canliya alma kosullari henuz tamam degil.",
+    blocker: "Canlıya alma koşulları henüz tamam değil.",
   });
 
   const steps = [...stepsWithoutPublishing, publishingReadyStep];

@@ -9,51 +9,51 @@ type SetupStepPresentation = {
 
 const STEP_PRESENTATION: Record<TenantSetupStepCode, SetupStepPresentation> = {
   tenant_created: {
-    title: "Tenant kaydi olusturuldu",
-    description: "Merkezi tenant kaydi tamamlandi.",
+    title: "Tenant kaydı oluşturuldu",
+    description: "Merkezi tenant kaydı tamamlandı.",
     actionLabel: null,
     actionHref: null,
   },
   domain_ready: {
-    title: "Domain/Subdomain hazir",
-    description: "Storefront erisimi icin aktif alan adi ayari olusturulmus olmali.",
-    actionLabel: "Domain ayarlarina git",
+    title: "Domain/Subdomain hazır",
+    description: "Storefront erişimi için aktif alan adı ayarı oluşturulmuş olmalı.",
+    actionLabel: "Domain ayarlarına git",
     actionHref: "/restaurant/settings",
   },
   first_restaurant_created: {
-    title: "Ilk restoran kaydi",
-    description: "Operasyon yuzeyleri icin en az bir restoran tanimi gerekli.",
-    actionLabel: "Restoran ayarlarina git",
+    title: "İlk restoran kaydı",
+    description: "Operasyon yüzeyleri için en az bir restoran tanımı gerekli.",
+    actionLabel: "Restoran ayarlarına git",
     actionHref: "/restaurant/settings",
   },
   menu_seeded_or_created: {
-    title: "Menu veya urun girildi",
-    description: "Canli siparis akisi icin menu/urun verisi bulunmali.",
-    actionLabel: "Menu yonetimine git",
+    title: "Menü veya ürün girildi",
+    description: "Canlı sipariş akışı için menü/ürün verisi bulunmalı.",
+    actionLabel: "Menü yönetimine git",
     actionHref: "/restaurant/menu",
   },
   tables_created: {
-    title: "Masa kurulumu yapildi",
-    description: "QR ve servis akisi icin en az bir masa gerekli.",
-    actionLabel: "Masa yonetimine git",
+    title: "Masa kurulumu yapıldı",
+    description: "QR ve servis akışı için en az bir masa gerekli.",
+    actionLabel: "Masa yönetimine git",
     actionHref: "/restaurant/tables",
   },
   staff_invited_or_created: {
-    title: "Personel hesabi eklendi",
-    description: "Manager/waiter/kitchen akislari icin personel hesabi tanimlanmali.",
-    actionLabel: "Kullanicilara git",
+    title: "Personel hesabı eklendi",
+    description: "Manager/waiter/kitchen akışları için personel hesabı tanımlanmalı.",
+    actionLabel: "Kullanıcılara git",
     actionHref: "/restaurant/users",
   },
   payment_configured: {
-    title: "Odeme ayari",
-    description: "Odeme ve tahsilat akislarini tamamlamak icin odeme ayarlari yapilabilir.",
-    actionLabel: "Odeme ayarlarina git",
+    title: "Ödeme ayarı",
+    description: "Ödeme ve tahsilat akışlarını tamamlamak için ödeme ayarları yapılabilir.",
+    actionLabel: "Ödeme ayarlarına git",
     actionHref: "/restaurant/settings",
   },
   publishing_ready: {
-    title: "Canliya alma hazirligi",
-    description: "Storefront yayinina gecmek icin zorunlu adimlar tamamlanmali.",
-    actionLabel: "Menuye git",
+    title: "Canlıya alma hazırlığı",
+    description: "Storefront yayınına geçmek için zorunlu adımlar tamamlanmalı.",
+    actionLabel: "Menüye git",
     actionHref: "/restaurant/menu",
   },
 };
@@ -63,7 +63,7 @@ export function getSetupStepPresentation(code: TenantSetupStepCode): SetupStepPr
 }
 
 export function getSetupStatusLabel(step: TenantSetupStep): string {
-  if (step.completed) return "Tamamlandi";
+  if (step.completed) return "Tamamlandı";
   return step.required ? "Eksik" : "Opsiyonel";
 }
 

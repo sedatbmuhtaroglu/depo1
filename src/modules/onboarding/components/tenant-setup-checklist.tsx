@@ -20,11 +20,11 @@ export async function TenantSetupChecklist({ tenantId }: { tenantId: number }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ui-text-secondary)]">
-            Isletme Kurulum Kontrol Listesi
+            İşletme Kurulum Kontrol Listesi
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-[var(--ui-text-primary)]">Kurulum adimlari devam ediyor</h2>
+          <h2 className="mt-1 text-lg font-semibold text-[var(--ui-text-primary)]">Kurulum adımları devam ediyor</h2>
           <p className="mt-1 text-sm text-[var(--ui-text-secondary)]">
-            Tamamlanan zorunlu adim: {setup.requiredCompletedCount}/{setup.requiredTotalCount} (
+            Tamamlanan zorunlu adım: {setup.requiredCompletedCount}/{setup.requiredTotalCount} (
             %{setup.completionPercent})
           </p>
         </div>
@@ -34,7 +34,7 @@ export async function TenantSetupChecklist({ tenantId }: { tenantId: number }) {
       {setup.blockers.length > 0 ? (
         <div className={cardClasses({ tone: "warning", className: "mt-3 p-3 shadow-none" })}>
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ui-warning)]">
-            Canliya Alma Oncesi Tamamlanacaklar
+            Canlıya Alma Öncesi Tamamlanacaklar
           </p>
           <ul className="mt-2 space-y-1 text-sm text-[var(--ui-text-primary)]">
             {setup.blockers.map((blocker) => (
