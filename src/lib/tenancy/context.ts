@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { Prisma } from "@prisma/client";
 import { ensurePrismaConnectionInDev, prisma } from "@/lib/prisma";
 import { TenantResolutionError } from "@/lib/tenancy/tenant-resolution-error";
+import { resolveTenantSlugFromHostname } from "@/lib/tenancy/resolve";
 
 export type TenantContext = {
   tenantId: number;
@@ -54,7 +55,8 @@ export async function getCurrentTenantOrThrow(): Promise<TenantContext> {
     throw new TenantResolutionError("INVALID_TENANT_SLUG");
   }
 
-  const effectiveSlug = headerSlug;
+  const hostDerivedSlug = headerSlug ? null : resolveTenantSlugFromHostname(requestHost);
+  const effectiveSlug = headerSlug ?? hostDerivedSlug;
   const isStorefrontMenuPath =
     requestPathname === "/menu" || requestPathname.startsWith("/menu/");
 
@@ -62,7 +64,9 @@ export async function getCurrentTenantOrThrow(): Promise<TenantContext> {
     host: requestHost,
     appSurface,
     pathname: requestPathname,
-    headerSlug: effectiveSlug,
+    headerSlug,
+    hostDerivedSlug,
+    effectiveSlug,
   });
 
   if (!effectiveSlug && isStorefrontMenuPath) {

@@ -12,6 +12,7 @@ import {
   RateLimitError,
 } from "@/lib/rate-limit";
 import { evaluateAndLogRisk } from "@/lib/security/risk-engine";
+import { buildTenantPublicUrl } from "@/lib/tenancy/public-url";
 
 export async function GET(
   request: NextRequest,
@@ -39,6 +40,12 @@ export async function GET(
   }
 
   const tenant = table.restaurant.tenant;
+  const menuPath = `/menu/${encodeURIComponent(tenant.slug)}/${table.id}`;
+  const menuUrl = await buildTenantPublicUrl({
+    tenantId: tenant.id,
+    pathname: menuPath,
+    headers: request.headers,
+  });
 
   const existingSession = await getValidTableSession();
   if (
@@ -46,11 +53,7 @@ export async function GET(
     existingSession.tableId === table.id &&
     existingSession.tenantId === tenant.id
   ) {
-    const url = new URL(
-      `/menu/${encodeURIComponent(tenant.slug)}/${table.id}`,
-      request.url,
-    );
-    return NextResponse.redirect(url.toString());
+    return NextResponse.redirect(menuUrl);
   }
 
   try {
@@ -85,12 +88,7 @@ export async function GET(
     tableId: table.id,
   });
 
-  const url = new URL(
-    `/menu/${encodeURIComponent(tenant.slug)}/${table.id}`,
-    request.url,
-  );
-
-  const response = NextResponse.redirect(url.toString());
+  const response = NextResponse.redirect(menuUrl);
 
   const maxAgeSeconds = Math.floor(
     (session.expiresAt.getTime() - Date.now()) / 1000,
