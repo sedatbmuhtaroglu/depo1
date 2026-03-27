@@ -64,6 +64,8 @@ export function getActorCapabilities(actor: AuthorizationActor): Set<Capability>
   switch (actor.kind) {
     case "STAFF":
       return new Set(STAFF_ROLE_CAPABILITIES[actor.role] ?? []);
+    case "HQ_SUPPORT":
+      return new Set(STAFF_ROLE_CAPABILITIES.MANAGER);
     case "HQ_ADMIN":
       return new Set(HQ_ADMIN_CAPABILITIES);
     case "STOREFRONT_GUEST":

@@ -6,6 +6,16 @@ import {
 } from "@/core/tenancy/lifecycle-policy";
 
 export const ENTITLEMENT_FEATURES = [
+  "QR_MENU_VIEW",
+  "QR_ORDERING",
+  "ORDER_CANCELLATIONS",
+  "BILLING_RECEIPTS",
+  "WAITER_CALL_LOGS",
+  "SHOWCASE_RAILS",
+  "STAFF_PERFORMANCE",
+  "ONLINE_PAYMENT_IYZICO",
+  "CASH_OPERATIONS",
+  "STOCK_MANAGEMENT",
   "MENU",
   "WAITER_CALL",
   "ORDERING",
@@ -49,7 +59,12 @@ type PlanEntitlementDefaults = {
 
 const PLAN_ENTITLEMENT_DEFAULTS: Record<PlanCode, PlanEntitlementDefaults> = {
   MINI: {
-    features: ["MENU", "ORDERING"],
+    features: [
+      "QR_MENU_VIEW",
+      "QR_ORDERING",
+      "MENU",
+      "ORDERING",
+    ],
     limits: {
       USERS: 5,
       TABLES: 20,
@@ -60,7 +75,23 @@ const PLAN_ENTITLEMENT_DEFAULTS: Record<PlanCode, PlanEntitlementDefaults> = {
     },
   },
   RESTAURANT: {
-    features: ["MENU", "ORDERING", "WAITER_CALL", "KITCHEN_DISPLAY", "INVOICING"],
+    features: [
+      "QR_MENU_VIEW",
+      "QR_ORDERING",
+      "ORDER_CANCELLATIONS",
+      "BILLING_RECEIPTS",
+      "WAITER_CALL_LOGS",
+      "SHOWCASE_RAILS",
+      "STAFF_PERFORMANCE",
+      "ONLINE_PAYMENT_IYZICO",
+      "CASH_OPERATIONS",
+      "STOCK_MANAGEMENT",
+      "MENU",
+      "ORDERING",
+      "WAITER_CALL",
+      "KITCHEN_DISPLAY",
+      "INVOICING",
+    ],
     limits: {
       USERS: 15,
       TABLES: 60,
@@ -73,7 +104,17 @@ const PLAN_ENTITLEMENT_DEFAULTS: Record<PlanCode, PlanEntitlementDefaults> = {
   CORPORATE: {
     features: [
       "MENU",
+      "QR_MENU_VIEW",
       "ORDERING",
+      "QR_ORDERING",
+      "ORDER_CANCELLATIONS",
+      "BILLING_RECEIPTS",
+      "WAITER_CALL_LOGS",
+      "SHOWCASE_RAILS",
+      "STAFF_PERFORMANCE",
+      "ONLINE_PAYMENT_IYZICO",
+      "CASH_OPERATIONS",
+      "STOCK_MANAGEMENT",
       "WAITER_CALL",
       "KITCHEN_DISPLAY",
       "INVOICING",
@@ -95,14 +136,58 @@ const PLAN_ENTITLEMENT_DEFAULTS: Record<PlanCode, PlanEntitlementDefaults> = {
 const LIFECYCLE_FORCED_DISABLED_FEATURES: Partial<
   Record<TenantLifecycleStatus, readonly EntitlementFeature[]>
 > = {
-  SUSPENDED: ["ORDERING", "WAITER_CALL", "INVOICING"],
-  CANCELED: ["ORDERING", "WAITER_CALL", "INVOICING"],
-  PAST_DUE: ["ORDERING"],
-  DRAFT: ["ORDERING", "WAITER_CALL", "INVOICING"],
+  SUSPENDED: [
+    "QR_ORDERING",
+    "ORDERING",
+    "WAITER_CALL",
+    "WAITER_CALL_LOGS",
+    "INVOICING",
+    "BILLING_RECEIPTS",
+    "ONLINE_PAYMENT_IYZICO",
+    "CASH_OPERATIONS",
+    "STOCK_MANAGEMENT",
+  ],
+  CANCELED: [
+    "QR_ORDERING",
+    "ORDERING",
+    "WAITER_CALL",
+    "WAITER_CALL_LOGS",
+    "INVOICING",
+    "BILLING_RECEIPTS",
+    "ONLINE_PAYMENT_IYZICO",
+    "CASH_OPERATIONS",
+    "STOCK_MANAGEMENT",
+  ],
+  PAST_DUE: ["QR_ORDERING", "ORDERING", "ONLINE_PAYMENT_IYZICO", "CASH_OPERATIONS"],
+  DRAFT: [
+    "QR_ORDERING",
+    "ORDERING",
+    "WAITER_CALL",
+    "WAITER_CALL_LOGS",
+    "INVOICING",
+    "BILLING_RECEIPTS",
+    "ONLINE_PAYMENT_IYZICO",
+    "CASH_OPERATIONS",
+    "STOCK_MANAGEMENT",
+  ],
   PENDING_SETUP: [],
   TRIAL: [],
   ACTIVE: [],
 };
+
+export function isEntitlementFeatureCode(code: string): code is EntitlementFeature {
+  return ENTITLEMENT_FEATURES.includes(code as EntitlementFeature);
+}
+
+export function getPlanEntitlementDefaults(planCode: PlanCode): PlanEntitlementDefaults {
+  return PLAN_ENTITLEMENT_DEFAULTS[planCode];
+}
+
+export function getLifecycleForcedDisabledFeatures(
+  status: TenantLifecycleStatus,
+): readonly EntitlementFeature[] {
+  return LIFECYCLE_FORCED_DISABLED_FEATURES[status] ?? [];
+}
 
 const FEATURE_CODES = new Set<EntitlementFeature>(
   Object.values(FeatureCode).filter((value): value is EntitlementFeature =>
@@ -155,6 +240,22 @@ function applyPlanEnvOverrides(
     },
     { ...defaults },
   );
+}
+
+function applyPlanDbLimitOverrides(
+  defaults: EntitlementLimits,
+  planLimits: Array<{ resource: LimitResource; limit: number | null }>,
+): EntitlementLimits {
+  const result: EntitlementLimits = { ...defaults };
+  for (const row of planLimits) {
+    const resource = normalizeLimitResource(row.resource);
+    result[resource] = row.limit;
+  }
+  return result;
+}
+
+export function getPlanEntitlementLimits(planCode: PlanCode): EntitlementLimits {
+  return applyPlanEnvOverrides(planCode, PLAN_ENTITLEMENT_DEFAULTS[planCode].limits);
 }
 
 function normalizeDbFeatureToEntitlement(featureCode: FeatureCode): EntitlementFeature | null {
@@ -241,6 +342,9 @@ export async function getTenantEntitlements(
               },
             },
           },
+          planLimits: {
+            select: { resource: true, limit: true },
+          },
         },
       },
       features: {
@@ -283,7 +387,8 @@ export async function getTenantEntitlements(
 
   applyLifecycleFeatureGuards(lifecycle.normalizedStatus, featureSet);
 
-  const baseLimits = applyPlanEnvOverrides(tenant.plan.code, planDefaults.limits);
+  const envAdjustedLimits = applyPlanEnvOverrides(tenant.plan.code, planDefaults.limits);
+  const baseLimits = applyPlanDbLimitOverrides(envAdjustedLimits, tenant.plan.planLimits);
   const { effectiveLimits, appliedOverrides } = applyTenantLimitOverrides({
     baseLimits,
     overrides: tenant.limitOverrides,

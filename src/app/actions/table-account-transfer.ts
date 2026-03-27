@@ -15,6 +15,7 @@ import {
   runPartialLineTransferTx,
 } from "@/lib/table-account-transfer-core";
 import { parseOrderLinesJson, roundCurrency } from "@/lib/order-items-json";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 function revalidateTransferSurfaces() {
   revalidatePath("/waiter");
@@ -37,12 +38,20 @@ function buildAuditActor(params: {
   return { type: "admin", id: username };
 }
 
+async function ensureCashOperationsFeature(tenantId: number) {
+  return ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+}
+
 export async function getTableTransferContext(sourceTableId: number) {
   try {
     const { tenantId } = await requireWaiterOrManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false as const, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureCashOperationsFeature(tenantId);
+    if (!featureGate.ok) {
+      return { success: false as const, message: featureGate.message };
     }
 
     const sid = Math.floor(Number(sourceTableId));
@@ -162,6 +171,10 @@ export async function transferTableAccountFull(input: {
     if (ctxTenantId !== tenantId) {
       return { success: false as const, message: "Yetkisiz." };
     }
+    const featureGate = await ensureCashOperationsFeature(tenantId);
+    if (!featureGate.ok) {
+      return { success: false as const, message: featureGate.message };
+    }
 
     const sourceTableId = Math.floor(Number(input.sourceTableId));
     const targetTableId = Math.floor(Number(input.targetTableId));
@@ -217,6 +230,10 @@ export async function mergeTableAccounts(input: {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false as const, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureCashOperationsFeature(tenantId);
+    if (!featureGate.ok) {
+      return { success: false as const, message: featureGate.message };
     }
 
     const targetTableId = Math.floor(Number(input.targetTableId));
@@ -287,6 +304,10 @@ export async function transferOrderLinesPartial(input: {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false as const, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureCashOperationsFeature(tenantId);
+    if (!featureGate.ok) {
+      return { success: false as const, message: featureGate.message };
     }
 
     const sourceTableId = Math.floor(Number(input.sourceTableId));

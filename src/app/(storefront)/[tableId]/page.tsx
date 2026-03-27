@@ -9,6 +9,11 @@ import { evaluateRestaurantOrderingAvailability } from "@/lib/restaurant-working
 import RefreshPolling from "@/components/refresh-polling";
 import MenuClient from "./menu-client";
 import { resolveStorefrontMenuShowcases } from "@/lib/storefront-menu-showcase-resolve";
+import { getTenantEntitlements } from "@/core/entitlements/engine";
+import {
+  canManageMenuComplianceFromFeatures,
+  resolveStorefrontFeatureAccess,
+} from "@/lib/restaurant-panel-access";
 import {
   buildOrderItemAdjustmentMap,
   getEffectiveOrderItemQuantity,
@@ -63,6 +68,17 @@ const getMenuData = async (tableId: string) => {
   if (session.tenantId !== contextTenantId) {
     return null;
   }
+
+  const entitlements = await getTenantEntitlements(session.tenantId);
+  const qrMenuEnabled = entitlements.features.has("QR_MENU_VIEW");
+  const storefrontAccess = resolveStorefrontFeatureAccess(
+    new Set(Array.from(entitlements.features)),
+  );
+  const menuComplianceVisible = canManageMenuComplianceFromFeatures(
+    new Set(Array.from(entitlements.features)),
+  );
+  const qrOrderingEnabled = storefrontAccess.orderingEnabled;
+  const showcaseEnabled = entitlements.features.has("SHOWCASE_RAILS");
 
   const table = await prisma.table.findFirst({
     where: {
@@ -120,6 +136,37 @@ const getMenuData = async (tableId: string) => {
       tableId: session.tableId,
     }),
   ]);
+
+  if (!qrMenuEnabled) {
+    return {
+      accessDeniedMessage: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      restaurant: {
+        name: table.restaurant.name,
+        logoUrl: table.restaurant.logoUrl,
+        orderingClosed: true,
+        orderingFeatureEnabled: false,
+        openingHour: null,
+        closingHour: null,
+        paymentMethods: {
+          cash: paymentMethods.cash,
+          creditCard: paymentMethods.creditCard,
+          iyzico: paymentMethods.iyzico,
+        },
+        waiterCallFeatureEnabled: storefrontAccess.waiterCallEnabled,
+        billRequestFeatureEnabled: storefrontAccess.billRequestEnabled,
+        menuComplianceVisible,
+        canRequestBill: false,
+        unpaidTotal: 0,
+        locationEnforcementEnabled: false,
+        orderRadiusMeters: undefined,
+        locationLatitude: null,
+        locationLongitude: null,
+      },
+      categories: [],
+      tableId,
+      myOrders: [],
+    };
+  }
   const customerOrderWhere = {
     tableId: session.tableId,
     ...(billingSnapshot.cycleStartAt
@@ -247,6 +294,7 @@ const getMenuData = async (tableId: string) => {
         name: restaurantFromTable.name,
         logoUrl: restaurantFromTable.logoUrl,
         orderingClosed: Boolean(orderingClosed),
+        orderingFeatureEnabled: qrOrderingEnabled,
         openingHour: orderingAvailability.todayOpeningHour,
         closingHour: orderingAvailability.todayClosingHour,
         themeColor: restaurantFromTable.themeColor ?? "primary",
@@ -283,10 +331,14 @@ const getMenuData = async (tableId: string) => {
           creditCard: paymentMethods.creditCard,
           iyzico: paymentMethods.iyzico,
         },
+        waiterCallFeatureEnabled: storefrontAccess.waiterCallEnabled,
+        billRequestFeatureEnabled: storefrontAccess.billRequestEnabled,
+        menuComplianceVisible,
         canRequestBill: billingSnapshot.canRequestBill,
         unpaidTotal: billingSnapshot.totalUnpaid,
       },
       categories: [],
+      accessDeniedMessage: null,
       tableId,
       myOrders,
     };
@@ -308,6 +360,7 @@ const getMenuData = async (tableId: string) => {
             where: getProductMenuVisibilityWhere(now),
             orderBy: [{ isFeatured: "desc" }, { sortOrder: "asc" }, { id: "asc" }],
             include: {
+              complianceInfo: true,
               optionGroups: {
                 orderBy: { sortOrder: "asc" },
                 include: {
@@ -363,21 +416,34 @@ const getMenuData = async (tableId: string) => {
         })),
       })),
       isFeatured: product.isFeatured,
+      complianceInfo: product.complianceInfo
+        ? {
+            basicIngredients: product.complianceInfo.basicIngredients,
+            caloriesKcal: product.complianceInfo.caloriesKcal,
+            allergens: product.complianceInfo.allergens,
+            customAllergens: product.complianceInfo.customAllergens,
+            alcoholStatus: product.complianceInfo.alcoholStatus,
+            porkStatus: product.complianceInfo.porkStatus,
+            crossContaminationNote: product.complianceInfo.crossContaminationNote,
+          }
+        : null,
     })),
   }));
 
   const flatProductsForShowcase = categoriesWithProducts.flatMap((c) => c.products);
 
-  const [popularShowcaseRows, frequentShowcaseRow] = await Promise.all([
-    prisma.menuPopularShowcase.findMany({
-      where: { menuId: activeMenu.id, isEnabled: true },
-      include: { items: { orderBy: { sortOrder: "asc" } } },
-    }),
-    prisma.menuFrequentShowcase.findUnique({
-      where: { menuId: activeMenu.id, isEnabled: true },
-      include: { items: { orderBy: { sortOrder: "asc" } } },
-    }),
-  ]);
+  const [popularShowcaseRows, frequentShowcaseRow] = showcaseEnabled
+    ? await Promise.all([
+        prisma.menuPopularShowcase.findMany({
+          where: { menuId: activeMenu.id, isEnabled: true },
+          include: { items: { orderBy: { sortOrder: "asc" } } },
+        }),
+        prisma.menuFrequentShowcase.findUnique({
+          where: { menuId: activeMenu.id, isEnabled: true },
+          include: { items: { orderBy: { sortOrder: "asc" } } },
+        }),
+      ])
+    : [[], null];
 
   const { popularByCategory, frequentShowcase } = resolveStorefrontMenuShowcases({
     flatProducts: flatProductsForShowcase,
@@ -485,6 +551,7 @@ const getMenuData = async (tableId: string) => {
       name: restaurant.name,
       logoUrl: restaurant.logoUrl,
       orderingClosed: Boolean(orderingClosed),
+      orderingFeatureEnabled: qrOrderingEnabled,
       openingHour: orderingAvailability.todayOpeningHour,
       closingHour: orderingAvailability.todayClosingHour,
       themeColor: restaurant.themeColor ?? "primary",
@@ -508,10 +575,14 @@ const getMenuData = async (tableId: string) => {
         creditCard: paymentMethods.creditCard,
         iyzico: paymentMethods.iyzico,
       },
+      waiterCallFeatureEnabled: storefrontAccess.waiterCallEnabled,
+      billRequestFeatureEnabled: storefrontAccess.billRequestEnabled,
+      menuComplianceVisible,
       canRequestBill: billingSnapshot.canRequestBill,
       unpaidTotal: billingSnapshot.totalUnpaid,
     },
     categories: categoriesWithProducts,
+    accessDeniedMessage: null,
     popularByCategory,
     frequentShowcase,
     tableId,
@@ -531,6 +602,14 @@ export default async function MenuPage({
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-center text-slate-100">
         Masa oturumu bulunamadı. Lütfen masadaki QR kodu yeniden okutun.
+      </div>
+    );
+  }
+
+  if (data.accessDeniedMessage) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-center text-slate-100">
+        {data.accessDeniedMessage}
       </div>
     );
   }

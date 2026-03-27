@@ -1,5 +1,6 @@
 import type { SalesLeadSource, SalesLeadStatus } from "@prisma/client";
 import { resolveTenantSetupProgress } from "@/core/tenancy/setup-progress";
+import { displayContactNameForList } from "@/lib/pii/pii-read";
 import { prisma } from "@/lib/prisma";
 import { getTurkeyDayRange } from "@/lib/turkey-time";
 import { getHqSalesOverviewData } from "@/modules/hq/server/lead-queries";
@@ -146,6 +147,8 @@ export async function getHqCommandCenterData(): Promise<HqCommandCenterData> {
         id: true,
         businessName: true,
         contactName: true,
+        contactNameEncrypted: true,
+        contactNameMasked: true,
         createdAt: true,
       },
     }),
@@ -290,7 +293,17 @@ export async function getHqCommandCenterData(): Promise<HqCommandCenterData> {
       newLeadsToday: newLeadsToday.map((lead) => ({
         leadId: lead.id,
         businessName: lead.businessName,
-        contactName: lead.contactName,
+        contactName: displayContactNameForList({
+          contactName: lead.contactName,
+          contactNameEncrypted: lead.contactNameEncrypted,
+          contactNameMasked: lead.contactNameMasked,
+          email: null,
+          emailEncrypted: null,
+          emailMasked: null,
+          phone: null,
+          phoneEncrypted: null,
+          phoneLast4: null,
+        }),
         createdAt: lead.createdAt,
       })),
       trialStartedNotGoLive: trialNotGoLiveFiltered,

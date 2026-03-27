@@ -1,29 +1,24 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { landingSeo } from "@/content/landing";
+import { resolveTenantSlugFromHostname } from "@/lib/tenancy/resolve";
 import { LandingHomepageView } from "@/modules/marketing/components/landing-homepage-view";
-import { getMarketingSiteConfigForPublic } from "@/modules/marketing/server/landing-content";
+import { getMergedPublicLandingDesignForPublic } from "@/modules/marketing/server/landing-design";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await getMarketingSiteConfigForPublic();
-  if (!data) {
-    return {
-      title: "MENUCY",
-      description: "MENUCY landing page",
-    };
-  }
-
   return {
-    title: data.seoTitle ?? data.heroTitle,
-    description: data.seoDescription ?? data.heroDescription,
-    alternates: data.seoCanonicalUrl
+    title: landingSeo.title,
+    description: landingSeo.description,
+    alternates: landingSeo.canonicalUrl
       ? {
-          canonical: data.seoCanonicalUrl,
+          canonical: landingSeo.canonicalUrl,
         }
       : undefined,
     openGraph: {
-      title: data.seoOgTitle ?? data.seoTitle ?? data.heroTitle,
-      description: data.seoOgDescription ?? data.seoDescription ?? data.heroDescription,
-      images: data.seoOgImageUrl ? [data.seoOgImageUrl] : undefined,
+      title: landingSeo.ogTitle ?? landingSeo.title,
+      description: landingSeo.ogDescription ?? landingSeo.description,
+      images: landingSeo.ogImageUrl ? [landingSeo.ogImageUrl] : undefined,
     },
   };
 }
@@ -33,9 +28,16 @@ export default async function HomePage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const data = await getMarketingSiteConfigForPublic();
   const params = await searchParams;
   const headerList = await headers();
+  const requestHostRaw = headerList.get("host") ?? headerList.get("x-forwarded-host") ?? "";
+  const requestHost = requestHostRaw.split(",")[0]?.trim().toLowerCase() ?? "";
+  const tenantSlug = resolveTenantSlugFromHostname(requestHost);
+
+  // Fallback redirect from marketing root when middleware headers are unavailable in dev.
+  if (tenantSlug) {
+    redirect("/menu");
+  }
 
   const readSingle = (value: string | string[] | undefined): string =>
     Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
@@ -48,9 +50,11 @@ export default async function HomePage({
 
   const landingPath = query.toString() ? `/?${query.toString()}` : "/";
 
+  const design = await getMergedPublicLandingDesignForPublic();
+
   return (
     <LandingHomepageView
-      data={data}
+      design={design}
       tracking={{
         utmSource: readSingle(params.utm_source),
         utmMedium: readSingle(params.utm_medium),

@@ -6,6 +6,7 @@ import { requireCashierWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { logServerError } from "@/lib/server-error-log";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 type BillRequestStatusValue =
   | "PENDING"
@@ -22,6 +23,10 @@ export async function updateBillRequestStatus(
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+    if (!featureGate.ok) {
+      return { success: false, message: featureGate.message };
     }
 
     const bill = await prisma.billRequest.findFirst({

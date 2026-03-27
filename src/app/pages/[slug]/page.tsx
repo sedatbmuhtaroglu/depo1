@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ContentEmbedBlocksRenderer } from "@/components/content/content-embed-blocks-renderer";
 import { getPageBySlugForPublicAccess } from "@/modules/content/server/content-queries";
+import { normalizeEmbedBlocksForRender } from "@/modules/content/shared/embed-blocks";
 import { validatePreviewToken } from "@/modules/content/server/preview-token";
 import { buildMetadataFromSeo } from "@/modules/content/server/seo-metadata";
 
@@ -102,6 +104,7 @@ export default async function PublicPageDetail({
 
   const page = resolved.page;
   const publishText = formatDate(page.publishedAt);
+  const embedBlocks = normalizeEmbedBlocksForRender(page.embedBlocks);
 
   return (
     <main className="min-h-screen bg-[#020817] px-4 py-12 text-[#f3f7ff] sm:px-6 lg:px-8">
@@ -126,6 +129,8 @@ export default async function PublicPageDetail({
           className="space-y-4 text-sm leading-7 text-[#f3f7ff] [&_a]:text-[#22c55e] [&_h2]:text-xl [&_h3]:text-lg [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc"
           dangerouslySetInnerHTML={{ __html: page.contentHtml }}
         />
+
+        <ContentEmbedBlocksRenderer blocks={embedBlocks} />
       </article>
     </main>
   );

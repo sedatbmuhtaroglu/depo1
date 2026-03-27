@@ -24,6 +24,7 @@ import {
 } from "@/lib/order-refund-runtime";
 import { buildCancellationCustomReason } from "@/lib/order-cancellation-finance";
 import { logServerError } from "@/lib/server-error-log";
+import { hasFeature } from "@/core/entitlements/engine";
 
 const REASONS = [
   "CUSTOMER_CHANGED_MIND",
@@ -66,6 +67,14 @@ export async function cancelOrderItem(
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+
+    const cancellationsEnabled = await hasFeature(tenantId, "ORDER_CANCELLATIONS");
+    if (!cancellationsEnabled) {
+      return {
+        success: false,
+        message: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      };
     }
 
     const order = await prisma.order.findFirst({

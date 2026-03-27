@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import { ContentEmbedBlocksRenderer } from "@/components/content/content-embed-blocks-renderer";
 import { cardClasses } from "@/lib/ui/button-variants";
 import { getHqBlogPostById } from "@/modules/content/server/content-queries";
+import { normalizeEmbedBlocksForRender } from "@/modules/content/shared/embed-blocks";
 
 function formatDate(value: Date | null) {
   if (!value) return "-";
@@ -18,6 +20,8 @@ export default async function HqContentBlogPostPreviewPage({
   const { postId } = await params;
   const post = await getHqBlogPostById(postId);
   if (!post) notFound();
+
+  const embedBlocks = normalizeEmbedBlocksForRender(post.embedBlocks);
 
   return (
     <div className="space-y-4">
@@ -49,6 +53,8 @@ export default async function HqContentBlogPostPreviewPage({
           className="space-y-3 text-sm leading-7 text-[var(--ui-text-primary)] [&_a]:text-[var(--ui-accent)] [&_li]:ml-5 [&_ul]:list-disc"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
+
+        <ContentEmbedBlocksRenderer blocks={embedBlocks} />
       </article>
     </div>
   );

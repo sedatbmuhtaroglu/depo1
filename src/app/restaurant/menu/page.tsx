@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import MenuManager from "./menu-manager";
 import { getTenantLimitUsageSummary } from "@/lib/tenant-limits";
 import { badgeClasses, cardClasses } from "@/lib/ui/button-variants";
+import { getTenantEntitlements } from "@/core/entitlements/engine";
+import { canManageMenuComplianceFromFeatures } from "@/lib/restaurant-panel-access";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,10 @@ type RestaurantMenuPageProps = {
 
 export default async function RestaurantMenuPage({ searchParams }: RestaurantMenuPageProps) {
   const { tenantId } = await getCurrentTenantOrThrow();
+  const entitlements = await getTenantEntitlements(tenantId);
+  const canManageMenuCompliance = canManageMenuComplianceFromFeatures(
+    new Set(Array.from(entitlements.features)),
+  );
   const resolvedSearchParams = (await searchParams) ?? {};
   const selectedMenuParam = resolvedSearchParams.menuId;
 
@@ -52,6 +58,7 @@ export default async function RestaurantMenuPage({ searchParams }: RestaurantMen
             products: {
               orderBy: [{ isFeatured: "desc" }, { sortOrder: "asc" }, { id: "asc" }],
               include: {
+                complianceInfo: true,
                 optionGroups: {
                   orderBy: { sortOrder: "asc" },
                   include: {
@@ -68,6 +75,11 @@ export default async function RestaurantMenuPage({ searchParams }: RestaurantMen
     }),
     getTenantLimitUsageSummary(tenantId),
   ]);
+  const tenantAllergens = await prisma.tenantAllergen.findMany({
+    where: { tenantId, isActive: true },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    select: { id: true, name: true },
+  });
 
   if (restaurants.length === 0) redirect("/restaurant");
 
@@ -97,6 +109,17 @@ export default async function RestaurantMenuPage({ searchParams }: RestaurantMen
           visibleUntil: p.visibleUntil ? p.visibleUntil.toISOString() : null,
         tags: p.tags as string[] | null,
         options: p.options,
+        complianceInfo: p.complianceInfo
+          ? {
+              basicIngredients: p.complianceInfo.basicIngredients,
+              caloriesKcal: p.complianceInfo.caloriesKcal,
+              allergens: p.complianceInfo.allergens,
+              customAllergens: p.complianceInfo.customAllergens,
+              alcoholStatus: p.complianceInfo.alcoholStatus,
+              porkStatus: p.complianceInfo.porkStatus,
+              crossContaminationNote: p.complianceInfo.crossContaminationNote,
+            }
+          : null,
         optionGroups: p.optionGroups.map((g) => ({
           id: g.id,
           nameTR: g.nameTR,
@@ -132,36 +155,35 @@ export default async function RestaurantMenuPage({ searchParams }: RestaurantMen
   const activeMenuName = activeMenu?.name ?? "Aktif menü yok";
 
   return (
-    <div className="space-y-4">
-      <section className={cardClasses({ className: "p-4 sm:p-5" })}>
+    <div className="space-y-5">
+      <section className={cardClasses({ className: "p-4 shadow-none sm:p-5" })}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-[#6B7280]">
-              Menü Yönetimi
-            </p>
-            <h2 className="mt-1 text-xl font-semibold text-[#111827]">Kategori ve Ürün Düzenleme</h2>
-            <p className="mt-1 text-sm text-[#6B7280]">
+            <p className="rm-section-intro-eyebrow">Menü Yönetimi</p>
+            <h2 className="rm-section-intro-title">Kategori ve Ürün Düzenleme</h2>
+            <p className="rm-section-intro-desc">
               Menü kullanımı: {menusUsageText} • Ürün kullanımı: {productsUsageText}
             </p>
           </div>
 
-          <span className={badgeClasses("neutral", "px-2.5 py-1 text-xs font-medium")}>
-            Aktif Menü: <span className="ml-1 font-semibold text-[#111827]">{activeMenuName}</span>
+          <span className={badgeClasses("neutral", "max-w-full shrink-0 px-2.5 py-1 text-xs font-medium")}>
+            Aktif Menü:{" "}
+            <span className="ml-1 font-semibold text-[color:var(--ui-text-primary)]">{activeMenuName}</span>
           </span>
         </div>
 
-        <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <div className={cardClasses({ tone: "subtle", className: "px-3 py-2.5 shadow-none" })}>
-            <p className="text-[11px] uppercase tracking-[0.1em] text-[#6B7280]">Menü Sayısı</p>
-            <p className="mt-1 text-lg font-semibold text-[#111827]">{menuCount}</p>
+            <p className="text-[11px] uppercase tracking-wide text-[color:var(--ui-text-secondary)]">Menü Sayısı</p>
+            <p className="mt-1 text-lg font-semibold text-[color:var(--ui-text-primary)]">{menuCount}</p>
           </div>
           <div className={cardClasses({ tone: "subtle", className: "px-3 py-2.5 shadow-none" })}>
-            <p className="text-[11px] uppercase tracking-[0.1em] text-[#6B7280]">Kategori</p>
-            <p className="mt-1 text-lg font-semibold text-[#111827]">{categoryCount}</p>
+            <p className="text-[11px] uppercase tracking-wide text-[color:var(--ui-text-secondary)]">Kategori</p>
+            <p className="mt-1 text-lg font-semibold text-[color:var(--ui-text-primary)]">{categoryCount}</p>
           </div>
           <div className={cardClasses({ tone: "subtle", className: "px-3 py-2.5 shadow-none" })}>
-            <p className="text-[11px] uppercase tracking-[0.1em] text-[#6B7280]">Ürün</p>
-            <p className="mt-1 text-lg font-semibold text-[#111827]">{productCount}</p>
+            <p className="text-[11px] uppercase tracking-wide text-[color:var(--ui-text-secondary)]">Ürün</p>
+            <p className="mt-1 text-lg font-semibold text-[color:var(--ui-text-primary)]">{productCount}</p>
           </div>
         </div>
       </section>
@@ -170,6 +192,8 @@ export default async function RestaurantMenuPage({ searchParams }: RestaurantMen
         menus={menus}
         selectedMenuId={selectedMenuId}
         categories={categories}
+        tenantAllergens={tenantAllergens}
+        canManageMenuCompliance={canManageMenuCompliance}
       />
     </div>
   );

@@ -71,45 +71,61 @@ export default async function HqOverviewPage() {
   ] as const;
 
   return (
-    <div className="space-y-6 pb-2">
-      <section className={cardClasses({ className: "p-6 sm:p-7" })}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ui-text-secondary)]">
-              HQ Command Center
+    <div className="space-y-8 pb-2">
+      <section
+        className={cardClasses({
+          className:
+            "relative overflow-hidden rounded-2xl border border-[var(--ui-border-subtle)] bg-gradient-to-br from-[var(--ui-surface-bg)] via-[var(--ui-surface-bg)] to-[var(--ui-surface-subtle)] p-6 sm:p-8",
+        })}
+      >
+        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[var(--ui-primary-soft)] blur-3xl opacity-60" />
+        <div className="relative flex flex-wrap items-start justify-between gap-6">
+          <div className="max-w-3xl space-y-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ui-text-muted)]">
+              Command center
             </p>
-            <h2 className="mt-2 text-2xl font-semibold text-[var(--ui-text-primary)] sm:text-[1.7rem]">
-              Satış, Trial ve Operasyon Nabzı
+            <h2 className="text-2xl font-semibold tracking-tight text-[var(--ui-text-primary)] sm:text-[1.65rem]">
+              Satış, trial ve operasyon nabzı
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[var(--ui-text-secondary)]">
-              Lead&apos;den tenant&apos;a giden hattı tek ekranda yönetin: satış sinyali, onboarding sağlığı
-              ve günlük müdahale gerektiren başlıklar.
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--ui-text-secondary)]">
+              Lead&apos;den tenant&apos;a giden hattı tek ekranda izleyin: satış sinyali, onboarding sağlığı ve
+              günlük müdahale gerektiren başlıklar.
             </p>
-            <p className="mt-2 text-xs text-[var(--ui-text-secondary)]">
-              Güncellendi: {formatDate(new Date())}
-            </p>
+            <p className="pt-1 text-xs text-[var(--ui-text-muted)]">Güncellendi: {formatDate(new Date())}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/hq/leads" className={buttonClasses({ variant: "primary", className: "px-4" })}>
-              Lead Merkezi
+            <Link
+              href="/hq/leads"
+              className={buttonClasses({ variant: "primary", className: "rounded-lg px-5 py-2.5 shadow-sm" })}
+            >
+              Lead merkezi
             </Link>
-            <Link href="/hq/tenants/new" className={buttonClasses({ variant: "outline", className: "px-4" })}>
-              Yeni Tenant
+            <Link
+              href="/hq/tenants/new"
+              className={buttonClasses({ variant: "outline", className: "rounded-lg px-5 py-2.5" })}
+            >
+              Yeni tenant
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {summaryCards.map((item) => (
-          <article key={item.label} className={cardClasses({ className: "p-5" })}>
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--ui-text-secondary)]">
+          <article
+            key={item.label}
+            className={cardClasses({
+              className:
+                "rounded-xl border border-[var(--ui-border-subtle)] p-5 transition-shadow hover:shadow-md",
+            })}
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ui-text-muted)]">
               {item.label}
             </p>
-            <p className="mt-2 text-3xl font-semibold leading-none text-[var(--ui-text-primary)]">
+            <p className="mt-3 font-mono text-3xl font-semibold tabular-nums tracking-tight text-[var(--ui-text-primary)]">
               {item.value}
             </p>
-            <p className="mt-2 text-xs text-[var(--ui-text-secondary)]">{item.note}</p>
+            <p className="mt-2 text-xs leading-relaxed text-[var(--ui-text-secondary)]">{item.note}</p>
           </article>
         ))}
       </section>

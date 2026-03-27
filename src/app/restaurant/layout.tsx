@@ -6,22 +6,28 @@ import RefreshPolling from "@/components/refresh-polling";
 import AdminLogoutButton from "@/components/admin-logout-button";
 import RestaurantToaster from "./restaurant-toaster";
 import RestaurantShell from "./restaurant-shell";
+import SupportModeBanner from "./support-mode-banner";
 import { buttonClasses } from "@/lib/ui/button-variants";
 import {
   DEFAULT_RESTAURANT_THEME,
   RESTAURANT_THEME_STORAGE_KEY,
 } from "./theme/restaurant-theme";
 import {
-  canAccessRestaurantPath,
+  canAccessRestaurantPathWithFeatures,
   normalizeRestaurantPathname,
 } from "@/lib/restaurant-panel-access";
+import { getTenantEntitlements } from "@/core/entitlements/engine";
+import { FEATURE_LOCKED_MESSAGE } from "@/lib/tenant-feature-enforcement";
 
 export default async function RestaurantLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { role, homePath } = await requireCashierOrManagerSession();
+  const session = await requireCashierOrManagerSession();
+  const { role, homePath } = session;
+  const entitlements = await getTenantEntitlements(session.tenantId);
+  const enabledFeatures = new Set(Array.from(entitlements.features));
   const reqHeaders = await headers();
   const requestedPath = normalizeRestaurantPathname(
     reqHeaders.get("x-request-pathname") ?? homePath,
@@ -29,10 +35,13 @@ export default async function RestaurantLayout({
   const normalizedHomePath = normalizeRestaurantPathname(homePath);
   const isCashReceiptRoute = requestedPath.startsWith("/restaurant/cash/receipt");
 
-  if (
-    !canAccessRestaurantPath({ role, pathname: requestedPath }) &&
-    requestedPath !== normalizedHomePath
-  ) {
+  const routeAccess = canAccessRestaurantPathWithFeatures({
+    role,
+    pathname: requestedPath,
+    enabledFeatures,
+  });
+
+  if (!routeAccess.allowed && routeAccess.reason === "ROLE" && requestedPath !== normalizedHomePath) {
     redirect(homePath);
   }
 
@@ -58,6 +67,9 @@ export default async function RestaurantLayout({
     );
   }
 
+  const featureLockMessage =
+    !routeAccess.allowed && routeAccess.reason === "FEATURE" ? FEATURE_LOCKED_MESSAGE : null;
+
   return (
     <div
       className="restaurant-panel min-h-screen bg-[var(--ui-bg-canvas)]"
@@ -77,6 +89,18 @@ export default async function RestaurantLayout({
       <RestaurantToaster />
       <RestaurantShell
         role={role}
+        enabledFeatures={Array.from(enabledFeatures)}
+        supportBanner={
+          session.authMode === "support" && session.supportContext ? (
+            <SupportModeBanner
+              tenantName={session.supportContext.tenantName}
+              tenantSlug={session.supportContext.tenantSlug}
+              hqAdminUsername={session.supportContext.hqAdminUsername}
+              reason={session.supportContext.reason}
+              expiresAtMs={session.supportContext.expiresAt.getTime()}
+            />
+          ) : null
+        }
         headerAction={
           <AdminLogoutButton
             className={buttonClasses({
@@ -87,7 +111,16 @@ export default async function RestaurantLayout({
           />
         }
       >
-        {children}
+        {featureLockMessage ? (
+          <div className="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-subtle)] p-6 text-center">
+            <h2 className="text-lg font-semibold text-[var(--ui-text-primary)]">Ozellik Kilitli</h2>
+            <p className="mt-2 text-sm text-[var(--ui-text-secondary)]">
+              {featureLockMessage}
+            </p>
+          </div>
+        ) : (
+          children
+        )}
       </RestaurantShell>
     </div>
   );

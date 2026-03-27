@@ -1,5 +1,6 @@
 import type { ContentStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 import { evaluateSeoCompleteness } from "@/modules/content/server/content-utils";
 import { ensureMainMarketingSiteId } from "@/modules/marketing/server/landing-content";
 
@@ -54,6 +55,7 @@ const pagePublicSelect = {
   excerpt: true,
   coverImageUrl: true,
   contentHtml: true,
+  embedBlocks: true,
   publishedAt: true,
   updatedAt: true,
   authorName: true,
@@ -75,6 +77,7 @@ const blogPublicSelect = {
   status: true,
   excerpt: true,
   contentHtml: true,
+  embedBlocks: true,
   featuredImageUrl: true,
   publishedAt: true,
   updatedAt: true,
@@ -187,6 +190,7 @@ export async function getHqPageById(pageId: string) {
       excerpt: true,
       coverImageUrl: true,
       contentHtml: true,
+      embedBlocks: true,
       publishedAt: true,
       authorName: true,
       sortOrder: true,
@@ -299,6 +303,7 @@ export async function getHqBlogPostById(postId: string) {
       status: true,
       excerpt: true,
       contentHtml: true,
+      embedBlocks: true,
       featuredImageUrl: true,
       publishedAt: true,
       authorName: true,
@@ -409,6 +414,102 @@ export async function getHomepageSeoSettingsForHq() {
       updatedAt: true,
     },
   });
+}
+
+export type HqPlannedMaintenanceSettings = {
+  plannedMaintenanceEnabled: boolean;
+  plannedMaintenanceStartsAt: Date | null;
+  plannedMaintenanceEndsAt: Date | null;
+  plannedMaintenanceMessage: string | null;
+  plannedMaintenanceAllowedPaths: string | null;
+  updatedAt: Date;
+};
+
+export const DEFAULT_MAINTENANCE_ALLOWED_PATH_PREFIXES = [
+  "/",
+  "/hq",
+  "/glidragiris",
+  "/restaurant",
+  "/waiter",
+  "/kitchen",
+] as const;
+
+export function normalizeMaintenanceAllowedPathPrefixes(rawValue: string | null | undefined): string[] {
+  const tokens = (rawValue ?? "")
+    .split(/\r?\n|,/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const normalized: string[] = [];
+  for (const token of tokens) {
+    const value = token
+      .replace(/^https?:\/\/[^/]+/i, "")
+      .split("?")[0]
+      ?.split("#")[0]
+      ?.trim();
+    if (!value || !value.startsWith("/")) continue;
+    const canonical = value === "/" ? "/" : value.replace(/\/+$/, "");
+    if (!canonical) continue;
+    if (!normalized.includes(canonical)) normalized.push(canonical);
+  }
+
+  if (normalized.length === 0) {
+    return [...DEFAULT_MAINTENANCE_ALLOWED_PATH_PREFIXES];
+  }
+  return normalized;
+}
+
+export async function getPlannedMaintenanceSettingsForHq(): Promise<HqPlannedMaintenanceSettings | null> {
+  noStore();
+  const siteConfigId = await ensureMainMarketingSiteId();
+  return prisma.marketingSiteConfig.findUnique({
+    where: { id: siteConfigId },
+    select: {
+      plannedMaintenanceEnabled: true,
+      plannedMaintenanceStartsAt: true,
+      plannedMaintenanceEndsAt: true,
+      plannedMaintenanceMessage: true,
+      plannedMaintenanceAllowedPaths: true,
+      updatedAt: true,
+    },
+  });
+}
+
+export type ActivePlannedMaintenance = {
+  startsAt: Date;
+  endsAt: Date;
+  message: string;
+  allowedPathPrefixes: string[];
+};
+
+export async function getActivePlannedMaintenance(): Promise<ActivePlannedMaintenance | null> {
+  noStore();
+  const siteConfigId = await ensureMainMarketingSiteId();
+  const row = await prisma.marketingSiteConfig.findUnique({
+    where: { id: siteConfigId },
+    select: {
+      plannedMaintenanceEnabled: true,
+      plannedMaintenanceStartsAt: true,
+      plannedMaintenanceEndsAt: true,
+      plannedMaintenanceMessage: true,
+      plannedMaintenanceAllowedPaths: true,
+    },
+  });
+
+  if (!row?.plannedMaintenanceEnabled) return null;
+  if (!row.plannedMaintenanceStartsAt || !row.plannedMaintenanceEndsAt) return null;
+  const now = Date.now();
+  if (now < row.plannedMaintenanceStartsAt.getTime()) return null;
+  if (now > row.plannedMaintenanceEndsAt.getTime()) return null;
+
+  return {
+    startsAt: row.plannedMaintenanceStartsAt,
+    endsAt: row.plannedMaintenanceEndsAt,
+    message: (row.plannedMaintenanceMessage ?? "").trim(),
+    allowedPathPrefixes: normalizeMaintenanceAllowedPathPrefixes(
+      row.plannedMaintenanceAllowedPaths,
+    ),
+  };
 }
 
 export async function listPublishedPagesForPublic() {

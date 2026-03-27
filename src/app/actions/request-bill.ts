@@ -17,6 +17,7 @@ import { evaluateAndLogRisk } from "@/lib/security/risk-engine";
 import { opLog } from "@/lib/op-logger";
 import { getTableBillingSnapshot } from "@/lib/table-billing";
 import { logServerError } from "@/lib/server-error-log";
+import { hasFeature } from "@/core/entitlements/engine";
 
 export async function requestBill(
   tableId: string,
@@ -27,6 +28,16 @@ export async function requestBill(
       await requireValidTableSessionForRequest({
         tableIdFromRequest: tableId,
       });
+
+    const billFeatureEnabled =
+      (await hasFeature(tenantId, "BILLING_RECEIPTS")) ||
+      (await hasFeature(tenantId, "INVOICING"));
+    if (!billFeatureEnabled) {
+      return {
+        success: false,
+        message: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      };
+    }
 
     const requestCtx = await getRequestSecurityContext();
     const fingerprintHash = hashValue(riskSignals?.fingerprint ?? null);

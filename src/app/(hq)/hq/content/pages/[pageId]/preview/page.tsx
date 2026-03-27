@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import { ContentEmbedBlocksRenderer } from "@/components/content/content-embed-blocks-renderer";
 import { cardClasses } from "@/lib/ui/button-variants";
 import { getHqPageById } from "@/modules/content/server/content-queries";
+import { normalizeEmbedBlocksForRender } from "@/modules/content/shared/embed-blocks";
 
 export default async function HqContentPagePreviewPage({
   params,
@@ -10,6 +12,8 @@ export default async function HqContentPagePreviewPage({
   const { pageId } = await params;
   const page = await getHqPageById(pageId);
   if (!page) notFound();
+
+  const embedBlocks = normalizeEmbedBlocksForRender(page.embedBlocks);
 
   return (
     <div className="space-y-4">
@@ -38,6 +42,8 @@ export default async function HqContentPagePreviewPage({
           className="space-y-3 text-sm leading-7 text-[var(--ui-text-primary)] [&_a]:text-[var(--ui-accent)] [&_li]:ml-5 [&_ul]:list-disc"
           dangerouslySetInnerHTML={{ __html: page.contentHtml }}
         />
+
+        <ContentEmbedBlocksRenderer blocks={embedBlocks} />
       </article>
     </div>
   );

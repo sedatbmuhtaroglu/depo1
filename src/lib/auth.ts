@@ -3,7 +3,11 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Prisma, type StaffRole } from "@prisma/client";
 import type { Capability } from "@/core/authz/capabilities";
-import { createHqAdminActor, createStaffActor } from "@/core/authz/actors";
+import {
+  createHqAdminActor,
+  createHqSupportActor,
+  createStaffActor,
+} from "@/core/authz/actors";
 import { assertSurfaceGuard } from "@/core/surfaces/guard";
 import { prisma } from "@/lib/prisma";
 import { evaluateStaffAvailability } from "@/lib/staff-availability";
@@ -13,6 +17,8 @@ import {
 } from "@/lib/restaurant-panel-access";
 import { resolveStaffPostLoginTarget } from "@/lib/staff-post-login-redirect";
 import { assertPrivilegedServerActionOrigin } from "@/lib/server-action-guard";
+import type { SupportPanelContext } from "@/lib/support-session";
+import { resolveActiveSupportSessionForTenant } from "@/lib/support-session";
 
 const AUTH_COOKIE_NAME = "glidra_admin_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
@@ -460,9 +466,39 @@ async function assertStaffSurfaceOrRedirect(input: {
 }
 
 /** Müdür paneli: sadece MANAGER. */
-export async function requireManagerSession() {
+export async function requireManagerSession(): Promise<{
+  username: string;
+  tenantId: number;
+  role: "MANAGER";
+  staffId: number | null;
+  authMode: "staff" | "support";
+  supportContext?: SupportPanelContext;
+}> {
   const { getCurrentTenantOrThrow } = await import("@/lib/tenancy/context");
   const { tenantId } = await getCurrentTenantOrThrow();
+
+  const support = await resolveActiveSupportSessionForTenant(tenantId);
+  if (support) {
+    await assertSurfaceGuard({
+      surface: "ops-private",
+      actor: createHqSupportActor({
+        tenantId,
+        hqUsername: support.hqAdminUsername,
+        supportSessionId: support.sessionId,
+      }),
+      tenantId,
+      operation: "interactive",
+    });
+    return {
+      username: support.hqAdminUsername,
+      tenantId,
+      role: "MANAGER",
+      staffId: null,
+      authMode: "support",
+      supportContext: support,
+    };
+  }
+
   const session = await requireTenantBoundAdminSession(tenantId);
 
   const staff = await loadTenantStaffForAuth(tenantId, session.username);
@@ -496,7 +532,13 @@ export async function requireManagerSession() {
     operation: "interactive",
   });
 
-  return { username: session.username, tenantId, role: "MANAGER" as const };
+  return {
+    username: session.username,
+    tenantId,
+    role: "MANAGER" as const,
+    staffId: staff?.id ?? null,
+    authMode: "staff",
+  };
 }
 
 /** Kasa paneli: CASHIER veya MANAGER. */
@@ -508,9 +550,41 @@ export async function requireCashierOrManagerSession(
   role: "MANAGER" | "CASHIER";
   staffId: number | null;
   homePath: string;
+  authMode: "staff" | "support";
+  supportContext?: SupportPanelContext;
 }> {
   const { getCurrentTenantOrThrow } = await import("@/lib/tenancy/context");
   const { tenantId } = await getCurrentTenantOrThrow();
+
+  const support = await resolveActiveSupportSessionForTenant(tenantId);
+  if (support) {
+    const actor = createHqSupportActor({
+      tenantId,
+      hqUsername: support.hqAdminUsername,
+      supportSessionId: support.sessionId,
+    });
+    try {
+      await assertSurfaceGuard({
+        surface: "ops-private",
+        actor,
+        tenantId,
+        operation: "interactive",
+        requiredCapability,
+      });
+    } catch {
+      redirect("/restaurant");
+    }
+    return {
+      username: support.hqAdminUsername,
+      tenantId,
+      role: "MANAGER",
+      staffId: null,
+      homePath: "/restaurant",
+      authMode: "support",
+      supportContext: support,
+    };
+  }
+
   const session = await requireTenantBoundAdminSession(tenantId);
 
   const staff = await loadTenantStaffForAuth(tenantId, session.username);
@@ -572,6 +646,7 @@ export async function requireCashierOrManagerSession(
     role: permittedRole,
     staffId,
     homePath: resolveRestaurantHomePath(permittedRole),
+    authMode: "staff",
   };
 }
 

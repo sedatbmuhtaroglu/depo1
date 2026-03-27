@@ -5,6 +5,7 @@ import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { prisma } from "@/lib/prisma";
 import { getTableBillingSnapshot } from "@/lib/table-billing";
 import { logServerError } from "@/lib/server-error-log";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 export async function getBillRequestPaymentSummary(billRequestId: number) {
   try {
@@ -12,6 +13,10 @@ export async function getBillRequestPaymentSummary(billRequestId: number) {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+    if (!featureGate.ok) {
+      return { success: false, message: featureGate.message };
     }
 
     const billRequest = await prisma.billRequest.findFirst({

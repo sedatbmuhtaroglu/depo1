@@ -6,6 +6,7 @@ import { requireWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { logServerError } from "@/lib/server-error-log";
+import { hasFeature } from "@/core/entitlements/engine";
 
 type WaiterCallStatusValue = "PENDING" | "ACKNOWLEDGED" | "RESOLVED";
 
@@ -18,6 +19,14 @@ export async function updateWaiterCallStatus(
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+
+    const waiterCallsEnabled = await hasFeature(tenantId, "WAITER_CALL_LOGS");
+    if (!waiterCallsEnabled) {
+      return {
+        success: false,
+        message: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      };
     }
 
     const now = new Date();

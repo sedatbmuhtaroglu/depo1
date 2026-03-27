@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { Prisma, type CashMovementCategory, type CashMovementType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
@@ -8,6 +8,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { assertPrivilegedServerActionOrigin } from "@/lib/server-action-guard";
 import { logServerError } from "@/lib/server-error-log";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 import {
   CASH_MOVEMENT_CATEGORY_OPTIONS,
   ensureCashRegisterDay,
@@ -58,6 +59,10 @@ async function getManagerContext() {
   const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
   if (tenantId !== ctxTenantId) {
     return { ok: false as const, message: "Yetkisiz." };
+  }
+  const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+  if (!featureGate.ok) {
+    return { ok: false as const, message: featureGate.message };
   }
 
   const actor = await prisma.tenantStaff.findFirst({

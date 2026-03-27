@@ -30,6 +30,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
       lastModified: new Date(),
     },
+    {
+      url: buildAbsoluteUrl("/legal/kullanici-sozlesmesi"),
+      changeFrequency: "yearly",
+      priority: 0.4,
+      lastModified: new Date(),
+    },
+    {
+      url: buildAbsoluteUrl("/legal/kvkk"),
+      changeFrequency: "yearly",
+      priority: 0.4,
+      lastModified: new Date(),
+    },
+    {
+      url: buildAbsoluteUrl("/legal/gizlilik"),
+      changeFrequency: "yearly",
+      priority: 0.4,
+      lastModified: new Date(),
+    },
   ];
 
   for (const category of categories) {

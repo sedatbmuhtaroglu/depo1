@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { requireManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import {
@@ -125,11 +125,9 @@ export default async function RestaurantSecurityPage({
       <section className={cardClasses({ className: "p-5 shadow-none" })}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--ui-text-secondary)]">
-              Güvenlik İzleme Paneli
-            </p>
-            <h2 className="mt-1 text-xl font-semibold text-[color:var(--ui-text-primary)]">Güvenlik Olayları</h2>
-            <p className="mt-1 text-sm text-[color:var(--ui-text-secondary)]">
+            <p className="rm-section-intro-eyebrow">Güvenlik İzleme Paneli</p>
+            <h2 className="rm-section-intro-title">Güvenlik Olayları</h2>
+            <p className="rm-section-intro-desc">
               Şüpheli aksiyonları, risk seviyelerini ve alınan kararları operasyonel bir görünümle
               takip edin.
             </p>
@@ -161,7 +159,7 @@ export default async function RestaurantSecurityPage({
           </span>
         </div>
 
-        <form className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <form className="mt-4 grid gap-3 rounded-xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-bg)] p-4 sm:grid-cols-2 xl:grid-cols-4">
           <div>
             <label htmlFor="security-range" className="mb-1 block text-xs font-medium text-[color:var(--ui-text-secondary)]">
               Zaman aralığı
@@ -327,7 +325,7 @@ export default async function RestaurantSecurityPage({
                             event.riskLevel,
                           )}`}
                         >
-                          {getRiskLevelLabel(event.riskLevel)} â€¢ {event.riskScore}
+                          {getRiskLevelLabel(event.riskLevel)} • {event.riskScore}
                         </span>
                       </td>
                       <td className="px-4 py-3 font-mono text-xs text-[color:var(--ui-text-secondary)] sm:px-5">
@@ -339,7 +337,7 @@ export default async function RestaurantSecurityPage({
                           <span className="text-xs text-[color:var(--ui-text-secondary)]">Sorun tespit edilmedi</span>
                         ) : (
                           <p className="max-w-96 whitespace-normal break-words text-xs text-[color:var(--ui-text-secondary)]">
-                            {reasons.join(" â€¢ ")}
+                            {reasons.join(" • ")}
                           </p>
                         )}
                       </td>

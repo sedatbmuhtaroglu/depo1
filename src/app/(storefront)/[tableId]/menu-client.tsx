@@ -11,6 +11,7 @@ import {
   QrCode,
   Monitor,
   ChevronRight,
+  CircleAlert,
   UtensilsCrossed,
 } from "lucide-react";
 import { createOrder } from "@/app/actions/create-order";
@@ -30,6 +31,13 @@ import {
   StorefrontPopularShowcaseSection,
 } from "@/components/storefront/menu-showcase-rails";
 import type { StorefrontFrequentPlacement } from "@/lib/storefront-menu-showcase-resolve";
+import {
+  PRODUCT_ALLERGEN_LABELS,
+  PRODUCT_COMPLIANCE_STATUS_LABELS,
+  hasProductComplianceDisplayData,
+  type ProductAllergenValue,
+  type ProductComplianceStatusValue,
+} from "@/lib/product-compliance";
 
 type Product = {
   id: number;
@@ -58,6 +66,15 @@ type Product = {
       priceDelta: number;
     }[];
   }[];
+  complianceInfo?: {
+    basicIngredients?: string | null;
+    caloriesKcal?: number | null;
+    allergens?: ProductAllergenValue[] | null;
+    customAllergens?: string[] | null;
+    alcoholStatus?: ProductComplianceStatusValue | null;
+    porkStatus?: ProductComplianceStatusValue | null;
+    crossContaminationNote?: string | null;
+  } | null;
 };
 
 type CategoryWithProducts = {
@@ -71,6 +88,7 @@ type RestaurantData = {
   name: string;
   logoUrl: string | null;
   orderingClosed?: boolean;
+  orderingFeatureEnabled?: boolean;
   openingHour?: string | null;
   closingHour?: string | null;
   themeColor?: "primary" | "secondary";
@@ -84,6 +102,9 @@ type RestaurantData = {
     creditCard: boolean;
     iyzico: boolean;
   };
+  waiterCallFeatureEnabled?: boolean;
+  billRequestFeatureEnabled?: boolean;
+  menuComplianceVisible?: boolean;
   canRequestBill?: boolean;
   unpaidTotal?: number;
   locationEnforcementEnabled?: boolean;
@@ -169,6 +190,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
     useState<CustomerPaymentMethod | null>(null);
   const [isMyOrdersOpen, setIsMyOrdersOpen] = useState(false);
   const [optionModalProduct, setOptionModalProduct] = useState<Product | null>(null);
+  const [complianceModalProduct, setComplianceModalProduct] = useState<Product | null>(null);
   const [optionSelections, setOptionSelections] = useState<Record<number, number[]>>({});
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
   const [verifiedLocation, setVerifiedLocation] = useState<CustomerLocation | null>(null);
@@ -182,6 +204,11 @@ export default function MenuClient({ data }: { data: MenuData }) {
     !product.isAvailable || (product.trackStock === true && (product.stockQuantity ?? 0) <= 0);
 
   const orderingClosed = restaurant.orderingClosed ?? false;
+  const orderingFeatureEnabled = restaurant.orderingFeatureEnabled ?? true;
+  const orderingBlockedByFeature = !orderingFeatureEnabled;
+  const waiterCallFeatureEnabled = restaurant.waiterCallFeatureEnabled ?? true;
+  const billRequestFeatureEnabled = restaurant.billRequestFeatureEnabled ?? true;
+  const menuComplianceVisible = restaurant.menuComplianceVisible ?? true;
   const requiresLocationEnforcement =
     restaurant.locationEnforcementEnabled === true;
   const locationRadiusMeters = restaurant.orderRadiusMeters
@@ -237,7 +264,30 @@ export default function MenuClient({ data }: { data: MenuData }) {
     seenCompletedIdsRef.current = new Set(completedIds);
   }, [myOrders]);
 
+  useEffect(() => {
+    if (!orderingBlockedByFeature) return;
+    setCart([]);
+    setIsCartModalOpen(false);
+    setOptionModalProduct(null);
+    setComplianceModalProduct(null);
+  }, [orderingBlockedByFeature]);
+
+  useEffect(() => {
+    if (waiterCallFeatureEnabled) return;
+    setIsCallingWaiter(false);
+  }, [waiterCallFeatureEnabled]);
+
+  useEffect(() => {
+    if (billRequestFeatureEnabled) return;
+    setIsPaymentMethodModalOpen(false);
+    setIsRequestingPaymentMethod(false);
+  }, [billRequestFeatureEnabled]);
+
   const handleAddToCart = (product: Product) => {
+    if (orderingBlockedByFeature) {
+      toast.error("Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.");
+      return;
+    }
     if (orderingClosed) return;
     if (isProductOutOfStock(product)) return;
     if (!product.optionGroups || product.optionGroups.length === 0) {
@@ -470,6 +520,10 @@ export default function MenuClient({ data }: { data: MenuData }) {
       toast.error("Şu an sipariş alınamıyor.");
       return;
     }
+    if (orderingBlockedByFeature) {
+      toast.error("Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.");
+      return;
+    }
     if (!selectedPaymentMethod) {
       toast.error("Lütfen ödeme yöntemi seçin");
       return;
@@ -528,6 +582,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
   };
 
   const handleRequestWaiter = async () => {
+    if (!waiterCallFeatureEnabled) return;
     if (isCallingWaiter) return;
     setIsCallingWaiter(true);
     const toastId = toast.loading("Garson çağırma isteğiniz iletiliyor...");
@@ -574,6 +629,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
   };
 
   const handleOpenPaymentModal = () => {
+    if (!billRequestFeatureEnabled) return;
     if (!canRequestBill) {
       toast.error("Hesap Bakiyeniz bulunmamakta");
       return;
@@ -657,6 +713,9 @@ export default function MenuClient({ data }: { data: MenuData }) {
     handleOpenPaymentModal();
   };
 
+  const hasComplianceData = (product: Product) =>
+    menuComplianceVisible && hasProductComplianceDisplayData(product.complianceInfo);
+
   return (
     <div className="storefront-menu min-h-screen pb-40 font-sans text-[#2d251d]" style={rootStyle}>
       <Toaster position="top-center" />
@@ -693,7 +752,9 @@ export default function MenuClient({ data }: { data: MenuData }) {
                 >
                   {orderingClosed
                     ? t("Kapalı", "Closed")
-                    : t("Siparişe açık", "Open")}
+                    : orderingBlockedByFeature
+                      ? t("Katalog", "Catalog")
+                      : t("Siparişe açık", "Open")}
                 </span>
               </div>
               <div className="flex shrink-0 items-center gap-1">
@@ -722,26 +783,30 @@ export default function MenuClient({ data }: { data: MenuData }) {
             </h1>
             <p className="mt-0.5 text-[13px] leading-snug text-[#7a6a58]">{heroSubtitle}</p>
             <div className="mt-2.5 flex flex-row items-stretch gap-2">
-              <button
-                type="button"
-                onClick={handleRequestWaiter}
-                disabled={isCallingWaiter}
-                className="storefront-btn-waiter-outline min-w-0 flex-1"
-                title={t("Garson çağır", "Call waiter")}
-              >
-                <Coffee className="h-3.5 w-3.5 shrink-0 text-[#c9853f]" aria-hidden />
-                <span className="truncate">{t("Garson", "Waiter")}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleBillOutlineClick}
-                disabled={isRequestingPaymentMethod}
-                className="storefront-btn-bill-outline min-w-0 flex-1"
-                title={t("Hesap ve ödeme", "Bill & payment")}
-              >
-                <Monitor className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
-                <span className="truncate">{t("Hesap", "Bill")}</span>
-              </button>
+              {waiterCallFeatureEnabled ? (
+                <button
+                  type="button"
+                  onClick={handleRequestWaiter}
+                  disabled={isCallingWaiter}
+                  className="storefront-btn-waiter-outline min-w-0 flex-1"
+                  title={t("Garson çağır", "Call waiter")}
+                >
+                  <Coffee className="h-3.5 w-3.5 shrink-0 text-[#c9853f]" aria-hidden />
+                  <span className="truncate">{t("Garson", "Waiter")}</span>
+                </button>
+              ) : null}
+              {billRequestFeatureEnabled ? (
+                <button
+                  type="button"
+                  onClick={handleBillOutlineClick}
+                  disabled={isRequestingPaymentMethod}
+                  className="storefront-btn-bill-outline min-w-0 flex-1"
+                  title={t("Hesap ve ödeme", "Bill & payment")}
+                >
+                  <Monitor className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
+                  <span className="truncate">{t("Hesap", "Bill")}</span>
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={() => setLanguage((lang) => (lang === "TR" ? "EN" : "TR"))}
@@ -751,7 +816,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
                 {language === "TR" ? "TR · EN" : "EN · TR"}
               </button>
             </div>
-            {unpaidTotal > 0 ? (
+            {billRequestFeatureEnabled && unpaidTotal > 0 ? (
               <p className="mt-2 text-center text-[11px] font-medium text-[#8a7460]">
                 {t("Açık hesap", "Open tab")}{" "}
                 <span className="font-semibold text-[#1a1814]">{unpaidTotal.toFixed(2)} TL</span>
@@ -769,7 +834,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
               products={frequentShowcase.products}
               language={language}
               t={t}
-              orderingClosed={orderingClosed}
+              orderingClosed={orderingClosed || orderingBlockedByFeature}
               isProductOutOfStock={isProductOutOfStock}
               onAddToCart={handleAddToCart}
               accentColor={menuTheme.buttonBackgroundColor}
@@ -808,7 +873,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
             products={frequentShowcase.products}
             language={language}
             t={t}
-            orderingClosed={orderingClosed}
+            orderingClosed={orderingClosed || orderingBlockedByFeature}
             isProductOutOfStock={isProductOutOfStock}
             onAddToCart={handleAddToCart}
             accentColor={menuTheme.buttonBackgroundColor}
@@ -828,7 +893,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
               products={frequentShowcase.products}
               language={language}
               t={t}
-              orderingClosed={orderingClosed}
+              orderingClosed={orderingClosed || orderingBlockedByFeature}
               isProductOutOfStock={isProductOutOfStock}
               onAddToCart={handleAddToCart}
               accentColor={menuTheme.buttonBackgroundColor}
@@ -846,7 +911,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
             products={popularForActiveCategory.products}
             language={language}
             t={t}
-            orderingClosed={orderingClosed}
+            orderingClosed={orderingClosed || orderingBlockedByFeature}
             isProductOutOfStock={isProductOutOfStock}
             onAddToCart={handleAddToCart}
             accentColor={menuTheme.buttonBackgroundColor}
@@ -888,17 +953,29 @@ export default function MenuClient({ data }: { data: MenuData }) {
                   <p className="text-base font-bold tabular-nums tracking-tight text-[#1a1814] sm:text-[1.0625rem]">
                     {product.price.toFixed(2)} TL
                   </p>
-                  {!outOfStock ? (
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(product)}
-                      disabled={orderingClosed}
-                      className="storefront-product-add"
-                    >
-                      <Plus className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
-                      {t("Ekle", "Add")}
-                    </button>
-                  ) : null}
+                  <div className="flex items-center gap-1.5">
+                    {hasComplianceData(product) ? (
+                      <button
+                        type="button"
+                        onClick={() => setComplianceModalProduct(product)}
+                        className="inline-flex items-center gap-1 rounded-full border border-[#e3d6c6] bg-[#fff8ef] px-2 py-1 text-[11px] font-medium text-[#6f5842]"
+                      >
+                        <CircleAlert className="h-3.5 w-3.5" aria-hidden />
+                        {t("İçerik", "Info")}
+                      </button>
+                    ) : null}
+                    {!outOfStock && !orderingBlockedByFeature ? (
+                      <button
+                        type="button"
+                        onClick={() => handleAddToCart(product)}
+                        disabled={orderingClosed || orderingBlockedByFeature}
+                        className="storefront-product-add"
+                      >
+                        <Plus className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
+                        {t("Ekle", "Add")}
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
               <div className="storefront-product-thumb">
@@ -932,7 +1009,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
         })}
       </main>
 
-      {cart.length > 0 ? (
+      {!orderingBlockedByFeature && cart.length > 0 ? (
         <button
           type="button"
           onClick={() => setIsCartModalOpen(true)}
@@ -954,7 +1031,7 @@ export default function MenuClient({ data }: { data: MenuData }) {
         </button>
       ) : null}
 
-      {isCartModalOpen ? (
+      {!orderingBlockedByFeature && isCartModalOpen ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/65 p-0 sm:items-center sm:p-4">
           <div className="storefront-sheet flex max-h-[85vh] w-full max-w-md flex-col rounded-t-3xl sm:rounded-2xl">
             <div className="flex items-center justify-between border-b border-[#eadfce] p-4">
@@ -1077,7 +1154,8 @@ export default function MenuClient({ data }: { data: MenuData }) {
                 disabled={
                   isSubmitting ||
                   isCheckingLocation ||
-                  !selectedPaymentMethod
+                  !selectedPaymentMethod ||
+                  orderingBlockedByFeature
                 }
                 className="storefront-primary-btn w-full rounded-lg py-3 text-lg font-bold disabled:opacity-50"
               >
@@ -1145,6 +1223,82 @@ export default function MenuClient({ data }: { data: MenuData }) {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      ) : null}
+
+      {complianceModalProduct && hasComplianceData(complianceModalProduct) ? (
+        <div className="fixed inset-0 z-[58] flex items-end justify-center bg-black/75 p-0 sm:items-center sm:p-4">
+          <div className="storefront-sheet w-full max-w-lg rounded-t-3xl p-4 sm:rounded-2xl">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-white">
+                  {t(complianceModalProduct.nameTR, complianceModalProduct.nameEN)}
+                </h3>
+                <p className="text-xs text-[#7a6651]">
+                  {t("İçerik ve ürün bilgileri", "Ingredients and product details")}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setComplianceModalProduct(null)}
+                className="rounded-md px-2 py-1 text-[#6b5845] hover:bg-[#f7ecdf]"
+              >
+                X
+              </button>
+            </div>
+            <div className="space-y-2 rounded-xl border border-[#eadfce] bg-[#fff9ef] p-3 text-sm text-[#5f4a35]">
+              {complianceModalProduct.complianceInfo?.caloriesKcal != null ? (
+                <p>
+                  <span className="font-semibold text-[#2d251d]">Kalori:</span>{" "}
+                  {complianceModalProduct.complianceInfo.caloriesKcal} kcal
+                </p>
+              ) : null}
+              {complianceModalProduct.complianceInfo?.basicIngredients ? (
+                <p>
+                  <span className="font-semibold text-[#2d251d]">İçindekiler:</span>{" "}
+                  {complianceModalProduct.complianceInfo.basicIngredients}
+                </p>
+              ) : null}
+              {(() => {
+                const standardAllergens =
+                  complianceModalProduct.complianceInfo?.allergens?.map(
+                    (item) => PRODUCT_ALLERGEN_LABELS[item],
+                  ) ?? [];
+                const customAllergens =
+                  complianceModalProduct.complianceInfo?.customAllergens?.filter(Boolean) ?? [];
+                const allAllergens = [...standardAllergens, ...customAllergens];
+                if (allAllergens.length === 0) return null;
+                return (
+                  <p>
+                    <span className="font-semibold text-[#2d251d]">Alerjenler:</span>{" "}
+                    {allAllergens.join(", ")}
+                  </p>
+                );
+              })()}
+              {complianceModalProduct.complianceInfo?.alcoholStatus ? (
+                <p>
+                  <span className="font-semibold text-[#2d251d]">Alkol:</span>{" "}
+                  {PRODUCT_COMPLIANCE_STATUS_LABELS[
+                    complianceModalProduct.complianceInfo.alcoholStatus
+                  ] ?? "Belirtilmedi"}
+                </p>
+              ) : null}
+              {complianceModalProduct.complianceInfo?.porkStatus ? (
+                <p>
+                  <span className="font-semibold text-[#2d251d]">Domuz içeriği:</span>{" "}
+                  {PRODUCT_COMPLIANCE_STATUS_LABELS[
+                    complianceModalProduct.complianceInfo.porkStatus
+                  ] ?? "Belirtilmedi"}
+                </p>
+              ) : null}
+              {complianceModalProduct.complianceInfo?.crossContaminationNote ? (
+                <p>
+                  <span className="font-semibold text-[#2d251d]">Uyarı:</span>{" "}
+                  {complianceModalProduct.complianceInfo.crossContaminationNote}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}

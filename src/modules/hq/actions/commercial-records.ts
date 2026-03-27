@@ -22,6 +22,12 @@ function parseLeadId(value: FormDataEntryValue | null): number | null {
   return parsed;
 }
 
+function parseTenantId(value: FormDataEntryValue | null): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
 function parseCommercialRecordId(value: FormDataEntryValue | null): number | null {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) return null;
@@ -87,8 +93,9 @@ export async function upsertLeadCommercialRecordAction(formData: FormData): Prom
   try {
     const hq = await assertHqMutationGuard({ capability: "SALES_LEAD_MANAGE" });
     const leadId = parseLeadId(formData.get("leadId"));
-    if (!leadId) {
-      return { success: false, message: "Gecersiz lead secimi." };
+    const tenantId = parseTenantId(formData.get("tenantId"));
+    if (!leadId && !tenantId) {
+      return { success: false, message: "Lead veya tenant secimi gerekli." };
     }
 
     const saleType = parseCommercialSaleType(formData.get("saleType"));
@@ -137,27 +144,84 @@ export async function upsertLeadCommercialRecordAction(formData: FormData): Prom
     const notes = normalizeOptionalText(formData.get("notes"), 2000);
 
     const updated = await prisma.$transaction(async (tx) => {
-      const lead = await tx.salesLead.findUnique({
-        where: { id: leadId },
-        select: {
-          id: true,
-          tenantId: true,
-          commercialRecord: {
-            select: {
-              id: true,
+      let lead = null as null | {
+        id: number;
+        tenantId: number | null;
+        commercialRecord: { id: number } | null;
+      };
+
+      if (leadId) {
+        lead = await tx.salesLead.findUnique({
+          where: { id: leadId },
+          select: {
+            id: true,
+            tenantId: true,
+            commercialRecord: {
+              select: {
+                id: true,
+              },
             },
           },
-        },
-      });
+        });
+      } else if (tenantId) {
+        const tenant = await tx.tenant.findUnique({
+          where: { id: tenantId },
+          select: { id: true, name: true },
+        });
+        if (!tenant) {
+          throw new Error("TENANT_NOT_FOUND");
+        }
+
+        const existingLead = await tx.salesLead.findFirst({
+          where: { tenantId: tenant.id },
+          orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+          select: {
+            id: true,
+            tenantId: true,
+            commercialRecord: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        });
+
+        if (existingLead) {
+          lead = existingLead;
+        } else {
+          lead = await tx.salesLead.create({
+            data: {
+              businessName: tenant.name,
+              contactName: tenant.name,
+              source: "MANUAL",
+              status: "CONTACTED",
+              assignedTo: hq.username,
+              notes: "Auto-created from tenant detail for commercial record.",
+              tenantId: tenant.id,
+            },
+            select: {
+              id: true,
+              tenantId: true,
+              commercialRecord: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          });
+        }
+      }
 
       if (!lead) {
         throw new Error("LEAD_NOT_FOUND");
       }
 
+      const resolvedLeadId = lead.id;
+
       const paymentAggregate = await tx.salePayment.aggregate({
         where: {
           commercialRecord: {
-            leadId,
+            leadId: resolvedLeadId,
           },
         },
         _sum: {
@@ -171,9 +235,9 @@ export async function upsertLeadCommercialRecordAction(formData: FormData): Prom
       });
 
       const commercialRecord = await tx.commercialRecord.upsert({
-        where: { leadId },
+        where: { leadId: resolvedLeadId },
         create: {
-          leadId,
+          leadId: resolvedLeadId,
           tenantId: lead.tenantId ?? null,
           saleType,
           planCode,
@@ -222,7 +286,7 @@ export async function upsertLeadCommercialRecordAction(formData: FormData): Prom
 
       await tx.salesLeadEvent.create({
         data: {
-          leadId,
+          leadId: resolvedLeadId,
           actorUsername: hq.username,
           actionType: lead.commercialRecord
             ? "COMMERCIAL_RECORD_UPDATED"
@@ -260,6 +324,9 @@ export async function upsertLeadCommercialRecordAction(formData: FormData): Prom
     }
     if (error instanceof Error && error.message === "LEAD_NOT_FOUND") {
       return { success: false, message: "Lead bulunamadi." };
+    }
+    if (error instanceof Error && error.message === "TENANT_NOT_FOUND") {
+      return { success: false, message: "Tenant bulunamadi." };
     }
     return { success: false, message: "Ticari kayit guncellenemedi." };
   }

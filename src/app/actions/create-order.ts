@@ -36,6 +36,7 @@ import { evaluateRestaurantOrderingAvailability } from "@/lib/restaurant-working
 import { resolveSafeAppBaseUrl } from "@/lib/security/allowed-origins";
 import { DistributedRateLimitError } from "@/lib/security/distributed-rate-limit";
 import { assertOrderCheckoutInitRateLimit } from "@/lib/security/payment-rate-limit";
+import { hasFeature } from "@/core/entitlements/engine";
 
 type SelectedOptionGroup = {
   groupId: number;
@@ -355,6 +356,14 @@ export async function createOrder(
     } = await requireValidTableSessionForRequest({
       tableIdFromRequest: tableId,
     });
+
+    const canOrderViaQr = await hasFeature(sessionTenantId, "QR_ORDERING");
+    if (!canOrderViaQr) {
+      return {
+        success: false,
+        message: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      };
+    }
 
     const requestCtx = await getRequestSecurityContext();
     const fingerprintHash = hashValue(riskSignals?.fingerprint ?? null);

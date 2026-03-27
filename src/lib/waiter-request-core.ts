@@ -51,7 +51,7 @@ export async function runRequestWaiter(
       tenantId,
       operation: "mutation",
       requiredCapability: "REQUEST_WAITER",
-      requiredFeature: "WAITER_CALL",
+      requiredFeature: "WAITER_CALL_LOGS",
     });
 
     const requestCtx = await getRequestSecurityContext();

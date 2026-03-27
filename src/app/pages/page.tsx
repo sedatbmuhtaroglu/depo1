@@ -2,18 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { listPublishedPagesForPublic } from "@/modules/content/server/content-queries";
 import { buildMetadataFromSeo } from "@/modules/content/server/seo-metadata";
-import { getMarketingSiteConfigForPublic } from "@/modules/marketing/server/landing-content";
+import { getMergedPublicLandingDesignForPublic } from "@/modules/marketing/server/landing-design";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = await getMarketingSiteConfigForPublic();
+  const design = await getMergedPublicLandingDesignForPublic();
+  const brand = design.general.brandName;
   return buildMetadataFromSeo({
     seo: {
-      seoTitle: site?.brandName ? `${site.brandName} | Sayfalar` : "Sayfalar",
+      seoTitle: `${brand} | Sayfalar`,
       metaDescription: "Kurumsal ve bilgilendirici icerik sayfalari.",
       robotsIndex: true,
       robotsFollow: true,
     },
-    fallbackTitle: site?.brandName ? `${site.brandName} | Sayfalar` : "Sayfalar",
+    fallbackTitle: `${brand} | Sayfalar`,
     fallbackDescription: "Kurumsal ve bilgilendirici icerik sayfalari.",
     pathname: "/pages",
     type: "website",

@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { MouseEvent } from "react";
 import {
   ClipboardList,
   LayoutGrid,
@@ -23,6 +24,8 @@ import {
   fieldClasses,
   selectClasses,
 } from "@/lib/ui/button-variants";
+import { isRestaurantPathFeatureEnabled } from "@/lib/restaurant-panel-access";
+import { getClosedFeatureMessage } from "@/lib/tenant-feature-enforcement";
 
 type Restaurant = { id: number; name: string };
 type TableRow = {
@@ -110,9 +113,11 @@ function tableOperationalState(table: TableRow): string {
 }
 
 export default function TableManager({
+  enabledFeatures,
   restaurants,
   tables,
 }: {
+  enabledFeatures: string[];
   restaurants: Restaurant[];
   tables: TableRow[];
 }) {
@@ -123,6 +128,7 @@ export default function TableManager({
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [compactView, setCompactView] = useState(false);
+  const enabledFeatureSet = useMemo(() => new Set(enabledFeatures), [enabledFeatures]);
 
   const counts = useMemo(() => {
     const open = tables.filter((table) => table.isActive).length;
@@ -155,6 +161,34 @@ export default function TableManager({
         return haystack.includes(query);
       });
   }, [tables, searchTerm, statusFilter]);
+
+  const canOpenOrders = useMemo(
+    () =>
+      isRestaurantPathFeatureEnabled({
+        pathname: "/restaurant/orders",
+        enabledFeatures: enabledFeatureSet,
+      }),
+    [enabledFeatureSet],
+  );
+
+  const canOpenBilling = useMemo(
+    () =>
+      isRestaurantPathFeatureEnabled({
+        pathname: "/restaurant/invoicing",
+        enabledFeatures: enabledFeatureSet,
+      }),
+    [enabledFeatureSet],
+  );
+
+  const handleProtectedNavigation = (
+    event: MouseEvent<HTMLAnchorElement>,
+    allowed: boolean,
+  ) => {
+    if (allowed) return;
+    event.preventDefault();
+    event.stopPropagation();
+    toast.error(getClosedFeatureMessage());
+  };
 
   const handleAddTable = (e: React.FormEvent) => {
     e.preventDefault();
@@ -393,6 +427,7 @@ export default function TableManager({
                   <div className="mt-3 grid grid-cols-2 gap-1.5">
                     <Link
                       href="/restaurant/orders"
+                      onClick={(event) => handleProtectedNavigation(event, canOpenOrders)}
                       className={buttonClasses({ variant: "secondary", size: "xs", className: "h-8" })}
                     >
                       <ClipboardList className="h-3.5 w-3.5" />
@@ -400,6 +435,7 @@ export default function TableManager({
                     </Link>
                     <Link
                       href="/restaurant/invoicing"
+                      onClick={(event) => handleProtectedNavigation(event, canOpenBilling)}
                       className={buttonClasses({ variant: "secondary", size: "xs", className: "h-8" })}
                     >
                       <Receipt className="h-3.5 w-3.5" />

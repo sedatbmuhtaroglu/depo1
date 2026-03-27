@@ -32,6 +32,13 @@ import {
   labelClasses,
 } from "@/lib/ui/button-variants";
 import { PanelSelect } from "@/components/ui/panel-select";
+import {
+  PRODUCT_ALLERGEN_LABELS,
+  PRODUCT_ALLERGEN_VALUES,
+  PRODUCT_COMPLIANCE_STATUS_LABELS,
+  type ProductAllergenValue,
+  type ProductComplianceStatusValue,
+} from "@/lib/product-compliance";
 
 type Restaurant = { id: number; name: string };
 type Menu = {
@@ -59,6 +66,15 @@ type Product = {
   visibleUntil: string | null;
   tags: string[] | null;
   options: unknown;
+  complianceInfo?: {
+    basicIngredients?: string | null;
+    caloriesKcal?: number | null;
+    allergens?: ProductAllergenValue[] | null;
+    customAllergens?: string[] | null;
+    alcoholStatus?: ProductComplianceStatusValue | null;
+    porkStatus?: ProductComplianceStatusValue | null;
+    crossContaminationNote?: string | null;
+  } | null;
   optionGroups?: {
     id: number;
     nameTR: string;
@@ -83,10 +99,27 @@ type Category = {
   menuId: number | null;
   products: Product[];
 };
+type TenantAllergenOption = { id: number; name: string };
 
 const PANEL_CARD_CLASS = cardClasses({ className: "p-4 sm:p-5" });
 const INPUT_CLASS = fieldClasses({ size: "md" });
 const INPUT_COMPACT_CLASS = fieldClasses({ size: "sm" });
+const COMPLIANCE_STATUS_OPTIONS: ProductComplianceStatusValue[] = [
+  "UNSPECIFIED",
+  "YES",
+  "NO",
+];
+
+function parseCommaSeparatedValues(value: string): string[] {
+  return Array.from(
+    new Set(
+      value
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean),
+    ),
+  );
+}
 
 function isoToDatetimeLocalValue(iso: string | null): string {
   if (!iso) return "";
@@ -106,11 +139,15 @@ export default function MenuManager({
   menus,
   selectedMenuId,
   categories,
+  tenantAllergens,
+  canManageMenuCompliance,
 }: {
   restaurants: Restaurant[];
   menus: Menu[];
   selectedMenuId: number | null;
   categories: Category[];
+  tenantAllergens: TenantAllergenOption[];
+  canManageMenuCompliance: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -468,6 +505,8 @@ export default function MenuManager({
               <CategoryBlock
                 key={cat.id}
                 category={cat}
+                tenantAllergens={tenantAllergens}
+                canManageMenuCompliance={canManageMenuCompliance}
                 onRefresh={() => router.refresh()}
                 isPending={isPending}
                 startTransition={startTransition}
@@ -482,11 +521,15 @@ export default function MenuManager({
 
 function CategoryBlock({
   category,
+  tenantAllergens,
+  canManageMenuCompliance,
   onRefresh,
   isPending,
   startTransition,
 }: {
   category: Category;
+  tenantAllergens: TenantAllergenOption[];
+  canManageMenuCompliance: boolean;
   onRefresh: () => void;
   isPending: boolean;
   startTransition: (fn: () => Promise<void>) => void;
@@ -605,6 +648,8 @@ function CategoryBlock({
       {addProductOpen && (
         <ProductForm
           categoryId={category.id}
+          tenantAllergens={tenantAllergens}
+          canManageMenuCompliance={canManageMenuCompliance}
           onSuccess={() => {
             setAddProductOpen(false);
             onRefresh();
@@ -628,6 +673,8 @@ function CategoryBlock({
             <ProductRow
               key={p.id}
               product={p}
+              tenantAllergens={tenantAllergens}
+              canManageMenuCompliance={canManageMenuCompliance}
               onRefresh={onRefresh}
               isPending={isPending}
               startTransition={startTransition}
@@ -641,12 +688,16 @@ function CategoryBlock({
 
 function ProductForm({
   categoryId,
+  tenantAllergens,
+  canManageMenuCompliance,
   onSuccess,
   onCancel,
   isPending,
   startTransition,
 }: {
   categoryId: number;
+  tenantAllergens: TenantAllergenOption[];
+  canManageMenuCompliance: boolean;
   onSuccess: () => void;
   onCancel: () => void;
   isPending: boolean;
@@ -662,6 +713,15 @@ function ProductForm({
   const [sortOrder, setSortOrder] = useState("0");
   const [visibleUntil, setVisibleUntil] = useState("");
   const [tagsStr, setTagsStr] = useState("");
+  const [basicIngredients, setBasicIngredients] = useState("");
+  const [caloriesKcal, setCaloriesKcal] = useState("");
+  const [selectedAllergens, setSelectedAllergens] = useState<ProductAllergenValue[]>([]);
+  const [customAllergensText, setCustomAllergensText] = useState("");
+  const [crossContaminationNote, setCrossContaminationNote] = useState("");
+  const [alcoholStatus, setAlcoholStatus] =
+    useState<ProductComplianceStatusValue>("UNSPECIFIED");
+  const [porkStatus, setPorkStatus] =
+    useState<ProductComplianceStatusValue>("UNSPECIFIED");
   const [isUploading, startUploading] = useTransition();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -693,6 +753,7 @@ function ProductForm({
     }
     startTransition(async () => {
       const parsedSortOrder = Number(sortOrder);
+      const parsedCalories = Number(caloriesKcal);
       const r = await createProduct({
         categoryId,
         nameTR: nameTR.trim(),
@@ -705,12 +766,34 @@ function ProductForm({
         sortOrder: Number.isFinite(parsedSortOrder) ? parsedSortOrder : 0,
         visibleUntil: visibleUntil ? visibleUntil : null,
         tags: tagsStr.trim() ? tagsStr.split(",").map((s) => s.trim()) : undefined,
+        complianceInfo: canManageMenuCompliance
+          ? {
+              basicIngredients: basicIngredients.trim() || null,
+              caloriesKcal:
+                caloriesKcal.trim() && Number.isFinite(parsedCalories)
+                  ? Math.max(0, Math.floor(parsedCalories))
+                  : null,
+              allergens: selectedAllergens,
+              customAllergens: parseCommaSeparatedValues(customAllergensText),
+              alcoholStatus,
+              porkStatus,
+              crossContaminationNote: crossContaminationNote.trim() || null,
+            }
+          : undefined,
       });
       if (r.success) {
         toast.success("Ürün eklendi.");
         onSuccess();
       } else toast.error(r.message ?? "Bir hata oluştu");
     });
+  };
+
+  const toggleAllergen = (allergen: ProductAllergenValue) => {
+    setSelectedAllergens((prev) =>
+      prev.includes(allergen)
+        ? prev.filter((current) => current !== allergen)
+        : [...prev, allergen],
+    );
   };
 
   return (
@@ -837,6 +920,83 @@ function ProductForm({
           aria-label="Gorunurluk bitis tarihi"
         />
       </div>
+      {canManageMenuCompliance ? (
+        <div className={cardClasses({ tone: "subtle", className: "mt-3 space-y-3 p-3" })}>
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
+          Icerik ve Uyarilar
+        </p>
+        <div className="grid gap-2.5 sm:grid-cols-2">
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={caloriesKcal}
+            onChange={(e) => setCaloriesKcal(e.target.value)}
+            placeholder="Kalori (kcal)"
+            className={INPUT_COMPACT_CLASS}
+          />
+          <input
+            value={customAllergensText}
+            onChange={(e) => setCustomAllergensText(e.target.value)}
+            placeholder="Ozel alerjenler (virgulle)"
+            className={INPUT_COMPACT_CLASS}
+          />
+          <textarea
+            value={basicIngredients}
+            onChange={(e) => setBasicIngredients(e.target.value)}
+            placeholder="Urun icerigi (malzemeler)"
+            className={fieldClasses({ size: "sm", className: "min-h-[74px] sm:col-span-2" })}
+          />
+          <textarea
+            value={crossContaminationNote}
+            onChange={(e) => setCrossContaminationNote(e.target.value)}
+            placeholder="Icerik uyari notu / capraz bulasma bilgisi"
+            className={fieldClasses({ size: "sm", className: "min-h-[74px] sm:col-span-2" })}
+          />
+          <PanelSelect
+            value={alcoholStatus}
+            onValueChange={(next) => setAlcoholStatus(next as ProductComplianceStatusValue)}
+            aria-label="Alkol durumu"
+            options={COMPLIANCE_STATUS_OPTIONS.map((value) => ({
+              value,
+              label: `Alkol: ${PRODUCT_COMPLIANCE_STATUS_LABELS[value]}`,
+            }))}
+          />
+          <PanelSelect
+            value={porkStatus}
+            onValueChange={(next) => setPorkStatus(next as ProductComplianceStatusValue)}
+            aria-label="Domuz icerigi durumu"
+            options={COMPLIANCE_STATUS_OPTIONS.map((value) => ({
+              value,
+              label: `Domuz: ${PRODUCT_COMPLIANCE_STATUS_LABELS[value]}`,
+            }))}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-[#374151]">Alerjenler</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {PRODUCT_ALLERGEN_VALUES.map((allergen) => {
+              const selected = selectedAllergens.includes(allergen);
+              return (
+                <button
+                  key={allergen}
+                  type="button"
+                  onClick={() => toggleAllergen(allergen)}
+                  className={badgeClasses(selected ? "warning" : "neutral")}
+                >
+                  {PRODUCT_ALLERGEN_LABELS[allergen]}
+                </button>
+              );
+            })}
+            {tenantAllergens.map((allergen) => (
+              <span key={allergen.id} className={badgeClasses("info")}>
+                {allergen.name}
+              </span>
+            ))}
+          </div>
+        </div>
+        </div>
+      ) : null}
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="submit"
@@ -867,11 +1027,15 @@ function ProductForm({
 
 function ProductRow({
   product,
+  tenantAllergens,
+  canManageMenuCompliance,
   onRefresh,
   isPending,
   startTransition,
 }: {
   product: Product;
+  tenantAllergens: TenantAllergenOption[];
+  canManageMenuCompliance: boolean;
   onRefresh: () => void;
   isPending: boolean;
   startTransition: (fn: () => Promise<void>) => void;
@@ -888,6 +1052,29 @@ function ProductRow({
     isoToDatetimeLocalValue(product.visibleUntil),
   );
   const [imageUrl, setImageUrl] = useState(product.imageUrl ?? "");
+  const [basicIngredients, setBasicIngredients] = useState(
+    product.complianceInfo?.basicIngredients ?? "",
+  );
+  const [caloriesKcal, setCaloriesKcal] = useState(
+    product.complianceInfo?.caloriesKcal != null
+      ? String(product.complianceInfo.caloriesKcal)
+      : "",
+  );
+  const [selectedAllergens, setSelectedAllergens] = useState<ProductAllergenValue[]>(
+    product.complianceInfo?.allergens ?? [],
+  );
+  const [customAllergensText, setCustomAllergensText] = useState(
+    (product.complianceInfo?.customAllergens ?? []).join(", "),
+  );
+  const [crossContaminationNote, setCrossContaminationNote] = useState(
+    product.complianceInfo?.crossContaminationNote ?? "",
+  );
+  const [alcoholStatus, setAlcoholStatus] = useState<ProductComplianceStatusValue>(
+    product.complianceInfo?.alcoholStatus ?? "UNSPECIFIED",
+  );
+  const [porkStatus, setPorkStatus] = useState<ProductComplianceStatusValue>(
+    product.complianceInfo?.porkStatus ?? "UNSPECIFIED",
+  );
   const [isUploading, startUploading] = useTransition();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -917,6 +1104,7 @@ function ProductRow({
       return;
     }
     startTransition(async () => {
+      const parsedCalories = Number(caloriesKcal);
       const r = await updateProduct(product.id, {
         nameTR: nameTR.trim(),
         descriptionTR: descriptionTR.trim() || undefined,
@@ -927,6 +1115,20 @@ function ProductRow({
         isFeatured,
         sortOrder: Number(sortOrder),
         visibleUntil: visibleUntil ? visibleUntil : null,
+        complianceInfo: canManageMenuCompliance
+          ? {
+              basicIngredients: basicIngredients.trim() || null,
+              caloriesKcal:
+                caloriesKcal.trim() && Number.isFinite(parsedCalories)
+                  ? Math.max(0, Math.floor(parsedCalories))
+                  : null,
+              allergens: selectedAllergens,
+              customAllergens: parseCommaSeparatedValues(customAllergensText),
+              alcoholStatus,
+              porkStatus,
+              crossContaminationNote: crossContaminationNote.trim() || null,
+            }
+          : undefined,
       });
       if (r.success) {
         toast.success("Ürün güncellendi.");
@@ -934,6 +1136,14 @@ function ProductRow({
         onRefresh();
       } else toast.error(r.message ?? "Bir hata oluştu");
     });
+  };
+
+  const toggleAllergen = (allergen: ProductAllergenValue) => {
+    setSelectedAllergens((prev) =>
+      prev.includes(allergen)
+        ? prev.filter((current) => current !== allergen)
+        : [...prev, allergen],
+    );
   };
 
   const handleDelete = () => {
@@ -1011,6 +1221,92 @@ function ProductRow({
               className="hidden"
               onChange={handleImageFileChange}
             />
+
+            {canManageMenuCompliance ? (
+              <div className={cardClasses({ tone: "subtle", className: "space-y-3 p-3" })}>
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
+                Icerik ve Uyarilar
+              </p>
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={caloriesKcal}
+                  onChange={(e) => setCaloriesKcal(e.target.value)}
+                  placeholder="Kalori (kcal)"
+                  className={fieldClasses({ size: "sm" })}
+                />
+                <input
+                  value={customAllergensText}
+                  onChange={(e) => setCustomAllergensText(e.target.value)}
+                  placeholder="Ozel alerjenler (virgulle)"
+                  className={fieldClasses({ size: "sm" })}
+                />
+                <textarea
+                  value={basicIngredients}
+                  onChange={(e) => setBasicIngredients(e.target.value)}
+                  placeholder="Urun icerigi (malzemeler)"
+                  className={fieldClasses({
+                    size: "sm",
+                    className: "min-h-[74px] sm:col-span-2",
+                  })}
+                />
+                <textarea
+                  value={crossContaminationNote}
+                  onChange={(e) => setCrossContaminationNote(e.target.value)}
+                  placeholder="Icerik uyari notu / capraz bulasma bilgisi"
+                  className={fieldClasses({
+                    size: "sm",
+                    className: "min-h-[74px] sm:col-span-2",
+                  })}
+                />
+                <PanelSelect
+                  value={alcoholStatus}
+                  onValueChange={(next) =>
+                    setAlcoholStatus(next as ProductComplianceStatusValue)
+                  }
+                  aria-label="Alkol durumu"
+                  options={COMPLIANCE_STATUS_OPTIONS.map((value) => ({
+                    value,
+                    label: `Alkol: ${PRODUCT_COMPLIANCE_STATUS_LABELS[value]}`,
+                  }))}
+                />
+                <PanelSelect
+                  value={porkStatus}
+                  onValueChange={(next) => setPorkStatus(next as ProductComplianceStatusValue)}
+                  aria-label="Domuz icerigi durumu"
+                  options={COMPLIANCE_STATUS_OPTIONS.map((value) => ({
+                    value,
+                    label: `Domuz: ${PRODUCT_COMPLIANCE_STATUS_LABELS[value]}`,
+                  }))}
+                />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-[#374151]">Alerjenler</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {PRODUCT_ALLERGEN_VALUES.map((allergen) => {
+                    const selected = selectedAllergens.includes(allergen);
+                    return (
+                      <button
+                        key={allergen}
+                        type="button"
+                        onClick={() => toggleAllergen(allergen)}
+                        className={badgeClasses(selected ? "warning" : "neutral")}
+                      >
+                        {PRODUCT_ALLERGEN_LABELS[allergen]}
+                      </button>
+                    );
+                  })}
+                  {tenantAllergens.map((allergen) => (
+                    <span key={allergen.id} className={badgeClasses("info")}>
+                      {allergen.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -1146,6 +1442,47 @@ function ProductRow({
                   ))}
                 </div>
               )}
+              {canManageMenuCompliance && product.complianceInfo ? (
+                <div className="space-y-1.5 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-2.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
+                    Icerik ve Uyarilar
+                  </p>
+                  {product.complianceInfo.caloriesKcal != null ? (
+                    <p className="text-xs text-[#374151]">
+                      Kalori: <span className="font-medium">{product.complianceInfo.caloriesKcal} kcal</span>
+                    </p>
+                  ) : null}
+                  {product.complianceInfo.basicIngredients ? (
+                    <p className="text-xs text-[#374151] line-clamp-2">
+                      Icerik: {product.complianceInfo.basicIngredients}
+                    </p>
+                  ) : null}
+                  {product.complianceInfo.crossContaminationNote ? (
+                    <p className="text-xs text-[#7C2D12] line-clamp-2">
+                      Uyari: {product.complianceInfo.crossContaminationNote}
+                    </p>
+                  ) : null}
+                  {product.complianceInfo.allergens && product.complianceInfo.allergens.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {product.complianceInfo.allergens.map((allergen) => (
+                        <span key={`${product.id}-${allergen}`} className={badgeClasses("warning")}>
+                          {PRODUCT_ALLERGEN_LABELS[allergen]}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  {product.complianceInfo.customAllergens &&
+                  product.complianceInfo.customAllergens.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {product.complianceInfo.customAllergens.map((allergen) => (
+                        <span key={`${product.id}-custom-${allergen}`} className={badgeClasses("info")}>
+                          {allergen}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
 
             <div className="flex w-full flex-col items-start gap-2.5 lg:w-auto lg:min-w-[210px] lg:items-end">

@@ -5,18 +5,19 @@ import {
   listPublishedBlogPostsForPublic,
 } from "@/modules/content/server/content-queries";
 import { buildMetadataFromSeo } from "@/modules/content/server/seo-metadata";
-import { getMarketingSiteConfigForPublic } from "@/modules/marketing/server/landing-content";
+import { getMergedPublicLandingDesignForPublic } from "@/modules/marketing/server/landing-design";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = await getMarketingSiteConfigForPublic();
+  const design = await getMergedPublicLandingDesignForPublic();
+  const brand = design.general.brandName;
   return buildMetadataFromSeo({
     seo: {
-      seoTitle: site?.brandName ? `${site.brandName} | Blog` : "Blog",
+      seoTitle: `${brand} | Blog`,
       metaDescription: "QR menu, restoran operasyonu ve siparis akisina dair guncel yazilar.",
       robotsIndex: true,
       robotsFollow: true,
     },
-    fallbackTitle: site?.brandName ? `${site.brandName} | Blog` : "Blog",
+    fallbackTitle: `${brand} | Blog`,
     fallbackDescription: "QR menu, restoran operasyonu ve siparis akisina dair guncel yazilar.",
     pathname: "/blog",
     type: "website",

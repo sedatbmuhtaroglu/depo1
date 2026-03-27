@@ -10,6 +10,16 @@ type ActionResult = { success: true; message: string } | { success: false; messa
 type FeatureOverrideState = "ENABLED" | "DISABLED" | "DEFAULT";
 
 const FEATURE_DISPLAY_MAP: Record<FeatureCode, { name: string; description: string }> = {
+  QR_MENU_VIEW: { name: "QR Menu Goruntuleme", description: "Musteri menu goruntuleme" },
+  QR_ORDERING: { name: "QR Siparis", description: "Musteri QR siparis akisi" },
+  ORDER_CANCELLATIONS: { name: "Iptaller", description: "Siparis iptal islemleri" },
+  BILLING_RECEIPTS: { name: "Fatura / Fis", description: "Fislendirme ve faturalama" },
+  WAITER_CALL_LOGS: { name: "Garson Cagri Loglari", description: "Garson cagri log ekrani ve islemi" },
+  SHOWCASE_RAILS: { name: "Populer / Sik Tuketilenler", description: "Vitrin gosteri bloklari" },
+  STAFF_PERFORMANCE: { name: "Personel Performansi", description: "Performans ekrani" },
+  ONLINE_PAYMENT_IYZICO: { name: "Online Odeme / Iyzico", description: "Iyzico odeme akislari" },
+  CASH_OPERATIONS: { name: "Kasa", description: "Tahsilat, hesap kapatma ve kasa operasyonlari" },
+  STOCK_MANAGEMENT: { name: "Stok", description: "Stok ve envanter yonetimi" },
   MENU: { name: "Menu", description: "Digital menu" },
   WAITER_CALL: { name: "Waiter Call", description: "Customer waiter call" },
   ORDERING: { name: "Ordering", description: "QR ordering" },

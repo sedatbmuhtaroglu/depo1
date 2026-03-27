@@ -8,6 +8,7 @@ import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { getTableBillingSnapshot } from "@/lib/table-billing";
 import { writeAuditLog } from "@/lib/audit-log";
 import { NON_FISCAL_DISCLAIMER } from "@/lib/cash-device";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 type SplitMode = "PARTIAL" | "FULL";
 type AllowedMethod = Extract<
@@ -132,6 +133,10 @@ export async function processCashSplitPayment(input: {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+    if (!featureGate.ok) {
+      return { success: false, message: featureGate.message };
     }
 
     const result = await prisma.$transaction(

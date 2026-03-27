@@ -8,6 +8,12 @@ export type AuthorizationActor =
       role: StaffRole;
     }
   | {
+      kind: "HQ_SUPPORT";
+      tenantId: number;
+      hqUsername: string;
+      supportSessionId: number;
+    }
+  | {
       kind: "HQ_ADMIN";
       username: string;
     }
@@ -38,6 +44,19 @@ export function createStaffActor(input: {
 
 export function createHqAdminActor(username: string): AuthorizationActor {
   return { kind: "HQ_ADMIN", username };
+}
+
+export function createHqSupportActor(input: {
+  tenantId: number;
+  hqUsername: string;
+  supportSessionId: number;
+}): AuthorizationActor {
+  return {
+    kind: "HQ_SUPPORT",
+    tenantId: input.tenantId,
+    hqUsername: input.hqUsername,
+    supportSessionId: input.supportSessionId,
+  };
 }
 
 export function createStorefrontGuestActor(tenantId?: number): AuthorizationActor {

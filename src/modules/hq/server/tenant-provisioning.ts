@@ -37,6 +37,13 @@ export function normalizeTenantSlug(raw: string): string | null {
   return slug;
 }
 
+function resolveEnvBaseDomain(): string | null {
+  const raw = process.env.APP_BASE_DOMAIN ?? "";
+  const firstToken = raw.split(",")[0]?.trim().toLowerCase() ?? "";
+  if (!firstToken) return null;
+  return firstToken;
+}
+
 export function parsePlanCode(value: string): PlanCode | null {
   const raw = value.trim().toUpperCase();
   if (raw === "MINI" || raw === "RESTAURANT" || raw === "CORPORATE") {
@@ -160,10 +167,11 @@ export async function provisionTenantTx(
   const validated = await assertProvisioningInput(input, tx);
   const domainInput = (input.primaryDomain ?? "").trim().toLowerCase();
   const resolvedStatus = resolveProvisioningStatus(input.initialStatus);
+  const envBaseDomain = resolveEnvBaseDomain();
   const primaryDomain =
     domainInput.length > 0
       ? domainInput
-      : `${validated.normalizedSlug}.${process.env.DEFAULT_SUBDOMAIN_SUFFIX ?? "menu.local"}`;
+      : `${validated.normalizedSlug}.${envBaseDomain ?? "localhost"}`;
 
   const tenant = await tx.tenant.create({
     data: {

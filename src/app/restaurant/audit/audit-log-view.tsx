@@ -1,8 +1,13 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { badgeClasses, buttonClasses, cardClasses, fieldClasses } from "@/lib/ui/button-variants";
+import {
+  formatAuditActionLabel,
+  formatAuditDescription,
+  formatAuditTargetLabel,
+} from "@/lib/restaurant-audit-formatter";
 
 type LogRow = {
   id: number;
@@ -25,77 +30,29 @@ const FILTER_FIELD_CLASS = fieldClasses({
   className: "h-10 rounded-xl px-3 text-sm",
 });
 
-const ACTION_LABELS: Record<string, string> = {
-  ORDER_STATUS: "Sipariş durumu güncellendi",
-  ORDER_DELIVERED: "Sipariş teslim edildi",
-  ORDER_MANUAL_CREATE: "Manuel sipariş oluşturuldu",
-  ORDER_ITEM_CANCEL: "Sipariş kalemi iptal/iade edildi",
-  ORDER_CASH_ADJUST: "Nakit sipariş düzeltmesi yapıldı",
-  WAITER_CALL_STATUS: "Garson çağrısı güncellendi",
-  BILL_REQUEST_STATUS: "Hesap isteği güncellendi",
-  BILL_SETTLED: "Hesap tahsil edilip kapatıldı",
-  TABLE_PAYMENT: "Masa ödemesi alındı",
-  TABLE_CREATE: "Masa oluşturuldu",
-  TABLE_OPEN: "Masa açıldı",
-  TABLE_CLOSE: "Masa kapatıldı",
-  SETTINGS_UPDATE: "Ayarlar güncellendi",
-  RESTAURANT_SETTINGS: "Restoran ayarları güncellendi",
-  DOMAIN_ADD: "Alan adı eklendi",
-  DOMAIN_REMOVE: "Alan adı kaldırıldı",
-  STAFF_CREATE: "Personel hesabı oluşturuldu",
-  CATEGORY_CREATE: "Kategori oluşturuldu",
-  CATEGORY_UPDATE: "Kategori güncellendi",
-  CATEGORY_DELETE: "Kategori silindi",
-  PRODUCT_CREATE: "Ürün oluşturuldu",
-  PRODUCT_UPDATE: "Ürün güncellendi",
-  PRODUCT_DELETE: "Ürün silindi",
-  PRODUCT_BULK_PRICE: "Toplu fiyat güncellemesi yapıldı",
-  PRODUCT_STOCK_UPDATE: "Ürün stoğu güncellendi",
-  TABLE_ACCOUNT_TRANSFER_FULL: "Masa hesabı taşındı (tam)",
-  TABLE_ACCOUNT_MERGE: "Masa hesapları birleştirildi",
-  TABLE_ACCOUNT_TRANSFER_PARTIAL: "Masa hesabından kalem taşındı",
-};
-
-const ENTITY_LABELS: Record<string, string> = {
-  Order: "Sipariş",
-  Table: "Masa",
-  Category: "Kategori",
-  Product: "Ürün",
-  BillRequest: "Hesap İsteği",
-  TenantStaff: "Personel",
-  TenantDomain: "Alan Adı",
-  TenantPaymentConfig: "Ödeme Yapılandırması",
-  Restaurant: "Restoran",
-  WaiterCall: "Garson Çağrısı",
-  SecurityEvent: "Güvenlik Kaydı",
-};
-
-function toTitleCaseWord(word: string) {
-  if (word.length === 0) return word;
-  return word[0]!.toUpperCase() + word.slice(1).toLowerCase();
-}
-
-function prettifyActionCode(code: string) {
-  return code
-    .split("_")
-    .filter(Boolean)
-    .map((part) => toTitleCaseWord(part))
-    .join(" ");
-}
-
-function actionLabel(code: string) {
-  return ACTION_LABELS[code] ?? prettifyActionCode(code);
-}
-
 function actionToneVariant(code: string) {
-  if (code.includes("DELETE") || code.includes("REJECT")) {
+  const normalized = code.toLowerCase();
+  if (normalized.includes("delete") || normalized.includes("reject")) {
     return "danger";
   }
-  if (code.includes("CREATE") || code.includes("OPEN") || code.includes("SETTLED")) {
+  if (normalized.includes("create") || normalized.includes("open") || normalized.includes("settled")) {
     return "success";
   }
-  if (code.includes("UPDATE") || code.includes("STATUS") || code.includes("DELIVERED")) {
+  if (
+    normalized.includes("update") ||
+    normalized.includes("status") ||
+    normalized.includes("delivered") ||
+    normalized.includes("entered") ||
+    normalized.includes("started")
+  ) {
     return "info";
+  }
+  if (
+    normalized.includes("expired") ||
+    normalized.includes("revoked") ||
+    normalized.includes("exited")
+  ) {
+    return "warning";
   }
   return "neutral";
 }
@@ -135,28 +92,6 @@ function formatDateParts(isoDate: string) {
       hour: "2-digit",
       minute: "2-digit",
     }),
-  };
-}
-
-function targetPresentation(log: LogRow) {
-  const entityLabel = ENTITY_LABELS[log.entityType] ?? log.entityType;
-  if (log.entityType === "TenantPaymentConfig" && log.entityId) {
-    return {
-      label: `${entityLabel} / ${log.entityId}`,
-      meta: log.entityType,
-    };
-  }
-
-  if (log.entityId) {
-    return {
-      label: `${entityLabel} #${log.entityId}`,
-      meta: log.entityType,
-    };
-  }
-
-  return {
-    label: entityLabel,
-    meta: log.entityType,
   };
 }
 
@@ -228,7 +163,7 @@ export default function AuditLogView({
               <option value="">Tümü</option>
               {actionTypes.map((a) => (
                 <option key={a} value={a}>
-                  {actionLabel(a)}
+                  {formatAuditActionLabel(a)}
                 </option>
               ))}
             </select>
@@ -315,8 +250,14 @@ export default function AuditLogView({
               <tbody>
                 {logs.map((l) => {
                   const createdAt = formatDateParts(l.createdAt);
-                  const target = targetPresentation(l);
-                  const readableAction = actionLabel(l.actionType);
+                  const targetLabel = formatAuditTargetLabel(l.entityType, l.entityId);
+                  const readableAction = formatAuditActionLabel(l.actionType);
+                  const readableDescription = formatAuditDescription({
+                    actionType: l.actionType,
+                    entityType: l.entityType,
+                    entityId: l.entityId,
+                    description: l.description,
+                  });
                   const actorLabel = l.actorDisplayName?.trim() || "Bilinmeyen kullanıcı";
                   const actorRole = roleLabel(l.role);
                   const actorKind = actorKindLabel(l.actorType);
@@ -356,21 +297,14 @@ export default function AuditLogView({
                         </span>
                       </td>
                       <td className="px-4 py-3 sm:px-5">
-                        <p className="max-w-72 truncate font-medium" title={target.label}>
-                          {target.label}
-                        </p>
-                        <p className="mt-0.5 text-xs text-[color:var(--ui-text-secondary)]">
-                          {target.meta}
+                        <p className="max-w-72 truncate font-medium" title={targetLabel}>
+                          {targetLabel}
                         </p>
                       </td>
                       <td className="px-4 py-3 sm:px-5">
-                        {l.description?.trim() ? (
-                          <p className="max-w-md whitespace-pre-wrap break-words text-sm leading-5 text-[color:var(--ui-text-secondary)]">
-                            {l.description}
-                          </p>
-                        ) : (
-                          <span className="text-xs text-[color:var(--ui-text-secondary)]">Açıklama yok</span>
-                        )}
+                        <p className="max-w-md whitespace-pre-wrap break-words text-sm leading-5 text-[color:var(--ui-text-secondary)]">
+                          {readableDescription}
+                        </p>
                       </td>
                     </tr>
                   );

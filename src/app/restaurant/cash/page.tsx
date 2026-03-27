@@ -8,6 +8,7 @@ import { getTableBillingSnapshot } from "@/lib/table-billing";
 import { parseCancellationCustomReason } from "@/lib/order-cancellation-finance";
 import { classifyFinancialRefund } from "@/lib/report-order-metrics";
 import { badgeClasses, buttonClasses, cardClasses, fieldClasses } from "@/lib/ui/button-variants";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 import CashTerminal, { type CashTerminalTable } from "./cash-terminal";
 
 export const dynamic = "force-dynamic";
@@ -85,6 +86,15 @@ export default async function RestaurantCashPage({
 }) {
   const session = await requireCashierOrManagerSession("cash.view");
   const { tenantId } = await getCurrentTenantOrThrow();
+  const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+  if (!featureGate.ok) {
+    return (
+      <section className={cardClasses({ className: "p-5 text-center" })}>
+        <h2 className="text-lg font-semibold text-[var(--ui-text-primary)]">Ozellik Kilitli</h2>
+        <p className="mt-2 text-sm text-[var(--ui-text-secondary)]">{featureGate.message}</p>
+      </section>
+    );
+  }
   const params = (await searchParams) ?? {};
 
   const today = getTurkeyDateString();

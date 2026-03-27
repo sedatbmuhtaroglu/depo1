@@ -1,16 +1,4 @@
-const SAFE_RICH_TEXT_TAGS = new Set([
-  "p",
-  "br",
-  "strong",
-  "b",
-  "em",
-  "i",
-  "u",
-  "ul",
-  "ol",
-  "li",
-  "a",
-]);
+import { sanitizeSourceHtmlServer } from "@/lib/sanitize-source-html-server";
 
 function normalizeInput(value: string, maxLength: number): string {
   return value.trim().slice(0, maxLength);
@@ -89,59 +77,13 @@ export function plainTextToRichHtml(value: string | null | undefined): string {
   return paragraphs.join("");
 }
 
-function isAllowedHref(value: string): boolean {
-  return (
-    value.startsWith("/") ||
-    value.startsWith("#") ||
-    value.startsWith("http://") ||
-    value.startsWith("https://") ||
-    value.startsWith("mailto:") ||
-    value.startsWith("tel:")
-  );
-}
-
-function sanitizeAnchorTagAttributes(rawAttributes: string): string {
-  const hrefMatch = rawAttributes.match(/href\s*=\s*([\"'])(.*?)\1/i);
-  const hrefValue = hrefMatch ? hrefMatch[2].trim() : "";
-
-  if (!hrefValue || !isAllowedHref(hrefValue)) {
-    return "";
-  }
-
-  return ` href=\"${escapeHtml(hrefValue)}\" target=\"_blank\" rel=\"noopener noreferrer\"`;
-}
-
+/**
+ * Server-side rich HTML sanitization: allowlisted tags + safe links + source-dialog layout tags;
+ * disallowed markup is preserved as visible <pre><code class="rte-preserved-block">...</code></pre>.
+ * Matches client `sanitizeSourceHtmlClient` / editor extensions for save + preview parity.
+ */
 export function sanitizeRichTextHtml(input: string | null | undefined, maxLength = 6000): string {
   const normalized = normalizeInput(input ?? "", maxLength);
   if (!normalized) return "";
-
-  const withoutScript = normalized
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, "")
-    .replace(/<!--([\s\S]*?)-->/g, "");
-
-  const sanitized = withoutScript.replace(/<\/?([a-z0-9]+)([^>]*)>/gi, (fullMatch, rawTag, rawAttributes) => {
-    const tag = String(rawTag).toLowerCase();
-    const isClosing = fullMatch.startsWith("</");
-
-    if (!SAFE_RICH_TEXT_TAGS.has(tag)) {
-      return "";
-    }
-
-    if (isClosing) {
-      return `</${tag}>`;
-    }
-
-    if (tag === "br") {
-      return "<br>";
-    }
-
-    if (tag === "a") {
-      return `<a${sanitizeAnchorTagAttributes(String(rawAttributes ?? ""))}>`;
-    }
-
-    return `<${tag}>`;
-  });
-
-  return sanitized.trim();
+  return sanitizeSourceHtmlServer(normalized, maxLength);
 }

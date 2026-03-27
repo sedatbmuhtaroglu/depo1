@@ -1,18 +1,23 @@
 import { notFound } from "next/navigation";
-import { cardClasses, chipClasses } from "@/lib/ui/button-variants";
+import { cardClasses } from "@/lib/ui/button-variants";
 import { CommercialRecordPaymentForm } from "@/modules/hq/components/commercial-record-payment-form";
 import { LifecycleBadge } from "@/modules/hq/components/lifecycle-badge";
+import { LeadCommercialRecordForm } from "@/modules/hq/components/lead-commercial-record-form";
 import { TenantFeatureOverrides } from "@/modules/hq/components/tenant-feature-overrides";
 import { TenantLimitOverrides } from "@/modules/hq/components/tenant-limit-overrides";
 import { TenantPermanentDeleteForm } from "@/modules/hq/components/tenant-permanent-delete-form";
 import { TenantPlanForm } from "@/modules/hq/components/tenant-plan-form";
 import { TenantStatusForm } from "@/modules/hq/components/tenant-status-form";
 import { HqTenantSetupPanel } from "@/modules/onboarding/components/hq-tenant-setup-panel";
+import { TenantPackageFeaturesPanel } from "@/modules/hq/components/tenant-package-features-panel";
+import { TenantFirstManagerForm } from "@/modules/hq/components/tenant-first-manager-form";
 import {
   getHqTenantDetail,
   listActivePlans,
   listManageableFeatures,
 } from "@/modules/hq/server/tenant-queries";
+import { HqSupportEntryDialog } from "@/modules/hq/components/hq-support-entry-dialog";
+import { resolveTenantPackageFeaturesView } from "@/modules/hq/server/tenant-package-features";
 
 function formatDate(value: Date) {
   return new Intl.DateTimeFormat("tr-TR", {
@@ -31,16 +36,6 @@ function formatRemainingDays(endAt: Date | null): string {
   const msDiff = endAt.getTime() - Date.now();
   if (msDiff <= 0) return "Sure doldu";
   return `${Math.ceil(msDiff / (24 * 60 * 60 * 1000))} gun`;
-}
-
-function renderLimitValue(value: number | null) {
-  if (value == null) return "Sinirsiz";
-  return new Intl.NumberFormat("tr-TR").format(value);
-}
-
-function usagePercent(used: number, max: number | null): string {
-  if (max == null || max <= 0) return "-";
-  return `${Math.min(Math.round((used / max) * 100), 100)}%`;
 }
 
 function formatMoney(value: string, currency: string): string {
@@ -76,13 +71,25 @@ export default async function HqTenantDetailPage({
   const effectiveFeatureList = Array.from(detail.entitlements.features).sort((a, b) =>
     a.localeCompare(b),
   );
-  const limits = detail.entitlements.limits;
   const remainingCommercialBalance = detail.commercialSummary
     ? Number(detail.commercialSummary.remainingBalance)
     : 0;
   const hasCommercialRisk = detail.commercialSummary
     ? Number.isFinite(remainingCommercialBalance) && remainingCommercialBalance > 0
     : false;
+  const packageFeaturesView = resolveTenantPackageFeaturesView({
+    tenant: {
+      planName: detail.tenant.planName,
+      lifecycleStatus: detail.tenant.lifecycleStatus,
+    },
+    usage: detail.usage,
+    entitlements: detail.entitlements,
+    featureOverrides: detail.featureOverrides,
+    limitOverrides: detail.limitOverrides,
+    planFeatureCodes: detail.tenant.planFeatureCodes,
+    planLimits: detail.tenant.planLimits,
+    manageableFeatures,
+  });
 
   return (
     <div className="space-y-4">
@@ -97,6 +104,9 @@ export default async function HqTenantDetailPage({
         <p className="mt-1 text-sm text-[var(--ui-text-secondary)]">
           slug: {detail.tenant.slug} | plan: {detail.tenant.planCode}
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <HqSupportEntryDialog tenantId={detail.tenant.id} />
+        </div>
       </section>
 
       <HqTenantSetupPanel tenantId={detail.tenant.id} />
@@ -213,11 +223,54 @@ export default async function HqTenantDetailPage({
       ) : null}
 
       <section className={cardClasses({ className: "p-4" })}>
+        <h3 className="text-sm font-semibold text-[var(--ui-text-primary)]">
+          Ilk Yonetici ve Set Password
+        </h3>
+        <p className="mt-1 text-sm text-[var(--ui-text-secondary)]">
+          Tenant icinden ilk yonetici olusturma ve set-password link yonetimi.
+        </p>
+        <div className="mt-3">
+          <TenantFirstManagerForm
+            tenantId={detail.tenant.id}
+            trialEndsAt={detail.tenant.trialEndsAt}
+            manager={detail.firstManagerSetup}
+          />
+        </div>
+      </section>
+
+      <section className={cardClasses({ className: "p-4" })}>
         <h3 className="text-sm font-semibold text-[var(--ui-text-primary)]">Ticari Ozet</h3>
         {!detail.commercialSummary ? (
-          <p className="mt-2 text-sm text-[var(--ui-text-secondary)]">
-            Bu tenant icin bagli bir ticari kayit bulunamadi.
-          </p>
+          <div className="mt-2 space-y-3">
+            <p className="text-sm text-[var(--ui-text-secondary)]">
+              Bu tenant icin bagli bir ticari kayit bulunamadi.
+            </p>
+            {detail.trialLead ? (
+              <div>
+                <p className="text-sm font-medium text-[var(--ui-text-primary)]">Ticari Kayit Olustur</p>
+                <p className="mt-1 text-xs text-[var(--ui-text-secondary)]">
+                  ACTIVE gecisi icin ticari kayit burada olusturulabilir.
+                </p>
+                <div className="mt-2">
+                  <LeadCommercialRecordForm
+                    leadId={detail.trialLead.leadId}
+                    tenantId={detail.tenant.id}
+                    currentRecord={null}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm font-medium text-[var(--ui-text-primary)]">Ticari Kayit Olustur</p>
+                <p className="mt-1 text-xs text-[var(--ui-text-secondary)]">
+                  Lead kaydi yoksa sistem otomatik bir lead olusturup kaydi tenant ile iliskilendirir.
+                </p>
+                <div className="mt-2">
+                  <LeadCommercialRecordForm tenantId={detail.tenant.id} currentRecord={null} />
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           <div className="mt-3 space-y-4">
             <div className="rounded-lg border border-[var(--ui-border)] px-3 py-2 text-sm">
@@ -323,81 +376,7 @@ export default async function HqTenantDetailPage({
         )}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-2">
-        <article className={cardClasses({ className: "p-4" })}>
-          <h3 className="text-sm font-semibold text-[var(--ui-text-primary)]">Entitlement Ozeti</h3>
-          <p className="mt-1 text-sm text-[var(--ui-text-secondary)]">
-            Efektif feature listesi (plan + override + lifecycle).
-          </p>
-          {effectiveFeatureList.length === 0 ? (
-            <p className="mt-3 text-sm text-[var(--ui-text-secondary)]">Acik feature yok.</p>
-          ) : (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {effectiveFeatureList.map((feature) => (
-                <span key={feature} className={chipClasses("neutral")}>
-                  {feature}
-                </span>
-              ))}
-            </div>
-          )}
-        </article>
-
-        <article className={cardClasses({ className: "p-4" })}>
-          <h3 className="text-sm font-semibold text-[var(--ui-text-primary)]">Limit ve Kullanim Ozeti</h3>
-          <div className="mt-3 overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b border-[var(--ui-border)] text-xs uppercase tracking-wide text-[var(--ui-text-secondary)]">
-                  <th className="px-2 py-2 text-left">Kaynak</th>
-                  <th className="px-2 py-2 text-right">Kullanim</th>
-                  <th className="px-2 py-2 text-right">Efektif Limit</th>
-                  <th className="px-2 py-2 text-right">Doluluk</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-[var(--ui-border)]/70">
-                  <td className="px-2 py-2">Users</td>
-                  <td className="px-2 py-2 text-right">{detail.usage.users}</td>
-                  <td className="px-2 py-2 text-right">{renderLimitValue(limits.USERS)}</td>
-                  <td className="px-2 py-2 text-right">{usagePercent(detail.usage.users, limits.USERS)}</td>
-                </tr>
-                <tr className="border-b border-[var(--ui-border)]/70">
-                  <td className="px-2 py-2">Tables</td>
-                  <td className="px-2 py-2 text-right">{detail.usage.tables}</td>
-                  <td className="px-2 py-2 text-right">{renderLimitValue(limits.TABLES)}</td>
-                  <td className="px-2 py-2 text-right">{usagePercent(detail.usage.tables, limits.TABLES)}</td>
-                </tr>
-                <tr className="border-b border-[var(--ui-border)]/70">
-                  <td className="px-2 py-2">Menus</td>
-                  <td className="px-2 py-2 text-right">{detail.usage.menus}</td>
-                  <td className="px-2 py-2 text-right">{renderLimitValue(limits.MENUS)}</td>
-                  <td className="px-2 py-2 text-right">{usagePercent(detail.usage.menus, limits.MENUS)}</td>
-                </tr>
-                <tr className="border-b border-[var(--ui-border)]/70">
-                  <td className="px-2 py-2">Products</td>
-                  <td className="px-2 py-2 text-right">{detail.usage.products}</td>
-                  <td className="px-2 py-2 text-right">{renderLimitValue(limits.PRODUCTS)}</td>
-                  <td className="px-2 py-2 text-right">{usagePercent(detail.usage.products, limits.PRODUCTS)}</td>
-                </tr>
-                <tr className="border-b border-[var(--ui-border)]/70">
-                  <td className="px-2 py-2">Branches</td>
-                  <td className="px-2 py-2 text-right">{detail.usage.restaurants}</td>
-                  <td className="px-2 py-2 text-right">{renderLimitValue(limits.BRANCHES)}</td>
-                  <td className="px-2 py-2 text-right">
-                    {usagePercent(detail.usage.restaurants, limits.BRANCHES)}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-2 py-2">Devices</td>
-                  <td className="px-2 py-2 text-right">-</td>
-                  <td className="px-2 py-2 text-right">{renderLimitValue(limits.DEVICES)}</td>
-                  <td className="px-2 py-2 text-right">-</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </section>
+      <TenantPackageFeaturesPanel data={packageFeaturesView} />
 
       <section className={cardClasses({ className: "p-4" })}>
         <h3 className="text-sm font-semibold text-[var(--ui-text-primary)]">Feature Yonetimi</h3>

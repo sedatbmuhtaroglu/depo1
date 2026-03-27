@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { CreditCard } from "lucide-react";
 import { saveIyzicoConfig } from "@/app/actions/save-payment-config";
 import { savePaymentMethods } from "@/app/actions/payment-settings";
+import { buttonClasses, cardClasses, fieldClasses, labelClasses } from "@/lib/ui/button-variants";
 
 type IyzicoConfig = {
   apiKey: string | null;
@@ -71,71 +72,77 @@ export default function PaymentSettingsSection({
     });
   };
 
+  const fieldMd = fieldClasses({ size: "md", className: "text-sm" });
+  const checkClass =
+    "h-4 w-4 shrink-0 rounded border-[color:var(--ui-field-border)] text-[color:var(--ui-primary)] focus:ring-[color:var(--ui-field-focus-ring)]";
+
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-neutral-900">
-        <CreditCard className="h-5 w-5 text-neutral-500" />
+    <div className={cardClasses({ className: "p-5 shadow-none" })}>
+      <h3 className="mb-5 flex items-center gap-2 text-base font-semibold text-[color:var(--ui-text-primary)]">
+        <CreditCard className="h-5 w-5 text-[color:var(--ui-text-muted)]" />
         Ödeme ayarları
       </h3>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-4">
-          <h4 className="mb-3 text-sm font-semibold text-neutral-800">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="rounded-xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-subtle)] p-4">
+          <h4 className="mb-3 text-sm font-semibold text-[color:var(--ui-text-primary)]">
             Müşteri ödeme yöntemleri
           </h4>
           <div className="grid gap-2">
-            <label className="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-200 bg-white px-3 py-2">
-              <span className="text-sm text-neutral-700">Nakit ödeme</span>
+            <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-bg)] px-3 py-2.5">
+              <span className="text-sm text-[color:var(--ui-text-primary)]">Nakit ödeme</span>
               <input
                 type="checkbox"
                 checked={cashActive}
                 onChange={(e) => setCashActive(e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500"
+                className={checkClass}
               />
             </label>
-            <label className="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-200 bg-white px-3 py-2">
-              <span className="text-sm text-neutral-700">Kredi kartı ile ödeme</span>
+            <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-bg)] px-3 py-2.5">
+              <span className="text-sm text-[color:var(--ui-text-primary)]">Kredi kartı ile ödeme</span>
               <input
                 type="checkbox"
                 checked={creditCardMethodActive}
                 onChange={(e) => setCreditCardMethodActive(e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500"
+                className={checkClass}
               />
             </label>
           </div>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="font-medium text-neutral-800">IyziCo (Kart ile ödeme)</span>
+        <div className="rounded-xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-subtle)] p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <span className="font-medium text-[color:var(--ui-text-primary)]">IyziCo (Kart ile ödeme)</span>
             <label className="flex cursor-pointer items-center gap-2">
-              <span className="text-sm text-neutral-600">Konfigürasyon aktif</span>
+              <span className="text-sm text-[color:var(--ui-text-secondary)]">Konfigürasyon aktif</span>
               <input
                 type="checkbox"
                 checked={isIyzicoConfigActive}
                 onChange={(e) => setIsIyzicoConfigActive(e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500"
+                className={checkClass}
               />
             </label>
           </div>
           <div className="grid gap-3 sm:grid-cols-1">
             <div>
-              <label className="mb-1 block text-xs font-medium text-neutral-600">
+              <label htmlFor="iyzico-api-key" className={labelClasses("mb-1.5")}>
                 API Key
               </label>
               <input
+                id="iyzico-api-key"
                 type="text"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="IyziCo API Key"
-                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className={fieldMd}
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-neutral-600">
+              <label htmlFor="iyzico-secret" className={labelClasses("mb-1.5")}>
                 Secret Key
               </label>
               <input
+                id="iyzico-secret"
                 type="password"
                 value={secretKey}
                 onChange={(e) => setSecretKey(e.target.value)}
@@ -145,10 +152,10 @@ export default function PaymentSettingsSection({
                     : "IyziCo Secret Key"
                 }
                 autoComplete="off"
-                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className={fieldMd}
               />
               {iyzico?.secretKeySet && (
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-1.5 text-xs text-[color:var(--ui-text-muted)]">
                   Mevcut secret key kayıtlı. Değiştirmek için yeni değer girebilirsiniz.
                 </p>
               )}
@@ -158,21 +165,25 @@ export default function PaymentSettingsSection({
                 type="checkbox"
                 checked={isSandbox}
                 onChange={(e) => setIsSandbox(e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-300 text-amber-600 focus:ring-amber-500"
+                className={checkClass}
               />
-              <span className="text-sm font-medium text-neutral-700">Test modu (sandbox)</span>
+              <span className="text-sm font-medium text-[color:var(--ui-text-primary)]">Test modu (sandbox)</span>
             </label>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-[color:var(--ui-text-muted)]">
               Test modu açıkken IyziCo sandbox ortamı kullanılır.
             </p>
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end border-t border-[color:var(--ui-border-subtle)] pt-4">
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-600 disabled:opacity-60"
+            className={buttonClasses({
+              variant: "primary",
+              size: "md",
+              className: "min-w-[120px]",
+            })}
           >
             {isPending ? "Kaydediliyor..." : "Kaydet"}
           </button>

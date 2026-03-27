@@ -5,6 +5,7 @@ import { requireManagerSession } from "@/lib/auth";
 import { formatStaffDisplayName } from "@/lib/person-display-name";
 import WaiterCallsLogView from "./waiter-calls-log-view";
 import { badgeClasses, cardClasses } from "@/lib/ui/button-variants";
+import { hasFeature } from "@/core/entitlements/engine";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,17 @@ export default async function RestaurantWaiterCallsPage({
 }) {
   await requireManagerSession();
   const { tenantId } = await getCurrentTenantOrThrow();
+  const waiterLogEnabled = await hasFeature(tenantId, "WAITER_CALL_LOGS");
+  if (!waiterLogEnabled) {
+    return (
+      <section className={cardClasses({ className: "p-5 text-center" })}>
+        <h2 className="text-lg font-semibold text-[var(--ui-text-primary)]">Ozellik Kilitli</h2>
+        <p className="mt-2 text-sm text-[var(--ui-text-secondary)]">
+          Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.
+        </p>
+      </section>
+    );
+  }
   const params = await searchParams;
 
   const today = new Date();

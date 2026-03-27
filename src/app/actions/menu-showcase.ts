@@ -13,6 +13,7 @@ import {
   parseMenuShowcaseAutoplaySpeed,
   validateMenuShowcaseProductIds,
 } from "@/lib/menu-showcase";
+import { hasFeature } from "@/core/entitlements/engine";
 
 const SHOWCASE_REVALIDATE_PATHS = [
   "/restaurant/menu",
@@ -34,6 +35,14 @@ export async function savePopularMenuShowcase(input: {
     const { tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false as const, message: "Yetkisiz." };
+
+    const showcaseEnabled = await hasFeature(tenantId, "SHOWCASE_RAILS");
+    if (!showcaseEnabled) {
+      return {
+        success: false as const,
+        message: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      };
+    }
 
     const menu = await assertMenuBelongsToTenant(input.menuId, tenantId);
     if (!menu) return { success: false as const, message: "Menü bulunamadı." };
@@ -127,6 +136,14 @@ export async function saveFrequentMenuShowcase(input: {
     const { tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false as const, message: "Yetkisiz." };
+
+    const showcaseEnabled = await hasFeature(tenantId, "SHOWCASE_RAILS");
+    if (!showcaseEnabled) {
+      return {
+        success: false as const,
+        message: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      };
+    }
 
     const menu = await assertMenuBelongsToTenant(input.menuId, tenantId);
     if (!menu) return { success: false as const, message: "Menü bulunamadı." };

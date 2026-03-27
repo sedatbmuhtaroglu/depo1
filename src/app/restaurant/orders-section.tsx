@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useMemo, useState, useTransition } from "react";
 import { Clock3, XCircle } from "lucide-react";
@@ -108,14 +108,18 @@ export default function RestaurantOrdersSection({
 
   return (
     <section className={SECTION_CARD_CLASS}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-[color:var(--ui-border-subtle)] pb-4">
         <div>
-          <h3 className="text-base font-semibold text-[color:var(--ui-text-primary)]">Canli siparis akisi</h3>
-          <p className="mt-1 text-xs text-[color:var(--ui-text-secondary)]">
+          <h3 className="text-base font-semibold tracking-tight text-[color:var(--ui-text-primary)]">
+            Canli siparis akisi
+          </h3>
+          <p className="mt-1 text-xs leading-relaxed text-[color:var(--ui-text-secondary)]">
             Mutfak ve servis durumlarini tek listede takip edin.
           </p>
         </div>
-        <span className="text-xs text-[color:var(--ui-text-secondary)]">Acik kuyruk: {totalQueue}</span>
+        <span className="tabular-nums text-xs font-medium text-[color:var(--ui-text-muted)]">
+          Acik kuyruk: {totalQueue}
+        </span>
       </div>
 
       {!hasAnyOrder && (

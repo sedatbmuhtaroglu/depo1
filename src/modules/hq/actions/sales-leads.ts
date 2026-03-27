@@ -25,6 +25,8 @@ import {
   TenantProvisioningError,
 } from "@/modules/hq/server/tenant-provisioning";
 import { resolveLifecycleTransitionPatch } from "@/modules/hq/server/tenant-status";
+import { packLeadLikePii, packStaffPii } from "@/lib/pii/pii-pack";
+import { resolveLeadEmail, resolveLeadPhone } from "@/lib/pii/pii-read";
 
 type ActionResult = { success: true; message: string } | { success: false; message: string };
 type ActionResultWithLead =
@@ -47,6 +49,17 @@ type ActionResultWithPasswordLink =
   | {
       success: true;
       message: string;
+      adminUsername: string;
+      setPasswordLink: string;
+      setPasswordLinkExpiresAt: string;
+      trialEndsAt: string | null;
+    }
+  | { success: false; message: string };
+type ActionResultWithTenantPasswordLink =
+  | {
+      success: true;
+      message: string;
+      tenantId: number;
       adminUsername: string;
       setPasswordLink: string;
       setPasswordLinkExpiresAt: string;
@@ -102,6 +115,77 @@ function addDays(base: Date, days: number): Date {
   return new Date(base.getTime() + days * 24 * 60 * 60 * 1000);
 }
 
+async function createFirstManagerWithSetPasswordTokenTx(input: {
+  tx: Prisma.TransactionClient;
+  tenantId: number;
+  managerUsername: string;
+  managerDisplayName: string;
+  managerEmail: string | null;
+  managerPhone: string | null;
+  createdBy: string;
+}) {
+  const existingManager = await input.tx.tenantStaff.findFirst({
+    where: { tenantId: input.tenantId, role: "MANAGER" },
+    select: { id: true },
+  });
+  if (existingManager) {
+    throw new Error("Bu tenant icin ilk yonetici zaten mevcut.");
+  }
+
+  const existingAdminUser = await input.tx.adminUser.findUnique({
+    where: { username: input.managerUsername },
+    select: { id: true },
+  });
+  if (existingAdminUser) {
+    throw new Error(
+      "Ilk yonetici kullanici adi sistemde rezerve. Baska bir ad secin.",
+    );
+  }
+
+  const randomInitialPassword = randomBytes(48).toString("base64url");
+  const passwordHash = await hashPassword(randomInitialPassword);
+  const staffPii = packStaffPii({
+    email: input.managerEmail,
+    phone: input.managerPhone,
+  });
+
+  const createdManager = await input.tx.tenantStaff.create({
+    data: {
+      tenantId: input.tenantId,
+      username: input.managerUsername,
+      passwordHash,
+      mustSetPassword: true,
+      passwordInitializedAt: null,
+      role: "MANAGER",
+      displayName: input.managerDisplayName,
+      ...staffPii,
+      isActive: true,
+      workingDays: [],
+      shiftStart: null,
+      shiftEnd: null,
+      notes: null,
+    },
+    select: {
+      id: true,
+      username: true,
+    },
+  });
+
+  const issued = await issueStaffSetPasswordToken({
+    tenantStaffId: createdManager.id,
+    createdBy: input.createdBy,
+    client: input.tx,
+  });
+
+  return {
+    managerId: createdManager.id,
+    managerUsername: createdManager.username,
+    token: issued.token,
+    tokenExpiresAt: issued.expiresAt,
+    tenantSlug: issued.tenantSlug,
+  };
+}
+
 async function appendLeadEvent(
   tx: Prisma.TransactionClient,
   input: {
@@ -153,18 +237,26 @@ export async function createSalesLeadAction(formData: FormData): Promise<ActionR
       return { success: false, message: "Gecerli bir e-posta girin." };
     }
 
+    let pii;
+    try {
+      pii = packLeadLikePii({ email, phone, contactName });
+    } catch {
+      return {
+        success: false,
+        message: "Guvenlik yapilandirmasi eksik (PII sifreleme anahtarlari). Ortam degiskenlerini kontrol edin.",
+      };
+    }
+
     const created = await prisma.$transaction(async (tx) => {
       const lead = await tx.salesLead.create({
         data: {
           businessName,
-          contactName,
-          phone,
-          email,
           city,
           notes,
           source,
           status: "NEW",
           assignedTo,
+          ...pii,
         },
         select: { id: true },
       });
@@ -209,18 +301,26 @@ export async function updateSalesLeadAction(formData: FormData): Promise<ActionR
     }
     if (!source) return { success: false, message: "Gecerli bir kaynak secin." };
 
+    let pii;
+    try {
+      pii = packLeadLikePii({ email, phone, contactName });
+    } catch {
+      return {
+        success: false,
+        message: "Guvenlik yapilandirmasi eksik (PII sifreleme anahtarlari). Ortam degiskenlerini kontrol edin.",
+      };
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       const lead = await tx.salesLead.update({
         where: { id: leadId },
         data: {
           businessName,
-          contactName,
-          phone,
-          email,
           city,
           notes,
           source,
           assignedTo,
+          ...pii,
         },
         select: { id: true, tenantId: true },
       });
@@ -345,6 +445,12 @@ export async function startLeadTrialAction(formData: FormData): Promise<ActionRe
         businessName: true,
         phone: true,
         email: true,
+        phoneEncrypted: true,
+        emailEncrypted: true,
+        emailMasked: true,
+        phoneLast4: true,
+        contactName: true,
+        contactNameEncrypted: true,
         status: true,
         tenantId: true,
       },
@@ -353,17 +459,6 @@ export async function startLeadTrialAction(formData: FormData): Promise<ActionRe
     if (lead.tenantId) return { success: false, message: "Bu lead zaten bir tenant ile bagli." };
     if (lead.status === "WON") {
       return { success: false, message: "WON lead icin yeniden trial baslatilamaz." };
-    }
-
-    const existingAdminUser = await prisma.adminUser.findUnique({
-      where: { username: managerUsername },
-      select: { id: true },
-    });
-    if (existingAdminUser) {
-      return {
-        success: false,
-        message: "Ilk yonetici kullanici adi sistemde rezerve. Baska bir ad secin.",
-      };
     }
 
     const tenantName = tenantNameInput || lead.businessName;
@@ -377,8 +472,6 @@ export async function startLeadTrialAction(formData: FormData): Promise<ActionRe
 
     const trialStartedAt = new Date();
     const trialEndsAt = addDays(trialStartedAt, trialDays);
-    const randomInitialPassword = randomBytes(48).toString("base64url");
-    const passwordHash = await hashPassword(randomInitialPassword);
 
     const created = await prisma.$transaction(async (tx) => {
       const provisioned = await provisionTenantTx(tx, {
@@ -392,33 +485,14 @@ export async function startLeadTrialAction(formData: FormData): Promise<ActionRe
         trialEndsAt,
       });
 
-      const createdManager = await tx.tenantStaff.create({
-        data: {
-          tenantId: provisioned.tenant.id,
-          username: managerUsername,
-          passwordHash,
-          mustSetPassword: true,
-          passwordInitializedAt: null,
-          role: "MANAGER",
-          displayName: managerDisplayName,
-          email: managerEmailInput ?? lead.email ?? null,
-          phone: managerPhoneInput ?? lead.phone ?? null,
-          isActive: true,
-          workingDays: [],
-          shiftStart: null,
-          shiftEnd: null,
-          notes: null,
-        },
-        select: {
-          id: true,
-          username: true,
-        },
-      });
-
-      const issued = await issueStaffSetPasswordToken({
-        tenantStaffId: createdManager.id,
+      const createdManager = await createFirstManagerWithSetPasswordTokenTx({
+        tx,
+        tenantId: provisioned.tenant.id,
+        managerUsername,
+        managerDisplayName,
+        managerEmail: managerEmailInput ?? resolveLeadEmail(lead),
+        managerPhone: managerPhoneInput ?? resolveLeadPhone(lead),
         createdBy: `hq:${hq.username}`,
-        client: tx,
       });
 
       await tx.salesLead.update({
@@ -428,7 +502,7 @@ export async function startLeadTrialAction(formData: FormData): Promise<ActionRe
           status: "TRIAL_STARTED",
           trialStartedAt,
           trialEndsAt,
-          trialAdminUsername: createdManager.username,
+          trialAdminUsername: createdManager.managerUsername,
           lostAt: null,
           lostReason: null,
         },
@@ -448,15 +522,15 @@ export async function startLeadTrialAction(formData: FormData): Promise<ActionRe
         leadId: lead.id,
         actorUsername: hq.username,
         actionType: "TRIAL_STARTED",
-        description: `tenant=${provisioned.tenant.slug}; plan=${planCode}; trialDays=${trialDays}; manager=${createdManager.username}`,
+        description: `tenant=${provisioned.tenant.slug}; plan=${planCode}; trialDays=${trialDays}; manager=${createdManager.managerUsername}`,
       });
 
       return {
         provisioned,
-        managerUsername: createdManager.username,
-        token: issued.token,
-        tokenExpiresAt: issued.expiresAt,
-        tenantSlug: issued.tenantSlug,
+        managerUsername: createdManager.managerUsername,
+        token: createdManager.token,
+        tokenExpiresAt: createdManager.tokenExpiresAt,
+        tenantSlug: createdManager.tenantSlug,
       };
     });
 
@@ -600,6 +674,243 @@ export async function regenerateLeadTrialManagerPasswordLinkAction(
       setPasswordLink,
       setPasswordLinkExpiresAt: result.tokenExpiresAt.toISOString(),
       trialEndsAt: lead.trialEndsAt ? lead.trialEndsAt.toISOString() : null,
+    };
+  } catch (error) {
+    if (error instanceof StaffSetPasswordTokenError) {
+      return { success: false, message: error.message };
+    }
+    return { success: false, message: "Set-password linki yenilenemedi." };
+  }
+}
+
+export async function createTenantFirstManagerAction(
+  formData: FormData,
+): Promise<ActionResultWithTenantPasswordLink> {
+  try {
+    const hq = await assertHqMutationGuard({ capability: "SALES_TRIAL_CONVERT" });
+    const tenantId = parseLeadId(formData.get("tenantId"));
+    if (!tenantId) return { success: false, message: "Gecersiz tenant." };
+
+    const managerDisplayName = normalizeText(formData.get("initialManagerName"), 120);
+    if (!managerDisplayName) {
+      return { success: false, message: "Ilk yonetici adi zorunlu." };
+    }
+
+    const managerUsername = normalizeStaffUsername(formData.get("initialManagerUsername"));
+    if (!managerUsername) {
+      return {
+        success: false,
+        message:
+          "Ilk yonetici kullanici adi en az 3 karakter olmali ve sadece a-z, 0-9, . _ - icerebilir.",
+      };
+    }
+
+    const managerEmailRaw = (formData.get("initialManagerEmail")?.toString() ?? "").trim();
+    const managerEmail = normalizeEmail(formData.get("initialManagerEmail"));
+    if (managerEmailRaw && !managerEmail) {
+      return { success: false, message: "Ilk yonetici icin gecerli bir e-posta girin." };
+    }
+    const managerPhone = normalizePhone(formData.get("initialManagerPhone"));
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { id: true, trialEndsAt: true },
+    });
+    if (!tenant) {
+      return { success: false, message: "Tenant bulunamadi." };
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const createdManager = await createFirstManagerWithSetPasswordTokenTx({
+        tx,
+        tenantId: tenant.id,
+        managerUsername,
+        managerDisplayName,
+        managerEmail,
+        managerPhone,
+        createdBy: `hq:${hq.username}`,
+      });
+
+      const relatedLead = await tx.salesLead.findFirst({
+        where: { tenantId: tenant.id },
+        orderBy: [{ trialStartedAt: "desc" }, { id: "desc" }],
+        select: { id: true, trialAdminUsername: true },
+      });
+
+      if (
+        relatedLead &&
+        relatedLead.trialAdminUsername !== createdManager.managerUsername
+      ) {
+        await tx.salesLead.update({
+          where: { id: relatedLead.id },
+          data: { trialAdminUsername: createdManager.managerUsername },
+        });
+        await appendLeadEvent(tx, {
+          leadId: relatedLead.id,
+          actorUsername: hq.username,
+          actionType: "TRIAL_MANAGER_CREATED_FROM_TENANT",
+          description: `manager=${createdManager.managerUsername}`,
+        });
+      }
+
+      return {
+        createdManager,
+        leadId: relatedLead?.id ?? null,
+      };
+    });
+
+    await writeAuditLog({
+      tenantId: tenant.id,
+      actor: { type: "admin", id: `hq:${hq.username}` },
+      actionType: "HQ_TENANT_FIRST_MANAGER_CREATED",
+      entityType: "TenantStaff",
+      entityId: String(result.createdManager.managerId),
+      description: `tenantId=${tenant.id}; username=${result.createdManager.managerUsername}`,
+    });
+
+    const setPasswordLink = buildStaffSetPasswordLink({
+      token: result.createdManager.token,
+      tenantSlug: result.createdManager.tenantSlug,
+    });
+
+    revalidatePath("/hq/tenants");
+    revalidatePath(`/hq/tenants/${tenant.id}`);
+    if (result.leadId) {
+      revalidatePath(`/hq/leads/${result.leadId}`);
+    }
+
+    return {
+      success: true,
+      message: "Ilk yonetici olusturuldu ve set-password linki hazirlandi.",
+      tenantId: tenant.id,
+      adminUsername: result.createdManager.managerUsername,
+      setPasswordLink,
+      setPasswordLinkExpiresAt: result.createdManager.tokenExpiresAt.toISOString(),
+      trialEndsAt: tenant.trialEndsAt ? tenant.trialEndsAt.toISOString() : null,
+    };
+  } catch (error) {
+    if (error instanceof StaffSetPasswordTokenError) {
+      return { success: false, message: error.message };
+    }
+    if (error instanceof Error && error.message) {
+      return { success: false, message: error.message };
+    }
+    return { success: false, message: "Ilk yonetici olusturulamadi." };
+  }
+}
+
+export async function regenerateTenantFirstManagerPasswordLinkAction(
+  formData: FormData,
+): Promise<ActionResultWithTenantPasswordLink> {
+  try {
+    const hq = await assertHqMutationGuard({ capability: "SALES_TRIAL_CONVERT" });
+    const tenantId = parseLeadId(formData.get("tenantId"));
+    const managerUsername = normalizeStaffUsername(formData.get("managerUsername"));
+    if (!tenantId || !managerUsername) {
+      return { success: false, message: "Gecersiz tenant veya yonetici bilgisi." };
+    }
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { id: true, trialEndsAt: true, slug: true },
+    });
+    if (!tenant) {
+      return { success: false, message: "Tenant bulunamadi." };
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const manager = await tx.tenantStaff.findFirst({
+        where: {
+          tenantId: tenant.id,
+          username: managerUsername,
+          role: "MANAGER",
+        },
+        select: {
+          id: true,
+          username: true,
+          mustSetPassword: true,
+          isActive: true,
+          tenant: { select: { slug: true } },
+        },
+      });
+
+      if (!manager) {
+        throw new StaffSetPasswordTokenError(
+          "STAFF_NOT_FOUND",
+          "Tenant icin ilk yonetici hesabi bulunamadi.",
+        );
+      }
+      if (!manager.isActive) {
+        throw new StaffSetPasswordTokenError(
+          "STAFF_INACTIVE",
+          "Ilk yonetici hesabi aktif degil.",
+        );
+      }
+
+      let forcedReset = false;
+      if (!manager.mustSetPassword) {
+        const randomInvalidPassword = randomBytes(32).toString("hex");
+        const forcedPasswordHash = await hashPassword(randomInvalidPassword);
+        await tx.tenantStaff.update({
+          where: { id: manager.id },
+          data: {
+            passwordHash: forcedPasswordHash,
+            mustSetPassword: true,
+            passwordInitializedAt: null,
+          },
+        });
+        forcedReset = true;
+      }
+
+      const issued = await issueStaffSetPasswordToken({
+        tenantStaffId: manager.id,
+        createdBy: `hq:${hq.username}`,
+        client: tx,
+      });
+
+      const relatedLead = await tx.salesLead.findFirst({
+        where: { tenantId: tenant.id },
+        orderBy: [{ trialStartedAt: "desc" }, { id: "desc" }],
+        select: { id: true },
+      });
+
+      if (relatedLead) {
+        await appendLeadEvent(tx, {
+          leadId: relatedLead.id,
+          actorUsername: hq.username,
+          actionType: "TRIAL_MANAGER_PASSWORD_LINK_REGENERATED",
+          description: `manager=${manager.username}; forcedReset=${forcedReset ? "1" : "0"}`,
+        });
+      }
+
+      return {
+        username: manager.username,
+        token: issued.token,
+        tokenExpiresAt: issued.expiresAt,
+        tenantSlug: manager.tenant.slug,
+        leadId: relatedLead?.id ?? null,
+      };
+    });
+
+    const setPasswordLink = buildStaffSetPasswordLink({
+      token: result.token,
+      tenantSlug: result.tenantSlug,
+    });
+
+    revalidatePath("/hq/tenants");
+    revalidatePath(`/hq/tenants/${tenant.id}`);
+    if (result.leadId) {
+      revalidatePath(`/hq/leads/${result.leadId}`);
+    }
+
+    return {
+      success: true,
+      message: "Yeni sifre belirleme linki olusturuldu.",
+      tenantId: tenant.id,
+      adminUsername: result.username,
+      setPasswordLink,
+      setPasswordLinkExpiresAt: result.tokenExpiresAt.toISOString(),
+      trialEndsAt: tenant.trialEndsAt ? tenant.trialEndsAt.toISOString() : null,
     };
   } catch (error) {
     if (error instanceof StaffSetPasswordTokenError) {

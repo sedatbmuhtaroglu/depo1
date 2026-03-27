@@ -2,6 +2,17 @@ import type { Prisma, SalesLeadSource, SalesLeadStatus } from "@prisma/client";
 import { resolveTenantLifecycleSnapshotFromRow } from "@/core/tenancy/lifecycle-policy";
 import { resolveTenantSetupProgress } from "@/core/tenancy/setup-progress";
 import { centsToDecimalString, decimalLikeToCents } from "@/lib/commercial-record";
+import {
+  displayContactNameForList,
+  displayEmailForList,
+  displayPhoneForList,
+  resolveLeadContactName,
+  resolveLeadEmail,
+  resolveLeadPhone,
+  resolveStaffEmail,
+  resolveStaffPhone,
+} from "@/lib/pii/pii-read";
+import { buildSalesLeadSearchOr } from "@/lib/pii/pii-search";
 import { prisma } from "@/lib/prisma";
 import {
   parseSalesLeadSource,
@@ -60,16 +71,7 @@ export async function listHqLeads(filters: HqLeadListFilters): Promise<HqLeadLis
   const where: Prisma.SalesLeadWhereInput = {
     ...(statusFilter !== "ALL" ? { status: statusFilter } : {}),
     ...(sourceFilter !== "ALL" ? { source: sourceFilter } : {}),
-    ...(search
-      ? {
-          OR: [
-            { businessName: { contains: search, mode: "insensitive" } },
-            { contactName: { contains: search, mode: "insensitive" } },
-            { email: { contains: search, mode: "insensitive" } },
-            { phone: { contains: search, mode: "insensitive" } },
-          ],
-        }
-      : {}),
+    ...(search ? { OR: buildSalesLeadSearchOr(search) } : {}),
   };
 
   const leads = await prisma.salesLead.findMany({
@@ -79,8 +81,14 @@ export async function listHqLeads(filters: HqLeadListFilters): Promise<HqLeadLis
       id: true,
       businessName: true,
       contactName: true,
+      contactNameEncrypted: true,
+      contactNameMasked: true,
       phone: true,
+      phoneEncrypted: true,
+      phoneLast4: true,
       email: true,
+      emailEncrypted: true,
+      emailMasked: true,
       source: true,
       status: true,
       createdAt: true,
@@ -98,13 +106,24 @@ export async function listHqLeads(filters: HqLeadListFilters): Promise<HqLeadLis
   });
 
   return leads.map((lead) => {
+    const row = {
+      email: lead.email,
+      emailEncrypted: lead.emailEncrypted,
+      emailMasked: lead.emailMasked,
+      phone: lead.phone,
+      phoneEncrypted: lead.phoneEncrypted,
+      phoneLast4: lead.phoneLast4,
+      contactName: lead.contactName,
+      contactNameEncrypted: lead.contactNameEncrypted,
+      contactNameMasked: lead.contactNameMasked,
+    };
     if (!lead.tenant) {
       return {
         id: lead.id,
         businessName: lead.businessName,
-        contactName: lead.contactName,
-        phone: lead.phone,
-        email: lead.email,
+        contactName: displayContactNameForList(row),
+        phone: displayPhoneForList(row),
+        email: displayEmailForList(row),
         source: lead.source,
         status: lead.status,
         createdAt: lead.createdAt,
@@ -122,9 +141,9 @@ export async function listHqLeads(filters: HqLeadListFilters): Promise<HqLeadLis
     return {
       id: lead.id,
       businessName: lead.businessName,
-      contactName: lead.contactName,
-      phone: lead.phone,
-      email: lead.email,
+      contactName: displayContactNameForList(row),
+      phone: displayPhoneForList(row),
+      email: displayEmailForList(row),
       source: lead.source,
       status: lead.status,
       createdAt: lead.createdAt,
@@ -232,8 +251,14 @@ export async function getHqLeadDetail(leadId: number): Promise<HqLeadDetail | nu
       id: true,
       businessName: true,
       contactName: true,
+      contactNameEncrypted: true,
+      contactNameMasked: true,
       phone: true,
+      phoneEncrypted: true,
+      phoneLast4: true,
       email: true,
+      emailEncrypted: true,
+      emailMasked: true,
       city: true,
       notes: true,
       source: true,
@@ -350,6 +375,10 @@ export async function getHqLeadDetail(leadId: number): Promise<HqLeadDetail | nu
           displayName: true,
           email: true,
           phone: true,
+          emailEncrypted: true,
+          emailMasked: true,
+          phoneEncrypted: true,
+          phoneLast4: true,
           mustSetPassword: true,
           passwordInitializedAt: true,
           setPasswordTokens: {
@@ -369,8 +398,8 @@ export async function getHqLeadDetail(leadId: number): Promise<HqLeadDetail | nu
         trialManagerSetup = {
           username: trialManager.username,
           displayName: trialManager.displayName,
-          email: trialManager.email,
-          phone: trialManager.phone,
+          email: resolveStaffEmail(trialManager),
+          phone: resolveStaffPhone(trialManager),
           mustSetPassword: trialManager.mustSetPassword,
           passwordInitializedAt: trialManager.passwordInitializedAt,
           latestToken: trialManager.setPasswordTokens[0] ?? null,
@@ -419,13 +448,25 @@ export async function getHqLeadDetail(leadId: number): Promise<HqLeadDetail | nu
       }
     : null;
 
+  const leadRow = {
+    email: lead.email,
+    emailEncrypted: lead.emailEncrypted,
+    emailMasked: lead.emailMasked,
+    phone: lead.phone,
+    phoneEncrypted: lead.phoneEncrypted,
+    phoneLast4: lead.phoneLast4,
+    contactName: lead.contactName,
+    contactNameEncrypted: lead.contactNameEncrypted,
+    contactNameMasked: lead.contactNameMasked,
+  };
+
   return {
     lead: {
       id: lead.id,
       businessName: lead.businessName,
-      contactName: lead.contactName,
-      phone: lead.phone,
-      email: lead.email,
+      contactName: resolveLeadContactName(leadRow),
+      phone: resolveLeadPhone(leadRow),
+      email: resolveLeadEmail(leadRow),
       city: lead.city,
       notes: lead.notes,
       source: lead.source,

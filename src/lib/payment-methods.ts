@@ -1,6 +1,7 @@
 import type { PaymentMethod, PaymentGatewayProvider } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getIyzicoEnabledForTenant } from "@/lib/iyzico-config";
+import { hasFeature } from "@/core/entitlements/engine";
 
 export type CustomerPaymentMethod =
   | "CASH"
@@ -61,7 +62,7 @@ export function isCustomerPaymentMethodEnabled(
 export async function getTenantCustomerPaymentMethods(
   tenantId: number,
 ): Promise<TenantCustomerPaymentMethods> {
-  const [methods, iyzico] = await Promise.all([
+  const [methods, iyzicoConfigEnabled, iyzicoFeatureEnabled] = await Promise.all([
     prisma.tenantPaymentMethod.findMany({
       where: {
         tenantId,
@@ -73,11 +74,14 @@ export async function getTenantCustomerPaymentMethods(
       },
     }),
     getIyzicoEnabledForTenant(tenantId),
+    hasFeature(tenantId, "ONLINE_PAYMENT_IYZICO"),
   ]);
 
   const cash = methods.find((m) => m.method === "CASH")?.isActive ?? false;
   const creditCard =
     methods.find((m) => m.method === "CREDIT_CARD")?.isActive ?? false;
+
+  const iyzico = iyzicoConfigEnabled && iyzicoFeatureEnabled;
 
   return {
     cash,

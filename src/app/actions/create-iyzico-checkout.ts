@@ -13,6 +13,7 @@ import {
   resolveClientIpFromHeaders,
 } from "@/lib/security/payment-rate-limit";
 import { logServerError } from "@/lib/server-error-log";
+import { hasFeature } from "@/core/entitlements/engine";
 
 export async function createIyzicoCheckout(options: {
   billRequestId: number;
@@ -30,6 +31,14 @@ export async function createIyzicoCheckout(options: {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+
+    const onlinePaymentEnabled = await hasFeature(tenantId, "ONLINE_PAYMENT_IYZICO");
+    if (!onlinePaymentEnabled) {
+      return {
+        success: false,
+        message: "Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.",
+      };
     }
 
     const iyzicoConfig = await getIyzicoConfigForTenant(tenantId);

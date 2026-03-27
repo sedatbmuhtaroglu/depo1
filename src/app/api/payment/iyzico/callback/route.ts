@@ -9,6 +9,7 @@ import {
   assertPaymentCallbackAbuseGuard,
   resolveClientIpFromHeaders,
 } from "@/lib/security/payment-rate-limit";
+import { hasFeature } from "@/core/entitlements/engine";
 
 const WAITER_URL = "/waiter";
 
@@ -81,6 +82,17 @@ async function handleIyzicoCallback(request: NextRequest, token: string | null) 
 
   if (!intent) {
     return NextResponse.redirect(buildWaiterRedirectUrl(base, { status: "error", reason: "invalid_token" }));
+  }
+
+  const onlinePaymentEnabled = await hasFeature(intent.tenantId, "ONLINE_PAYMENT_IYZICO");
+  if (!onlinePaymentEnabled) {
+    await prisma.paymentIntent.update({
+      where: { id: intent.id },
+      data: { status: "FAILED" },
+    });
+    return NextResponse.redirect(
+      buildWaiterRedirectUrl(base, { status: "error", reason: "online_payment_disabled" }),
+    );
   }
 
   if (token.startsWith("mock_")) {

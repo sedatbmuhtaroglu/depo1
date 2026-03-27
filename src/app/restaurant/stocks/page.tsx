@@ -1,6 +1,8 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
+import { cardClasses } from "@/lib/ui/button-variants";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 import StocksManager from "./stocks-manager";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +11,15 @@ const LOW_STOCK_THRESHOLD = 5;
 
 export default async function RestaurantStocksPage() {
   const { tenantId } = await getCurrentTenantOrThrow();
+  const featureGate = await ensureTenantFeatureEnabled(tenantId, "STOCK_MANAGEMENT");
+  if (!featureGate.ok) {
+    return (
+      <section className={cardClasses({ className: "p-5 text-center" })}>
+        <h2 className="text-lg font-semibold text-[var(--ui-text-primary)]">Ozellik Kilitli</h2>
+        <p className="mt-2 text-sm text-[var(--ui-text-secondary)]">{featureGate.message}</p>
+      </section>
+    );
+  }
 
   const [products, categories] = await Promise.all([
     prisma.product.findMany({

@@ -9,6 +9,7 @@ import {
 } from "@/lib/cash-register";
 import { cardClasses } from "@/lib/ui/button-variants";
 import { getTurkeyDateString } from "@/lib/turkey-time";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 import CashRegisterView from "./cash-register-view";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,15 @@ type CashRegisterPageProps = {
 
 export default async function CashRegisterPage({ searchParams }: CashRegisterPageProps) {
   const { tenantId } = await getCurrentTenantOrThrow();
+  const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+  if (!featureGate.ok) {
+    return (
+      <section className={cardClasses({ className: "p-5 text-center" })}>
+        <h2 className="text-lg font-semibold text-[var(--ui-text-primary)]">Ozellik Kilitli</h2>
+        <p className="mt-2 text-sm text-[var(--ui-text-secondary)]">{featureGate.message}</p>
+      </section>
+    );
+  }
   const params = (await searchParams) ?? {};
 
   const restaurants = await prisma.restaurant.findMany({

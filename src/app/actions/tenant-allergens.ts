@@ -8,6 +8,7 @@ import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { logServerError } from "@/lib/server-error-log";
 import { assertPrivilegedServerActionOrigin } from "@/lib/server-action-guard";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 const MAX_ALLERGEN_NAME_LENGTH = 80;
 
@@ -32,6 +33,8 @@ export async function createTenantAllergen(input: {
     const { username, tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false, message: "Yetkisiz." };
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "STOCK_MANAGEMENT");
+    if (!featureGate.ok) return { success: false, message: featureGate.message };
 
     const name = normalizeAllergenName(input.name ?? "");
     if (!name) {
@@ -83,6 +86,8 @@ export async function updateTenantAllergen(
     const { username, tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false, message: "Yetkisiz." };
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "STOCK_MANAGEMENT");
+    if (!featureGate.ok) return { success: false, message: featureGate.message };
 
     const existing = await prisma.tenantAllergen.findFirst({
       where: { id: allergenId, tenantId },
@@ -147,6 +152,8 @@ export async function deleteTenantAllergen(allergenId: number) {
     const { username, tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false, message: "Yetkisiz." };
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "STOCK_MANAGEMENT");
+    if (!featureGate.ok) return { success: false, message: featureGate.message };
 
     const existing = await prisma.tenantAllergen.findFirst({
       where: { id: allergenId, tenantId },

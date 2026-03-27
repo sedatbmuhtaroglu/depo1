@@ -10,6 +10,110 @@ import { assertTenantLimit, isTenantLimitExceededError } from "@/lib/tenant-limi
 import { assertProductCreateCapability } from "@/lib/product-visibility";
 import { logServerError } from "@/lib/server-error-log";
 import { assertPrivilegedServerActionOrigin } from "@/lib/server-action-guard";
+import { FEATURE_LOCKED_MESSAGE } from "@/lib/tenant-feature-enforcement";
+import { hasFeature } from "@/core/entitlements/engine";
+import {
+  isProductAllergen,
+  isProductComplianceStatus,
+  normalizeOptionalComplianceText,
+  type ProductAllergenValue,
+  type ProductComplianceStatusValue,
+} from "@/lib/product-compliance";
+
+type ProductComplianceInput = {
+  basicIngredients?: string | null;
+  caloriesKcal?: number | null;
+  allergens?: string[] | null;
+  customAllergens?: string[] | null;
+  alcoholStatus?: string | null;
+  porkStatus?: string | null;
+  crossContaminationNote?: string | null;
+};
+
+function normalizeComplianceInput(
+  complianceInfo: ProductComplianceInput | undefined,
+): {
+  hasAnyValue: boolean;
+  data: {
+    basicIngredients: string | null;
+    caloriesKcal: number | null;
+    allergens: ProductAllergenValue[];
+    customAllergens: string[];
+    alcoholStatus: ProductComplianceStatusValue;
+    porkStatus: ProductComplianceStatusValue;
+    crossContaminationNote: string | null;
+  };
+} {
+  const normalizedAllergens = Array.from(
+    new Set((complianceInfo?.allergens ?? []).filter((value) => isProductAllergen(value))),
+  );
+  const normalizedCustomAllergens = Array.from(
+    new Set(
+      (complianceInfo?.customAllergens ?? [])
+        .map((value) => (typeof value === "string" ? value.trim() : ""))
+        .filter(Boolean),
+    ),
+  ).slice(0, 50);
+  const normalizedCaloriesRaw =
+    complianceInfo?.caloriesKcal === null || complianceInfo?.caloriesKcal === undefined
+      ? null
+      : Number(complianceInfo.caloriesKcal);
+  const normalizedCalories =
+    normalizedCaloriesRaw === null
+      ? null
+      : Number.isFinite(normalizedCaloriesRaw)
+        ? Math.max(0, Math.floor(normalizedCaloriesRaw))
+        : null;
+  const alcoholStatus = isProductComplianceStatus(complianceInfo?.alcoholStatus)
+    ? complianceInfo!.alcoholStatus
+    : "UNSPECIFIED";
+  const porkStatus = isProductComplianceStatus(complianceInfo?.porkStatus)
+    ? complianceInfo!.porkStatus
+    : "UNSPECIFIED";
+  const basicIngredients = normalizeOptionalComplianceText(
+    complianceInfo?.basicIngredients,
+    1200,
+  );
+  const crossContaminationNote = normalizeOptionalComplianceText(
+    complianceInfo?.crossContaminationNote,
+    1200,
+  );
+
+  const hasAnyValue =
+    Boolean(basicIngredients) ||
+    Boolean(crossContaminationNote) ||
+    normalizedCalories !== null ||
+    normalizedAllergens.length > 0 ||
+    normalizedCustomAllergens.length > 0 ||
+    alcoholStatus !== "UNSPECIFIED" ||
+    porkStatus !== "UNSPECIFIED";
+
+  return {
+    hasAnyValue,
+    data: {
+      basicIngredients,
+      caloriesKcal: normalizedCalories,
+      allergens: normalizedAllergens,
+      customAllergens: normalizedCustomAllergens,
+      alcoholStatus,
+      porkStatus,
+      crossContaminationNote,
+    },
+  };
+}
+
+async function ensureMenuProductAccess(
+  tenantId: number,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const [menuEnabled, qrOrderingEnabled] = await Promise.all([
+    hasFeature(tenantId, "MENU"),
+    hasFeature(tenantId, "QR_ORDERING"),
+  ]);
+  if (!menuEnabled && !qrOrderingEnabled) {
+    return { ok: false, message: FEATURE_LOCKED_MESSAGE };
+  }
+  return { ok: true };
+}
 
 export async function createProduct(data: {
   categoryId: number;
@@ -32,12 +136,15 @@ export async function createProduct(data: {
   stockQuantity?: number;
   tags?: string[];
   options?: unknown;
+  complianceInfo?: ProductComplianceInput;
 }) {
   try {
     await assertPrivilegedServerActionOrigin();
     const { username, tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false, message: "Yetkisiz." };
+    const featureGate = await ensureMenuProductAccess(tenantId);
+    if (!featureGate.ok) return { success: false, message: featureGate.message };
 
     const normalizeSortOrder = (raw: unknown): number => {
       if (raw === undefined || raw === null) return 0;
@@ -114,6 +221,12 @@ export async function createProduct(data: {
       tags: data.tags ?? undefined,
       options: data.options ?? undefined,
     };
+    const normalizedComplianceInfo = normalizeComplianceInput(data.complianceInfo);
+    if (normalizedComplianceInfo.hasAnyValue) {
+      createData.complianceInfo = {
+        create: normalizedComplianceInfo.data,
+      };
+    }
 
     if (supportsStockFields) {
       createData.trackStock = data.trackStock ?? false;
@@ -189,6 +302,7 @@ export async function updateProduct(
     stockQuantity?: number;
     tags?: string[] | null;
     options?: unknown;
+    complianceInfo?: ProductComplianceInput;
   },
 ) {
   try {
@@ -196,6 +310,8 @@ export async function updateProduct(
     const { username, tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false, message: "Yetkisiz." };
+    const featureGate = await ensureMenuProductAccess(tenantId);
+    if (!featureGate.ok) return { success: false, message: featureGate.message };
 
     const p = await prisma.product.findFirst({
       where: { id: productId, category: { restaurant: { tenantId } } },
@@ -294,7 +410,24 @@ export async function updateProduct(
 
     await prisma.product.update({
       where: { id: productId },
-      data: update as Prisma.ProductUncheckedUpdateInput,
+      data:
+        data.complianceInfo === undefined
+          ? (update as Prisma.ProductUncheckedUpdateInput)
+          : ({
+              ...(update as Prisma.ProductUncheckedUpdateInput),
+              complianceInfo: (() => {
+                const normalizedComplianceInfo = normalizeComplianceInput(data.complianceInfo);
+                if (!normalizedComplianceInfo.hasAnyValue) {
+                  return { deleteMany: {} };
+                }
+                return {
+                  upsert: {
+                    create: normalizedComplianceInfo.data,
+                    update: normalizedComplianceInfo.data,
+                  },
+                };
+              })(),
+            } as Prisma.ProductUncheckedUpdateInput),
     });
 
     await writeAuditLog({
@@ -323,6 +456,8 @@ export async function deleteProduct(productId: number) {
     const { username, tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false, message: "Yetkisiz." };
+    const featureGate = await ensureMenuProductAccess(tenantId);
+    if (!featureGate.ok) return { success: false, message: featureGate.message };
 
     const p = await prisma.product.findFirst({
       where: { id: productId, category: { restaurant: { tenantId } } },
@@ -359,6 +494,8 @@ export async function bulkUpdatePrices(options: {
     const { username, tenantId } = await requireManagerSession();
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) return { success: false, message: "Yetkisiz.", count: 0 };
+    const featureGate = await ensureMenuProductAccess(tenantId);
+    if (!featureGate.ok) return { success: false, message: featureGate.message, count: 0 };
 
     const products = await prisma.product.findMany({
       where:

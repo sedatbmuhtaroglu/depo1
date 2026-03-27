@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import {
   buttonClasses,
   fieldClasses,
@@ -10,10 +10,16 @@ import {
   textareaClasses,
 } from "@/lib/ui/button-variants";
 import { createBlogPostAction, updateBlogPostAction } from "@/modules/hq/actions/content";
-import { CmsRichTextEditor } from "@/modules/hq/components/cms-rich-text-editor";
+import { RichTextEditor } from "@/components/editor";
 import { ContentPreviewLinkGenerator } from "@/modules/hq/components/content-preview-link-generator";
 import { MediaPickerField } from "@/modules/hq/components/media-picker-field";
 import { type SeoEditorState, SeoEditorPanel } from "@/modules/hq/components/seo-editor-panel";
+import { StickySaveBar, useFormDirtyState } from "@/modules/hq/components/sticky-save-bar";
+import { ContentEmbedBlocksSection } from "@/modules/hq/components/content-embed-blocks-section";
+import {
+  parseStoredEmbedBlocksForEditor,
+  type ContentEmbedBlockDraft,
+} from "@/modules/content/shared/embed-blocks";
 import { slugify } from "@/modules/content/shared/slug";
 
 type BlogPostFormInitial = {
@@ -36,6 +42,7 @@ type BlogPostFormInitial = {
   robotsIndex?: boolean;
   robotsFollow?: boolean;
   focusKeyword?: string | null;
+  embedBlocks?: unknown;
 };
 
 type CategoryOption = {
@@ -89,12 +96,16 @@ function buildSeoState(initial?: BlogPostFormInitial): SeoEditorState {
 }
 
 export function ContentBlogPostForm({ mode, baseUrl, categories, initial, mediaAssets }: ContentBlogPostFormProps) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [title, setTitle] = useState(initial?.title ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(initial?.slug));
   const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">(initial?.status ?? "DRAFT");
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
   const [contentHtml, setContentHtml] = useState(initial?.contentHtml ?? "");
+  const [embedBlocks, setEmbedBlocks] = useState<ContentEmbedBlockDraft[]>(() =>
+    parseStoredEmbedBlocksForEditor(initial?.embedBlocks),
+  );
   const [featuredImageUrl, setFeaturedImageUrl] = useState(initial?.featuredImageUrl ?? "");
   const [authorName, setAuthorName] = useState(initial?.authorName ?? "");
   const [categoryId, setCategoryId] = useState(
@@ -126,9 +137,54 @@ export function ContentBlogPostForm({ mode, baseUrl, categories, initial, mediaA
     mode === "edit" && initial?.id
       ? `/hq/content/blog/${initial.id}/preview`
       : previewPath;
+  const { isDirty, markCurrentAsClean } = useFormDirtyState(formRef, [
+    title,
+    resolvedSlug,
+    status,
+    excerpt,
+    featuredImageUrl,
+    authorName,
+    categoryId,
+    tags,
+    contentHtml,
+    JSON.stringify(embedBlocks),
+    seo,
+    createSlugRedirect,
+  ]);
+
+  useEffect(() => {
+    if (state.ok) {
+      markCurrentAsClean();
+    }
+  }, [markCurrentAsClean, state.ok]);
 
   return (
-    <form action={action} className="space-y-4">
+    <form ref={formRef} action={action} className="space-y-4">
+      <input type="hidden" name="createSlugRedirect" value={createSlugRedirect ? "true" : "false"} readOnly />
+      <StickySaveBar
+        saveLabel={mode === "create" ? "Yaziyi Olustur" : "Degisiklikleri Kaydet"}
+        isPending={isPending}
+        isDirty={isDirty}
+        message={state.message}
+        isMessageSuccess={state.ok}
+        actions={
+          <>
+            {mode === "edit" ? (
+              <label className="flex items-center gap-2 text-xs text-[var(--ui-text-secondary)] sm:text-sm">
+                <input
+                  type="checkbox"
+                  checked={createSlugRedirect}
+                  onChange={(event) => setCreateSlugRedirect(event.target.checked)}
+                />
+                Slug degisirse otomatik redirect olustur
+              </label>
+            ) : null}
+            <Link href={previewLink} className={buttonClasses({ variant: "outline", size: "sm" })}>
+              Preview
+            </Link>
+          </>
+        }
+      />
       {mode === "edit" && initial?.id ? <input type="hidden" name="id" value={String(initial.id)} /> : null}
 
       <section className="grid gap-3 rounded-2xl border border-[var(--ui-border)] p-4 md:grid-cols-2">
@@ -230,13 +286,22 @@ export function ContentBlogPostForm({ mode, baseUrl, categories, initial, mediaA
         </div>
 
         <div className="md:col-span-2">
-          <CmsRichTextEditor
+          <RichTextEditor
             label="Icerik"
             value={contentHtml}
             onChange={setContentHtml}
-            minHeightClassName="min-h-[320px]"
+            minHeight="320px"
+            hiddenInputName="contentHtml"
+            showCount
           />
-          <input type="hidden" name="contentHtml" value={contentHtml} readOnly />
+        </div>
+
+        <div className="md:col-span-2">
+          <ContentEmbedBlocksSection
+            blocks={embedBlocks}
+            onChange={setEmbedBlocks}
+            hiddenInputName="embedBlocksJson"
+          />
         </div>
       </section>
 
@@ -261,33 +326,6 @@ export function ContentBlogPostForm({ mode, baseUrl, categories, initial, mediaA
         mediaAssets={mediaAssets}
         featuredImageUrl={featuredImageUrl}
       />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <input type="hidden" name="createSlugRedirect" value={createSlugRedirect ? "true" : "false"} readOnly />
-        {mode === "edit" ? (
-          <label className="flex items-center gap-2 text-sm text-[var(--ui-text-secondary)]">
-            <input
-              type="checkbox"
-              checked={createSlugRedirect}
-              onChange={(event) => setCreateSlugRedirect(event.target.checked)}
-            />
-            Slug degisirse otomatik redirect olustur
-          </label>
-        ) : null}
-        <button type="submit" disabled={isPending} className={buttonClasses({ variant: "primary" })}>
-          {isPending
-            ? "Kaydediliyor..."
-            : mode === "create"
-              ? "Yaziyi Olustur"
-              : "Degisiklikleri Kaydet"}
-        </button>
-        <Link href={previewLink} className={buttonClasses({ variant: "outline" })}>
-          Preview
-        </Link>
-        {state.message ? (
-          <p className={`text-sm ${state.ok ? "text-emerald-700" : "text-rose-700"}`}>{state.message}</p>
-        ) : null}
-      </div>
 
       <ContentPreviewLinkGenerator
         targetType="BLOG_POST"

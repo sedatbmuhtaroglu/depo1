@@ -2,6 +2,7 @@ import React from "react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { redirect } from "next/navigation";
+import { getTenantEntitlements } from "@/core/entitlements/engine";
 import { STAFF_VISIBLE_ORDER_FILTER } from "@/lib/order-payment-visibility";
 import { getTenantLimitUsageSummary } from "@/lib/tenant-limits";
 import { getTableBillingSnapshot } from "@/lib/table-billing";
@@ -21,6 +22,7 @@ export default async function RestaurantTablesPage() {
     openBillRequests,
     openWaiterCalls,
     blockedSessions,
+    entitlements,
   ] = await Promise.all([
     prisma.restaurant.findMany({
       where: { tenantId },
@@ -63,6 +65,7 @@ export default async function RestaurantTablesPage() {
       },
       select: { tableId: true },
     }),
+    getTenantEntitlements(tenantId),
   ]);
 
   const tableIdsWithActiveOrders = new Set(activeOrdersByTable.map((g) => g.tableId));
@@ -128,6 +131,7 @@ export default async function RestaurantTablesPage() {
         </div>
       </section>
       <TableManager
+        enabledFeatures={Array.from(entitlements.features)}
         restaurants={restaurants}
         tables={tables.map((t) => ({
           id: t.id,

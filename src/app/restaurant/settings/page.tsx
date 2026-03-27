@@ -70,15 +70,13 @@ export default async function RestaurantSettingsPage() {
   });
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <section className={cardClasses({ className: "p-5 shadow-none" })}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--ui-text-secondary)]">
-              Restoran Konfigürasyon Merkezi
-            </p>
-            <h2 className="mt-1 text-xl font-semibold text-[color:var(--ui-text-primary)]">Ayarlar</h2>
-            <p className="mt-1 text-sm text-[color:var(--ui-text-secondary)]">
+            <p className="rm-section-intro-eyebrow">Restoran Konfigürasyon Merkezi</p>
+            <h2 className="rm-section-intro-title">Ayarlar</h2>
+            <p className="rm-section-intro-desc">
               Genel bilgiler, marka varlıkları ve operasyon ayarlarını tek ekrandan yönetin.
             </p>
           </div>

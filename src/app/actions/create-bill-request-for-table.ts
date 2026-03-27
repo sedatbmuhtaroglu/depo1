@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireCashierWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 /** Masadan kart ile ödeme için hesap isteği oluşturur (iyzico akışında kullanılır). */
 export async function createBillRequestForTable(tableId: number) {
@@ -11,6 +12,10 @@ export async function createBillRequestForTable(tableId: number) {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz.", billRequestId: null };
+    }
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+    if (!featureGate.ok) {
+      return { success: false, message: featureGate.message, billRequestId: null };
     }
 
     const table = await prisma.table.findFirst({

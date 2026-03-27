@@ -10,6 +10,7 @@ import {
 } from "@/lib/security/payment-rate-limit";
 import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
+import { hasFeature } from "@/core/entitlements/engine";
 
 function buildOrderResultUrl(params: {
   base: string;
@@ -191,6 +192,23 @@ async function handleOrderCallback(
         orderId: order.id,
         status: "error",
         reason: "tenant_missing",
+        paymentReference: order.paymentReference ?? null,
+      }),
+    );
+  }
+
+  const onlinePaymentEnabled = await hasFeature(tenantId, "ONLINE_PAYMENT_IYZICO");
+  if (!onlinePaymentEnabled) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { paymentStatus: "FAILED" },
+    });
+    return NextResponse.redirect(
+      buildOrderResultUrl({
+        base,
+        orderId: order.id,
+        status: "error",
+        reason: "online_payment_disabled",
         paymentReference: order.paymentReference ?? null,
       }),
     );

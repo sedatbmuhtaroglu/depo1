@@ -1,3 +1,4 @@
+import type { MarketingSubmissionSource } from "@prisma/client";
 import Link from "next/link";
 import { cardClasses, fieldClasses, selectClasses } from "@/lib/ui/button-variants";
 import { listMarketingSubmissions } from "@/modules/hq/server/marketing-queries";
@@ -14,6 +15,21 @@ function getStatusLabel(status: "RECEIVED" | "LEAD_CREATED" | "LEAD_CREATE_FAILE
   if (status === "LEAD_CREATED") return "Lead Olustu";
   if (status === "LEAD_CREATE_FAILED") return "Lead Baglanamadi";
   return "Spam / Reddedildi";
+}
+
+function getSourceLabel(source: MarketingSubmissionSource) {
+  if (source === "LANDING_HOMEPAGE") return "Landing ana sayfa";
+  if (source === "LANDING_CTA") return "Landing CTA";
+  if (source === "LANDING_FOOTER") return "Landing alt bilgi";
+  if (source === "LANDING_PUBLIC_CONTACT") return "Iletisim formu";
+  return source;
+}
+
+function truncateNote(text: string | null, max = 100) {
+  if (!text) return "—";
+  const t = text.replace(/\s+/g, " ").trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max)}…`;
 }
 
 export default async function HqMarketingSubmissionsPage({
@@ -42,7 +58,7 @@ export default async function HqMarketingSubmissionsPage({
             type="text"
             name="q"
             defaultValue={params.q ?? ""}
-            placeholder="Isletme, kisi, telefon, e-posta ara"
+            placeholder="Ad, isletme, telefon, not ara"
             className={fieldClasses()}
           />
           <select name="status" defaultValue={params.status ?? ""} className={selectClasses()}>
@@ -72,8 +88,9 @@ export default async function HqMarketingSubmissionsPage({
                   <th className="px-4 py-3">Tarih</th>
                   <th className="px-4 py-3">Kaynak</th>
                   <th className="px-4 py-3">Durum</th>
-                  <th className="px-4 py-3">Isletme / Kisi</th>
+                  <th className="px-4 py-3">Ad / Isletme</th>
                   <th className="px-4 py-3">Iletisim</th>
+                  <th className="px-4 py-3">Not</th>
                   <th className="px-4 py-3">Lead</th>
                 </tr>
               </thead>
@@ -85,7 +102,7 @@ export default async function HqMarketingSubmissionsPage({
                       <p className="text-xs text-[var(--ui-text-secondary)]">#{submission.id}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-medium">{submission.source}</p>
+                      <p className="font-medium">{getSourceLabel(submission.source)}</p>
                     </td>
                     <td className="px-4 py-3">
                       <p className="font-medium">{getStatusLabel(submission.status)}</p>
@@ -94,8 +111,8 @@ export default async function HqMarketingSubmissionsPage({
                       ) : null}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-medium">{submission.businessName}</p>
-                      <p className="text-xs text-[var(--ui-text-secondary)]">{submission.contactName}</p>
+                      <p className="font-medium">{submission.contactName}</p>
+                      <p className="text-xs text-[var(--ui-text-secondary)]">{submission.businessName}</p>
                       {submission.city ? (
                         <p className="text-xs text-[var(--ui-text-secondary)]">{submission.city}</p>
                       ) : null}
@@ -103,6 +120,14 @@ export default async function HqMarketingSubmissionsPage({
                     <td className="px-4 py-3">
                       <p className="text-xs text-[var(--ui-text-secondary)]">{submission.phone ?? "-"}</p>
                       <p className="text-xs text-[var(--ui-text-secondary)]">{submission.email ?? "-"}</p>
+                    </td>
+                    <td className="px-4 py-3 max-w-[220px]">
+                      <p
+                        className="text-xs text-[var(--ui-text-secondary)] line-clamp-3 whitespace-pre-wrap"
+                        title={submission.message ?? undefined}
+                      >
+                        {truncateNote(submission.message)}
+                      </p>
                     </td>
                     <td className="px-4 py-3">
                       {submission.leadId ? (

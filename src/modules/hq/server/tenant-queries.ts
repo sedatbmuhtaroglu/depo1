@@ -269,6 +269,11 @@ export type HqTenantDetail = {
     setupStep: string | null;
     planCode: string;
     planName: string;
+    planFeatureCodes: string[];
+    planLimits: Array<{
+      resource: string;
+      limit: number | null;
+    }>;
     trialStartedAt: Date | null;
     trialEndsAt: Date | null;
   };
@@ -279,6 +284,18 @@ export type HqTenantDetail = {
     trialEndsAt: Date | null;
   };
   trialManagerSetup: null | {
+    username: string;
+    displayName: string | null;
+    mustSetPassword: boolean;
+    passwordInitializedAt: Date | null;
+    latestToken: null | {
+      createdAt: Date;
+      expiresAt: Date;
+      consumedAt: Date | null;
+      revokedAt: Date | null;
+    };
+  };
+  firstManagerSetup: null | {
     username: string;
     displayName: string | null;
     mustSetPassword: boolean;
@@ -360,6 +377,14 @@ export async function getHqTenantDetail(tenantId: number): Promise<HqTenantDetai
         select: {
           code: true,
           name: true,
+          planFeatures: {
+            select: {
+              feature: { select: { code: true } },
+            },
+          },
+          planLimits: {
+            select: { resource: true, limit: true },
+          },
         },
       },
       domains: {
@@ -454,6 +479,29 @@ export async function getHqTenantDetail(tenantId: number): Promise<HqTenantDetai
       },
     }),
   ]);
+  const firstManager = await prisma.tenantStaff.findFirst({
+    where: {
+      tenantId: tenant.id,
+      role: "MANAGER",
+    },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    select: {
+      username: true,
+      displayName: true,
+      mustSetPassword: true,
+      passwordInitializedAt: true,
+      setPasswordTokens: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          createdAt: true,
+          expiresAt: true,
+          consumedAt: true,
+          revokedAt: true,
+        },
+      },
+    },
+  });
 
   let trialManagerSetup: HqTenantDetail["trialManagerSetup"] = null;
   if (trialLead?.trialAdminUsername) {
@@ -490,6 +538,15 @@ export async function getHqTenantDetail(tenantId: number): Promise<HqTenantDetai
       };
     }
   }
+  const firstManagerSetup: HqTenantDetail["firstManagerSetup"] = firstManager
+    ? {
+        username: firstManager.username,
+        displayName: firstManager.displayName,
+        mustSetPassword: firstManager.mustSetPassword,
+        passwordInitializedAt: firstManager.passwordInitializedAt,
+        latestToken: firstManager.setPasswordTokens[0] ?? null,
+      }
+    : null;
 
   const lifecycle = resolveTenantLifecycleSnapshotFromRow({
     tenantId: tenant.id,
@@ -543,6 +600,11 @@ export async function getHqTenantDetail(tenantId: number): Promise<HqTenantDetai
       setupStep: tenant.setupProgress?.currentStep ?? null,
       planCode: String(tenant.plan.code),
       planName: tenant.plan.name,
+      planFeatureCodes: tenant.plan.planFeatures.map((row) => String(row.feature.code)),
+      planLimits: tenant.plan.planLimits.map((row) => ({
+        resource: String(row.resource),
+        limit: row.limit,
+      })),
       trialStartedAt: tenant.trialStartedAt,
       trialEndsAt: tenant.trialEndsAt,
     },
@@ -555,6 +617,7 @@ export async function getHqTenantDetail(tenantId: number): Promise<HqTenantDetai
         }
       : null,
     trialManagerSetup,
+    firstManagerSetup,
     commercialSummary,
     domains: tenant.domains.map((domain) => ({
       id: domain.id,

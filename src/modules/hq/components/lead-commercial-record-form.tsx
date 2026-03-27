@@ -27,7 +27,8 @@ type CommercialRecordLike = {
 };
 
 type LeadCommercialRecordFormProps = {
-  leadId: number;
+  leadId?: number | null;
+  tenantId?: number | null;
   currentRecord: CommercialRecordLike | null;
 };
 
@@ -61,6 +62,7 @@ function toDateTimeLocalValue(value: Date | null | undefined): string {
 
 export function LeadCommercialRecordForm({
   leadId,
+  tenantId,
   currentRecord,
 }: LeadCommercialRecordFormProps) {
   const [state, action, isPending] = useActionState(
@@ -76,7 +78,8 @@ export function LeadCommercialRecordForm({
 
   return (
     <form action={action} className="space-y-3">
-      <input type="hidden" name="leadId" value={leadId} />
+      {leadId ? <input type="hidden" name="leadId" value={leadId} /> : null}
+      {tenantId ? <input type="hidden" name="tenantId" value={tenantId} /> : null}
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1">
           <label className={labelClasses()}>Satis Tipi</label>

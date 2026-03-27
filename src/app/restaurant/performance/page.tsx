@@ -6,6 +6,7 @@ import { getTurkeyDateString, getTurkeyDayRange } from "@/lib/turkey-time";
 import { formatStaffDisplayName } from "@/lib/person-display-name";
 import { badgeClasses, cardClasses } from "@/lib/ui/button-variants";
 import PerformanceView from "./performance-view";
+import { hasFeature } from "@/core/entitlements/engine";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,17 @@ export default async function RestaurantPerformancePage({
 }) {
   await requireManagerSession();
   const { tenantId } = await getCurrentTenantOrThrow();
+  const performanceEnabled = await hasFeature(tenantId, "STAFF_PERFORMANCE");
+  if (!performanceEnabled) {
+    return (
+      <section className={cardClasses({ className: "p-5 text-center" })}>
+        <h2 className="text-lg font-semibold text-[var(--ui-text-primary)]">Ozellik Kilitli</h2>
+        <p className="mt-2 text-sm text-[var(--ui-text-secondary)]">
+          Bu ozellige erismek icin lutfen Catal App ile iletisime gecin.
+        </p>
+      </section>
+    );
+  }
   const params = await searchParams;
 
   const todayTurkeyDate = getTurkeyDateString();

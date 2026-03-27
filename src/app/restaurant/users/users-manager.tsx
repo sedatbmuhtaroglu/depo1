@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -464,7 +464,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="edit-user-modal-title"
-            className="grid max-h-[min(92dvh,92vh)] w-full max-w-xl grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-bg)] shadow-none dark:border-neutral-700 dark:bg-neutral-900"
+            className="grid max-h-[min(92dvh,92vh)] w-full max-w-xl grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-bg)] shadow-none"
             onClick={(e) => e.stopPropagation()}
           >
             <form
@@ -492,11 +492,11 @@ export default function UsersManager({ users }: UsersManagerProps) {
                 });
               }}
             >
-              <div className="shrink-0 border-b border-[color:var(--ui-border)] px-3.5 py-3 sm:px-4 dark:border-neutral-700">
-                <h4 id="edit-user-modal-title" className="text-base font-semibold text-[color:var(--ui-text-primary)] dark:text-neutral-100">
+              <div className="shrink-0 border-b border-[color:var(--ui-border)] px-3.5 py-3 sm:px-4">
+                <h4 id="edit-user-modal-title" className="text-base font-semibold text-[color:var(--ui-text-primary)]">
                   Kullanıcı Düzenle
                 </h4>
-                <p className="mt-1 text-xs leading-relaxed text-[color:var(--ui-text-secondary)] dark:text-neutral-400">
+                <p className="mt-1 text-xs leading-relaxed text-[color:var(--ui-text-secondary)]">
                   Aktiflik, rol, haftalık vardiya programı ve not alanlarını güncelleyin.
                 </p>
               </div>
@@ -504,7 +504,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
               <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-3.5 py-3 sm:px-4">
                 <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                   <div className="min-w-0 sm:col-span-1">
-                    <label className="mb-1 block text-xs font-medium text-[color:var(--ui-text-secondary)] dark:text-neutral-400">Ad soyad</label>
+                    <label className="mb-1 block text-xs font-medium text-[color:var(--ui-text-secondary)]">Ad soyad</label>
                     <input
                       name="displayName"
                       defaultValue={editTarget.displayName ?? ""}
@@ -513,7 +513,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
                     />
                   </div>
                   <div className="min-w-0 sm:col-span-1">
-                    <label className="mb-1 block text-xs font-medium text-[color:var(--ui-text-secondary)] dark:text-neutral-400">Rol</label>
+                    <label className="mb-1 block text-xs font-medium text-[color:var(--ui-text-secondary)]">Rol</label>
                     <select
                       name="role"
                       defaultValue={editTarget.role === "MANAGER" ? "RESTAURANT_MANAGER" : editTarget.role}
@@ -526,31 +526,31 @@ export default function UsersManager({ users }: UsersManagerProps) {
                     </select>
                   </div>
                 </div>
-                <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-[color:var(--ui-text-secondary)] dark:text-neutral-200">
+                <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-[color:var(--ui-text-secondary)]">
                   <input type="checkbox" name="isActive" defaultChecked={editTarget.isActive} className="shrink-0 rounded border-[color:var(--ui-border)]" />
                   Kullanıcı aktif
                 </label>
                 <div className="mt-3 min-w-0">
-                  <p className="mb-1.5 text-xs font-medium text-[color:var(--ui-text-secondary)] dark:text-neutral-400">Haftalık vardiya</p>
+                  <p className="mb-1.5 text-xs font-medium text-[color:var(--ui-text-secondary)]">Haftalık vardiya</p>
                   <WeeklyShiftEditor value={weeklyEdit} onChange={setWeeklyEdit} variant="modal" />
                 </div>
                 <div className="mt-3 min-w-0">
-                  <label className="mb-1 block text-xs font-medium text-[color:var(--ui-text-secondary)] dark:text-neutral-400">Not</label>
+                  <label className="mb-1 block text-xs font-medium text-[color:var(--ui-text-secondary)]">Not</label>
                   <textarea
                     name="notes"
                     defaultValue={editTarget.notes ?? ""}
                     rows={3}
-                    className="w-full min-w-0 resize-y rounded-xl border border-[color:var(--ui-field-border)] bg-[color:var(--ui-surface-subtle)] px-3 py-2 text-sm text-[color:var(--ui-text-primary)] placeholder:text-[color:var(--ui-text-secondary)] dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+                    className="w-full min-w-0 resize-y rounded-xl border border-[color:var(--ui-field-border)] bg-[color:var(--ui-field-bg)] px-3 py-2 text-sm text-[color:var(--ui-text-primary)] placeholder:text-[color:var(--ui-text-muted)]"
                   />
                 </div>
               </div>
 
-              <div className="shrink-0 border-t border-[color:var(--ui-border)] bg-[color:var(--ui-surface-subtle)] px-3.5 py-3 dark:border-neutral-700 dark:bg-neutral-950/60">
+              <div className="shrink-0 border-t border-[color:var(--ui-border)] bg-[color:var(--ui-surface-subtle)] px-3.5 py-3">
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setEditingUserId(null)}
-                    className="min-h-[40px] min-w-[88px] rounded-xl border border-[color:var(--ui-border)] px-3 py-2 text-sm font-medium text-[color:var(--ui-text-secondary)] hover:bg-[color:var(--ui-surface-subtle)] dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-800"
+                    className="min-h-[40px] min-w-[88px] rounded-xl border border-[color:var(--ui-border)] px-3 py-2 text-sm font-medium text-[color:var(--ui-text-secondary)] hover:bg-[color:var(--ui-surface-bg)]"
                   >
                     İptal
                   </button>
@@ -559,7 +559,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
                     disabled={isPending}
                     className={buttonClasses({ variant: "primary", size: "md", className: "min-h-[40px] min-w-[88px] px-4" })}
                   >
-                    {isPending ? "Kaydediliyorââ‚¬Â¦" : "Kaydet"}
+                    {isPending ? "Kaydediliyor..." : "Kaydet"}
                   </button>
                 </div>
               </div>
@@ -570,7 +570,7 @@ export default function UsersManager({ users }: UsersManagerProps) {
 
       {deleteConfirmId != null ? (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/35 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-[color:var(--ui-border)] bg-white p-5 shadow-xl">
+          <div className="w-full max-w-md rounded-xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-bg)] p-5 shadow-none">
             <h4 className="text-base font-semibold text-[color:var(--ui-text-primary)]">Kullanıcıyı sil</h4>
             <p className="mt-2 text-sm text-[color:var(--ui-text-secondary)]">
               Bu işlem geri alınamaz. İlişkili kayıtlarda kullanıcı referansı güvenli şekilde temizlenir.

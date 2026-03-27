@@ -8,6 +8,78 @@ import {
 import { mapAppSurfaceToSecuritySurface } from "@/core/surfaces/surface-map";
 import { resolveTenantSlugFromRequest } from "@/lib/tenancy/resolve";
 
+function normalizeHost(rawHost: string | null): string {
+  const firstToken = rawHost?.split(",")[0]?.trim().toLowerCase() ?? "";
+  return firstToken.replace(/:\d+$/, "");
+}
+
+function debugTenancy(event: string, payload: Record<string, unknown>) {
+  const debugEnabled =
+    process.env.NODE_ENV !== "production" || process.env.TENANCY_DEBUG === "1";
+  if (!debugEnabled) return;
+  const serialized = JSON.stringify(payload);
+  console.info(`[tenancy-debug] middleware:${event} ${serialized}`);
+}
+
+function isPathAllowedDuringMaintenance(pathname: string, prefixes: string[]): boolean {
+  return prefixes.some((prefix) => {
+    if (prefix === "/") return pathname === "/";
+    return pathname === prefix || pathname.startsWith(`${prefix}/`);
+  });
+}
+
+async function resolveMaintenancePolicy(request: NextRequest): Promise<{
+  active: boolean;
+  allowedPathPrefixes: string[];
+}> {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return { active: false, allowedPathPrefixes: [] };
+  }
+
+  const endpoint = new URL("/api/internal/maintenance/active", request.url);
+  try {
+    const resolved = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "x-maintenance-resolver": "1",
+      },
+      cache: "no-store",
+    });
+    if (!resolved.ok) return { active: false, allowedPathPrefixes: [] };
+
+    const body = (await resolved.json()) as {
+      active?: boolean;
+      allowedPathPrefixes?: unknown;
+    };
+    const allowedPathPrefixes = Array.isArray(body.allowedPathPrefixes)
+      ? body.allowedPathPrefixes.filter((value): value is string => typeof value === "string")
+      : [];
+    return {
+      active: body.active === true,
+      allowedPathPrefixes,
+    };
+  } catch {
+    return { active: false, allowedPathPrefixes: [] };
+  }
+}
+
+function resolveTenantRootMenuRedirect(request: NextRequest): NextResponse | null {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  if (request.nextUrl.pathname !== "/") return null;
+
+  const slug = resolveTenantSlugFromRequest(request);
+  if (!slug) return null;
+
+  const host = normalizeHost(
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host"),
+  );
+  if (!host || host === "localhost") return null;
+
+  const target = request.nextUrl.clone();
+  target.pathname = "/menu";
+  return NextResponse.redirect(target, 307);
+}
+
 async function resolveRedirectResponse(request: NextRequest): Promise<NextResponse | null> {
   if (request.method !== "GET" && request.method !== "HEAD") return null;
 
@@ -58,9 +130,51 @@ async function resolveRedirectResponse(request: NextRequest): Promise<NextRespon
 }
 
 export async function middleware(request: NextRequest) {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    (request.nextUrl.pathname === "/menu" || request.nextUrl.pathname === "/")
+  ) {
+    debugTenancy("incoming", {
+      pathname: request.nextUrl.pathname,
+      nextUrlHost: request.nextUrl.host,
+      host: normalizeHost(request.headers.get("host")),
+      forwardedHost: normalizeHost(request.headers.get("x-forwarded-host")),
+      derivedSlug: resolveTenantSlugFromRequest(request),
+    });
+  }
+
+  const tenantRootRedirect = resolveTenantRootMenuRedirect(request);
+  if (tenantRootRedirect) {
+    if (process.env.NODE_ENV !== "production") {
+      debugTenancy("root-redirect", {
+        pathname: request.nextUrl.pathname,
+        target: "/menu",
+        derivedSlug: resolveTenantSlugFromRequest(request),
+      });
+    }
+    return tenantRootRedirect;
+  }
+
   const redirectResponse = await resolveRedirectResponse(request);
   if (redirectResponse) {
     return redirectResponse;
+  }
+
+  const maintenancePolicy = await resolveMaintenancePolicy(request);
+  const isMaintenancePath =
+    request.nextUrl.pathname === "/maintenance" ||
+    request.nextUrl.pathname.startsWith("/maintenance/");
+  if (maintenancePolicy.active && !isMaintenancePath) {
+    const isAllowedPath = isPathAllowedDuringMaintenance(
+      request.nextUrl.pathname,
+      maintenancePolicy.allowedPathPrefixes,
+    );
+    if (!isAllowedPath) {
+      const target = request.nextUrl.clone();
+      target.pathname = "/maintenance";
+      target.search = "";
+      return NextResponse.redirect(target, 307);
+    }
   }
 
   const surface = resolveAppSurface(request.nextUrl.pathname);
@@ -72,6 +186,17 @@ export async function middleware(request: NextRequest) {
     requestHeaders.set("x-tenant-slug", slug);
   } else {
     requestHeaders.delete("x-tenant-slug");
+  }
+  if (
+    process.env.NODE_ENV !== "production" &&
+    (request.nextUrl.pathname === "/menu" || request.nextUrl.pathname === "/")
+  ) {
+    debugTenancy("headers-set", {
+      pathname: request.nextUrl.pathname,
+      surface,
+      derivedSlug: slug,
+      xTenantSlugSet: slug && isTenantAwareSurface(surface) ? slug : null,
+    });
   }
   requestHeaders.set("x-app-surface", surface);
   requestHeaders.set("x-security-surface", securitySurface);
@@ -104,5 +229,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!admin|api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!admin|api|_next|favicon.ico).*)"],
 };

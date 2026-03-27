@@ -9,26 +9,26 @@ import {
 
 export async function TenantSetupChecklist({ tenantId }: { tenantId: number }) {
   const setup = await resolveTenantSetupProgress(tenantId);
+  if (setup.goLiveReady) {
+    return null;
+  }
+
   const steps = sortSetupStepsForDisplay(setup.steps);
 
   return (
-    <section className={cardClasses({ tone: setup.goLiveReady ? "success" : "warning", className: "p-4" })}>
+    <section className={cardClasses({ tone: "warning", className: "p-4" })}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ui-text-secondary)]">
             Isletme Kurulum Kontrol Listesi
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-[var(--ui-text-primary)]">
-            {setup.goLiveReady ? "Canliya cikmaya hazirsiniz" : "Kurulum adimlari devam ediyor"}
-          </h2>
+          <h2 className="mt-1 text-lg font-semibold text-[var(--ui-text-primary)]">Kurulum adimlari devam ediyor</h2>
           <p className="mt-1 text-sm text-[var(--ui-text-secondary)]">
             Tamamlanan zorunlu adim: {setup.requiredCompletedCount}/{setup.requiredTotalCount} (
             %{setup.completionPercent})
           </p>
         </div>
-        <span className={badgeClasses(setup.goLiveReady ? "success" : "warning")}>
-          {setup.goLiveReady ? "Ready for Go-Live" : "Aksiyon Gerekli"}
-        </span>
+        <span className={badgeClasses("warning")}>Aksiyon Gerekli</span>
       </div>
 
       {setup.blockers.length > 0 ? (

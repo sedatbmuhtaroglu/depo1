@@ -22,6 +22,20 @@ export function runWithTenantContext<T>(
   return tenantStorage.run(context, fn);
 }
 
+function normalizeHostFromHeaders(h: Headers): string {
+  const hostRaw = h.get("host") ?? h.get("x-forwarded-host") ?? "";
+  const firstToken = hostRaw.split(",")[0]?.trim().toLowerCase() ?? "";
+  return firstToken.replace(/:\d+$/, "");
+}
+
+function debugTenancy(event: string, payload: Record<string, unknown>) {
+  const debugEnabled =
+    process.env.NODE_ENV !== "production" || process.env.TENANCY_DEBUG === "1";
+  if (!debugEnabled) return;
+  const serialized = JSON.stringify(payload);
+  console.info(`[tenancy-debug] ${event} ${serialized}`);
+}
+
 export async function getCurrentTenantOrThrow(): Promise<TenantContext> {
   const ctx = getTenantContext();
   if (ctx) {
@@ -30,6 +44,9 @@ export async function getCurrentTenantOrThrow(): Promise<TenantContext> {
 
   const h = await headers();
   const headerSlug = h.get("x-tenant-slug");
+  const appSurface = h.get("x-app-surface");
+  const requestPathname = h.get("x-request-pathname") ?? "";
+  const requestHost = normalizeHostFromHeaders(h);
 
   // Validate slug format: allow only alphanumeric, hyphens, and underscores
   const slugPattern = /^[a-zA-Z0-9_-]+$/;
@@ -38,6 +55,33 @@ export async function getCurrentTenantOrThrow(): Promise<TenantContext> {
   }
 
   const effectiveSlug = headerSlug;
+  const isStorefrontMenuPath =
+    requestPathname === "/menu" || requestPathname.startsWith("/menu/");
+
+  debugTenancy("request-context", {
+    host: requestHost,
+    appSurface,
+    pathname: requestPathname,
+    headerSlug: effectiveSlug,
+  });
+
+  if (!effectiveSlug && isStorefrontMenuPath) {
+    debugTenancy("fail-closed-missing-slug", {
+      host: requestHost,
+      pathname: requestPathname,
+      fallbackUsed: false,
+    });
+    throw new TenantResolutionError("TENANT_NOT_FOUND");
+  }
+
+  if (!effectiveSlug && requestHost.endsWith(".localhost")) {
+    debugTenancy("fail-closed-subdomain-missing-slug", {
+      host: requestHost,
+      pathname: requestPathname,
+      fallbackUsed: false,
+    });
+    throw new TenantResolutionError("TENANT_NOT_FOUND");
+  }
 
   if (effectiveSlug) {
     const tenant = await prisma.tenant.findUnique({
@@ -45,8 +89,22 @@ export async function getCurrentTenantOrThrow(): Promise<TenantContext> {
     });
 
     if (!tenant) {
+      debugTenancy("slug-not-found", {
+        host: requestHost,
+        derivedSlug: effectiveSlug,
+        resolvedTenant: null,
+        fallbackUsed: false,
+      });
       throw new TenantResolutionError("TENANT_NOT_FOUND");
     }
+
+    debugTenancy("slug-resolved", {
+      host: requestHost,
+      derivedSlug: effectiveSlug,
+      resolvedTenantId: tenant.id,
+      resolvedTenantSlug: tenant.slug,
+      fallbackUsed: false,
+    });
 
     return {
       tenantId: tenant.id,
@@ -70,9 +128,32 @@ export async function getCurrentTenantOrThrow(): Promise<TenantContext> {
     if (!sessionTenant) {
       throw new TenantResolutionError("TENANT_NOT_FOUND");
     }
+    debugTenancy("session-resolved", {
+      host: requestHost,
+      derivedSlug: null,
+      resolvedTenantId: sessionTenant.id,
+      resolvedTenantSlug: sessionTenant.slug ?? null,
+      fallbackUsed: false,
+    });
     return {
       tenantId: sessionTenant.id,
       slug: sessionTenant.slug ?? undefined,
+    };
+  }
+
+  const { tryResolveTenantFromSupportCookie } = await import("@/lib/support-session");
+  const supportTenant = await tryResolveTenantFromSupportCookie();
+  if (supportTenant) {
+    debugTenancy("support-session-resolved", {
+      host: requestHost,
+      derivedSlug: null,
+      resolvedTenantId: supportTenant.tenantId,
+      resolvedTenantSlug: supportTenant.slug,
+      fallbackUsed: false,
+    });
+    return {
+      tenantId: supportTenant.tenantId,
+      slug: supportTenant.slug,
     };
   }
 

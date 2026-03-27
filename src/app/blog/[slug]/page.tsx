@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ContentEmbedBlocksRenderer } from "@/components/content/content-embed-blocks-renderer";
 import {
   getBlogPostBySlugForPublicAccess,
   getPublishedBlogPostBySlug,
 } from "@/modules/content/server/content-queries";
+import { normalizeEmbedBlocksForRender } from "@/modules/content/shared/embed-blocks";
 import { validatePreviewToken } from "@/modules/content/server/preview-token";
 import {
   buildAbsoluteUrl,
@@ -13,7 +15,8 @@ import {
   buildOrganizationJsonLd,
   buildWebsiteJsonLd,
 } from "@/modules/content/server/seo-metadata";
-import { getMarketingSiteConfigForPublic } from "@/modules/marketing/server/landing-content";
+import { landingSeo } from "@/content/landing";
+import { getMergedPublicLandingDesignForPublic } from "@/modules/marketing/server/landing-design";
 
 type Params = { slug: string };
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -127,15 +130,16 @@ export default async function BlogPostDetailPage({
   const search = await searchParams;
   const previewToken = pickFirst(search.preview);
 
-  const [resolved, site] = await Promise.all([
+  const [resolved, design] = await Promise.all([
     resolveBlogPostForAccess(slug, previewToken),
-    getMarketingSiteConfigForPublic(),
+    getMergedPublicLandingDesignForPublic(),
   ]);
 
   if (!resolved.post) notFound();
 
   const post = resolved.post;
-  const publisherName = site?.brandName ?? "MENUCY";
+  const embedBlocks = normalizeEmbedBlocksForRender(post.embedBlocks);
+  const publisherName = design.general.brandName;
   const postUrl = buildAbsoluteUrl(`/blog/${post.slug}`);
 
   const articleJsonLd = buildBlogPostJsonLd({
@@ -151,14 +155,14 @@ export default async function BlogPostDetailPage({
 
   const websiteJsonLd = buildWebsiteJsonLd({
     name: publisherName,
-    description: site?.seoDescription ?? site?.brandTagline ?? "MENUCY blog ve urun rehberi",
+    description: landingSeo.description ?? design.general.brandTagline,
     url: buildAbsoluteUrl("/"),
   });
 
   const orgJsonLd = buildOrganizationJsonLd({
     name: publisherName,
     url: buildAbsoluteUrl("/"),
-    logo: site?.seoOgImageUrl ?? null,
+    logo: landingSeo.ogImageUrl ?? null,
   });
 
   return (
@@ -186,6 +190,8 @@ export default async function BlogPostDetailPage({
           className="space-y-4 text-sm leading-7 text-[#f3f7ff] [&_a]:text-[#22c55e] [&_h2]:text-xl [&_h3]:text-lg [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
+
+        <ContentEmbedBlocksRenderer blocks={embedBlocks} />
 
         {post.related.length > 0 ? (
           <section className="space-y-3 border-t border-[#243252] pt-6">

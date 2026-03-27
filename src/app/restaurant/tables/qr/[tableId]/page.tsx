@@ -3,32 +3,8 @@ import { headers } from "next/headers";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
+import { buildTenantPublicUrl } from "@/lib/tenancy/public-url";
 import PrintControls from "./print-controls";
-
-function getBaseUrlFromHeaders(h: { get(name: string): string | null }): string {
-  const forwardedHost = h.get("x-forwarded-host");
-  const host = forwardedHost || h.get("host");
-  const forwardedProto = h.get("x-forwarded-proto");
-
-  if (host) {
-    const scheme = forwardedProto === "http" ? "http" : "https";
-    return `${scheme}://${host}`.replace(/\/+$/, "");
-  }
-
-  const envBase =
-    process.env.APP_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.VERCEL_URL;
-
-  if (envBase) {
-    const normalized = envBase.startsWith("http")
-      ? envBase
-      : `https://${envBase}`;
-    return normalized.replace(/\/+$/, "");
-  }
-
-  return "http://localhost:3000";
-}
 
 export const dynamic = "force-dynamic";
 
@@ -72,8 +48,11 @@ export default async function TableQrPage({
   }
 
   const h = await headers();
-  const baseUrl = getBaseUrlFromHeaders(h);
-  const entryUrl = `${baseUrl}/m/${table.publicCode}`;
+  const entryUrl = await buildTenantPublicUrl({
+    tenantId,
+    pathname: `/m/${table.publicCode}`,
+    headers: h,
+  });
   const qrDataUrl = await QRCode.toDataURL(entryUrl, {
     width: 900,
     margin: 1,

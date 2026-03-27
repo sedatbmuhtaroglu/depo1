@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { buttonClasses } from "@/lib/ui/button-variants";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { saveHomepageSeoSettingsAction } from "@/modules/hq/actions/content";
 import { type SeoEditorState, SeoEditorPanel } from "@/modules/hq/components/seo-editor-panel";
+import { StickySaveBar, useFormDirtyState } from "@/modules/hq/components/sticky-save-bar";
 
 type HomepageSeoFormProps = {
   baseUrl: string;
@@ -59,6 +59,7 @@ function buildInitialSeoState(initial: HomepageSeoFormProps["initial"]): SeoEdit
 }
 
 export function HomepageSeoForm({ baseUrl, initial, mediaAssets }: HomepageSeoFormProps) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [seo, setSeo] = useState<SeoEditorState>(() => buildInitialSeoState(initial));
 
   const [state, action, isPending] = useActionState(
@@ -68,9 +69,23 @@ export function HomepageSeoForm({ baseUrl, initial, mediaAssets }: HomepageSeoFo
     },
     INITIAL_STATE,
   );
+  const { isDirty, markCurrentAsClean } = useFormDirtyState(formRef, [seo]);
+
+  useEffect(() => {
+    if (state.ok) {
+      markCurrentAsClean();
+    }
+  }, [markCurrentAsClean, state.ok]);
 
   return (
-    <form action={action} className="space-y-4">
+    <form ref={formRef} action={action} className="space-y-4">
+      <StickySaveBar
+        saveLabel="Ana Sayfa SEO Kaydet"
+        isPending={isPending}
+        isDirty={isDirty}
+        message={state.message}
+        isMessageSuccess={state.ok}
+      />
       <input type="hidden" name="seoTitle" value={seo.seoTitle} readOnly />
       <input type="hidden" name="metaDescription" value={seo.metaDescription} readOnly />
       <input type="hidden" name="canonicalUrl" value={seo.canonicalUrl} readOnly />
@@ -91,14 +106,6 @@ export function HomepageSeoForm({ baseUrl, initial, mediaAssets }: HomepageSeoFo
         mediaAssets={mediaAssets}
       />
 
-      <div className="flex items-center gap-3">
-        <button type="submit" disabled={isPending} className={buttonClasses({ variant: "primary" })}>
-          {isPending ? "Kaydediliyor..." : "Ana Sayfa SEO Kaydet"}
-        </button>
-        {state.message ? (
-          <p className={`text-sm ${state.ok ? "text-emerald-700" : "text-rose-700"}`}>{state.message}</p>
-        ) : null}
-      </div>
     </form>
   );
 }

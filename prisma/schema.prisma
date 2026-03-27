@@ -25,6 +25,16 @@ enum DomainType {
 }
 
 enum FeatureCode {
+  QR_MENU_VIEW
+  QR_ORDERING
+  ORDER_CANCELLATIONS
+  BILLING_RECEIPTS
+  WAITER_CALL_LOGS
+  SHOWCASE_RAILS
+  STAFF_PERFORMANCE
+  ONLINE_PAYMENT_IYZICO
+  CASH_OPERATIONS
+  STOCK_MANAGEMENT
   MENU
   WAITER_CALL
   ORDERING
@@ -66,6 +76,7 @@ enum MarketingSubmissionSource {
   LANDING_HOMEPAGE
   LANDING_CTA
   LANDING_FOOTER
+  LANDING_PUBLIC_CONTACT
 }
 
 enum MarketingSubmissionStatus {
@@ -253,14 +264,19 @@ enum CashMovementCategory {
   OTHER
 }
 
+enum SupportSessionAssumedRole {
+  MANAGER
+}
+
 model AdminUser {
   id           Int      @id @default(autoincrement())
   username     String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
 
-  authoredPages     Page[]     @relation("PageAuthor")
-  authoredBlogPosts BlogPost[] @relation("BlogPostAuthor")
+  authoredPages                Page[]                       @relation("PageAuthor")
+  authoredBlogPosts            BlogPost[]                   @relation("BlogPostAuthor")
+  supportImpersonationSessions SupportImpersonationSession[]
 }
 
 model Plan {
@@ -274,6 +290,7 @@ model Plan {
 
   tenants      Tenant[]
   planFeatures PlanFeature[]
+  planLimits   PlanLimit[]
 }
 
 model Tenant {
@@ -314,6 +331,7 @@ model Tenant {
   allergens              TenantAllergen[]
   cashMovements          CashMovement[]
   cashRegisterDays       CashRegisterDay[]
+  supportImpersonationSessions SupportImpersonationSession[]
 }
 
 model TenantAllergen {
@@ -356,6 +374,12 @@ model TenantStaff {
   displayName           String?
   email                 String?   @db.VarChar(180)
   phone                 String?   @db.VarChar(32)
+  emailEncrypted     String?
+  emailHash          String?         @db.VarChar(64)
+  emailMasked        String?         @db.VarChar(64)
+  phoneEncrypted     String?
+  phoneHash          String?         @db.VarChar(64)
+  phoneLast4         String?         @db.VarChar(4)
   isActive              Boolean   @default(true)
   workingDays           Weekday[] @default([])
   shiftStart            String?   @db.VarChar(5)
@@ -376,6 +400,8 @@ model TenantStaff {
 
   @@unique([tenantId, username])
   @@index([tenantId])
+  @@index([emailHash])
+  @@index([phoneHash])
 }
 
 model StaffSetPasswordToken {
@@ -392,6 +418,32 @@ model StaffSetPasswordToken {
 
   @@index([tenantStaffId, createdAt])
   @@index([tenantStaffId, consumedAt, revokedAt, expiresAt])
+}
+
+model SupportImpersonationSession {
+  id              Int                       @id @default(autoincrement())
+  tokenHash       String                    @unique @db.VarChar(64)
+  hqAdminUserId   Int
+  tenantId        Int
+  restaurantId    Int?
+  assumedRole     SupportSessionAssumedRole @default(MANAGER)
+  reason          String                    @db.VarChar(200)
+  note            String?                   @db.VarChar(500)
+  durationMinutes Int
+  startedAt       DateTime                  @default(now())
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  endedAt         DateTime?
+  lastUsedAt      DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  hqAdmin    AdminUser    @relation(fields: [hqAdminUserId], references: [id], onDelete: Restrict)
+  tenant     Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant?  @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, expiresAt])
+  @@index([hqAdminUserId, createdAt])
 }
 
 model TenantDomain {
@@ -460,6 +512,20 @@ model PlanFeature {
   @@id([planId, featureId])
 }
 
+model PlanLimit {
+  id        Int           @id @default(autoincrement())
+  planId    Int
+  resource  LimitResource
+  limit     Int?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, resource])
+  @@index([planId])
+}
+
 model TenantFeature {
   tenantId  Int
   featureId Int
@@ -490,6 +556,16 @@ model SalesLead {
   contactName        String
   phone              String?         @db.VarChar(32)
   email              String?         @db.VarChar(180)
+  /// AES-256-GCM field-level encryption; legacy plaintext may exist until backfill.
+  emailEncrypted     String?
+  emailHash          String?         @db.VarChar(64)
+  emailMasked        String?         @db.VarChar(64)
+  phoneEncrypted     String?
+  phoneHash          String?         @db.VarChar(64)
+  phoneLast4         String?         @db.VarChar(4)
+  contactNameEncrypted String?
+  contactNameHash    String?         @db.VarChar(64)
+  contactNameMasked  String?         @db.VarChar(64)
   city               String?         @db.VarChar(120)
   notes              String?
   source             SalesLeadSource @default(MANUAL)
@@ -514,6 +590,8 @@ model SalesLead {
   @@index([source, createdAt])
   @@index([tenantId])
   @@index([email])
+  @@index([emailHash])
+  @@index([phoneHash])
 }
 
 model MarketingSiteConfig {
@@ -559,8 +637,17 @@ model MarketingSiteConfig {
   seoOgImageUrl                String?  @db.VarChar(320)
   seoRobotsIndex               Boolean  @default(true)
   seoRobotsFollow              Boolean  @default(true)
+  plannedMaintenanceEnabled    Boolean  @default(false)
+  plannedMaintenanceStartsAt   DateTime?
+  plannedMaintenanceEndsAt     DateTime?
+  plannedMaintenanceMessage    String?  @db.VarChar(500)
+  plannedMaintenanceAllowedPaths String? @db.Text
 
   footerConfig                 Json?    // Stores LandingFooterConfig
+  /// HQ Tasarım Ayarları: public landing nav, CTA, buton renkleri (LandingPublicDesignV1)
+  landingPublicDesign          Json?
+  /// Public /legal/* sayfaları HTML (LegalPublicPagesV1); null ise kod içi varsayılan metinler
+  legalPublicPages             Json?
 
   createdAt                    DateTime @default(now())
   updatedAt                    DateTime @updatedAt
@@ -585,6 +672,8 @@ model Page {
   excerpt              String?       @db.VarChar(420)
   coverImageUrl        String?       @db.VarChar(320)
   contentHtml          String
+  /// JSON: [{ id, kind: "html_embed"|"custom_code", html }] — server-sanitized; separate from rich text
+  embedBlocks          Json?
   publishedAt          DateTime?
   authorName           String?       @db.VarChar(120)
   authorId             Int?
@@ -632,6 +721,8 @@ model BlogPost {
   status             ContentStatus @default(DRAFT)
   excerpt            String?       @db.VarChar(420)
   contentHtml        String
+  /// JSON: [{ id, kind: "html_embed"|"custom_code", html }] — server-sanitized; separate from rich text
+  embedBlocks        Json?
   featuredImageUrl   String?       @db.VarChar(320)
   publishedAt        DateTime?
   authorName         String?       @db.VarChar(120)
@@ -929,6 +1020,15 @@ model MarketingFormSubmission {
   businessName  String                    @db.VarChar(160)
   phone         String?                   @db.VarChar(32)
   email         String?                   @db.VarChar(180)
+  emailEncrypted     String?
+  emailHash          String?         @db.VarChar(64)
+  emailMasked        String?         @db.VarChar(64)
+  phoneEncrypted     String?
+  phoneHash          String?         @db.VarChar(64)
+  phoneLast4         String?         @db.VarChar(4)
+  contactNameEncrypted String?
+  contactNameHash    String?         @db.VarChar(64)
+  contactNameMasked  String?         @db.VarChar(64)
   city          String?                   @db.VarChar(120)
   message       String?
   consentGiven  Boolean                   @default(false)
@@ -952,6 +1052,8 @@ model MarketingFormSubmission {
   @@index([status, createdAt])
   @@index([leadId])
   @@index([source, createdAt])
+  @@index([emailHash])
+  @@index([phoneHash])
 }
 
 model CommercialRecord {
@@ -1054,6 +1156,7 @@ model Restaurant {
   cashMovements    CashMovement[]
   cashRegisterDays CashRegisterDay[]
   workingHours     RestaurantWorkingHour[]
+  supportImpersonationSessions SupportImpersonationSession[]
 }
 
 model RestaurantWorkingHour {

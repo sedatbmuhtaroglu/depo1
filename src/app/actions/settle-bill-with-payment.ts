@@ -10,6 +10,7 @@ import {
   createGatewayPaymentIdempotent,
   resolveGatewayPaymentIdentity,
 } from "@/lib/payment-idempotency";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 type PaymentMethodValue =
   | "CASH"
@@ -62,6 +63,10 @@ export async function settleBillWithPayment(options: {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+    if (!featureGate.ok) {
+      return { success: false, message: featureGate.message };
     }
 
     const now = new Date();

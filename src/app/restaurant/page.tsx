@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -417,19 +417,15 @@ export default async function RestaurantDashboardPage() {
   );
 
   return (
-    <div className="space-y-6 pb-1">
+    <div className="space-y-6">
       <TenantSetupChecklist tenantId={tenantId} />
 
       <section className={`${PANEL_CARD_CLASS} p-5 sm:p-6`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--ui-text-secondary)]">
-              Dashboard
-            </p>
-            <h2 className="mt-1 text-xl font-semibold text-[color:var(--ui-text-primary)]">
-              Operasyon Özeti
-            </h2>
-            <p className="mt-1 text-sm text-[color:var(--ui-text-secondary)]">
+            <p className="rm-section-intro-eyebrow">Dashboard</p>
+            <h2 className="rm-section-intro-title">Operasyon Özeti</h2>
+            <p className="rm-section-intro-desc">
               Masa, sipariş ve finans akışını tek ekranda canlı takip edin.
             </p>
           </div>
@@ -451,7 +447,7 @@ export default async function RestaurantDashboardPage() {
           <KpiCard
             label="Bekleyen Sipariş"
             value={pendingOrderCount}
-            helper={`Onay: ${pendingApprovalOrders.length} â€¢ Hazırlık: ${preparingOrders.length}`}
+            helper={`Onay: ${pendingApprovalOrders.length} • Hazırlık: ${preparingOrders.length}`}
             icon={ClipboardList}
             tone="warning"
           />
@@ -590,7 +586,7 @@ export default async function RestaurantDashboardPage() {
                           </span>
                           {billInfo?.acknowledgedByStaff && (
                             <span className="ml-1">
-                              â€¢ İlgilenen:{" "}
+                              • İlgilenen:{" "}
                               {formatStaffDisplayName(billInfo.acknowledgedByStaff)}
                             </span>
                           )}
@@ -602,7 +598,7 @@ export default async function RestaurantDashboardPage() {
                           </span>
                           {callInfo?.acknowledgedByStaff && (
                             <span className="ml-1">
-                              â€¢ İlgilenen:{" "}
+                              • İlgilenen:{" "}
                               {formatStaffDisplayName(callInfo.acknowledgedByStaff)}
                             </span>
                           )}
@@ -618,7 +614,7 @@ export default async function RestaurantDashboardPage() {
                           <p>
                             Son sipariş:{" "}
                             <span className="font-semibold text-[color:var(--ui-text-primary)]">
-                              #{lastOrder.id} â€¢ {formatCurrency(lastOrder.totalPrice)}
+                              #{lastOrder.id} • {formatCurrency(lastOrder.totalPrice)}
                             </span>
                           </p>
                         ) : (
@@ -667,7 +663,7 @@ export default async function RestaurantDashboardPage() {
               <QuickMetricRow
                 label="Bekleyen sipariş"
                 value={pendingOrderCount}
-                note={`Onay: ${pendingApprovalOrders.length} â€¢ Hazırlık: ${preparingOrders.length}`}
+                note={`Onay: ${pendingApprovalOrders.length} • Hazırlık: ${preparingOrders.length}`}
                 icon={Activity}
               />
               <QuickMetricRow
@@ -783,7 +779,7 @@ export default async function RestaurantDashboardPage() {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs font-semibold text-[color:var(--ui-text-primary)]">
-                        {event.eventType} â€¢ Sipariş #{event.orderId} â€¢ Masa {event.tableNo}
+                        {event.eventType} • Sipariş #{event.orderId} • Masa {event.tableNo}
                       </p>
                       <span className={badgeClasses(event.eventKind === "REFUND" ? "danger" : "warning")}>
                         {event.eventType}
@@ -791,11 +787,11 @@ export default async function RestaurantDashboardPage() {
                     </div>
                     <p className="mt-1 text-xs text-[color:var(--ui-text-secondary)]">
                       Ürün: <span className="font-medium text-[color:var(--ui-text-primary)]">{event.productName}</span>{" "}
-                      â€¢ Adet: <span className="font-medium text-[color:var(--ui-text-primary)]">{event.quantity}</span>
+                      • Adet: <span className="font-medium text-[color:var(--ui-text-primary)]">{event.quantity}</span>
                     </p>
                     <p className="mt-1 text-xs text-[color:var(--ui-text-secondary)]">
                       Ödeme: <span className="font-medium text-[color:var(--ui-text-primary)]">{event.paymentMethod}</span>{" "}
-                      â€¢ İade: <span className="font-medium text-[color:var(--ui-text-primary)]">{event.refundedAmount}</span>
+                      • İade: <span className="font-medium text-[color:var(--ui-text-primary)]">{event.refundedAmount}</span>
                     </p>
                     <p className="mt-1 text-xs text-[color:var(--ui-text-secondary)]">
                       {event.createdAt.toLocaleString("tr-TR")}

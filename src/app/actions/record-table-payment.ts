@@ -6,6 +6,7 @@ import { requireCashierWaiterOrManagerSession } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { opLog } from "@/lib/op-logger";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 type PaymentMethodValue =
   | "CASH"
@@ -33,6 +34,10 @@ export async function recordTablePayment(options: {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (ctxTenantId !== tenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "CASH_OPERATIONS");
+    if (!featureGate.ok) {
+      return { success: false, message: featureGate.message };
     }
 
     const table = await prisma.table.findFirst({

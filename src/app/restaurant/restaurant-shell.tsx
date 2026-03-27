@@ -27,6 +27,7 @@ import {
   UtensilsCrossed,
   X,
   XCircle,
+  AlertTriangle,
 } from "lucide-react";
 import {
   DEFAULT_RESTAURANT_THEME,
@@ -100,6 +101,13 @@ const NAV_ITEMS: NavItem[] = [
     label: "Stoklar",
     icon: Boxes,
     description: "Stok takibi ve ürün kullanılabilirliği",
+    group: "Menü & Stok",
+  },
+  {
+    href: "/restaurant/allergens",
+    label: "Alerjenler",
+    icon: AlertTriangle,
+    description: "Urun icerik uyarilari ve ozel alerjen yonetimi",
     group: "Menü & Stok",
   },
   {
@@ -214,6 +222,7 @@ function getCurrentPageMeta(pathname: string) {
     if (pathname.startsWith("/restaurant/menu/showcase")) return "Vitrin Yönetimi";
     if (pathname.startsWith("/restaurant/menu")) return "Menü & Ürün Düzenleme";
     if (pathname.startsWith("/restaurant/stocks")) return "Stok Takibi";
+    if (pathname.startsWith("/restaurant/allergens")) return "Alerjen Yonetimi";
     if (pathname.startsWith("/restaurant/reports")) return "Raporlar";
     if (pathname.startsWith("/restaurant/performance")) return "Personel Performansı";
     if (pathname.startsWith("/restaurant/users")) return "Kullanıcılar & Yetkiler";
@@ -255,13 +264,18 @@ type RestaurantShellProps = {
   children: React.ReactNode;
   headerAction?: React.ReactNode;
   role: StaffRole;
+  supportBanner?: React.ReactNode;
+  enabledFeatures: string[];
 };
 
 export default function RestaurantShell({
   children,
   headerAction,
   role,
+  supportBanner,
+  enabledFeatures,
 }: RestaurantShellProps) {
+  const enabledFeatureSet = useMemo(() => new Set(enabledFeatures), [enabledFeatures]);
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -297,7 +311,7 @@ export default function RestaurantShell({
 
   const navGroups = useMemo(() => {
     const visibleItems = NAV_ITEMS.filter((item) =>
-      canAccessRestaurantNavItem({ role, href: item.href }),
+      canAccessRestaurantNavItem({ role, href: item.href, enabledFeatures: enabledFeatureSet }),
     );
     const groups: Array<{ label: NavItem["group"]; items: NavItem[] }> = [
       { label: "Operasyon", items: [] },
@@ -312,7 +326,7 @@ export default function RestaurantShell({
       groups[i]!.items.push(item);
     }
     return groups;
-  }, [role]);
+  }, [role, enabledFeatureSet]);
 
   const renderNavItems = (mode: "desktop" | "mobile") => {
     const isDesktop = mode === "desktop";
@@ -403,13 +417,14 @@ export default function RestaurantShell({
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
+          {supportBanner}
           <header
             className={[
               "restaurant-shell-header sticky top-0 z-30 border-b",
               `restaurant-shell-header-tone-${pageMeta.headerTone}`,
             ].join(" ")}
           >
-            <div className="flex min-h-[78px] flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex min-h-[72px] flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <button
@@ -420,14 +435,14 @@ export default function RestaurantShell({
                   >
                     <Menu className="h-4 w-4" />
                   </button>
-                  <p className="restaurant-shell-pill rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide">
-                    Restoran Operasyon Paneli
+                  <p className="restaurant-shell-pill rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide">
+                    {pageMeta.headerPill}
                   </p>
                 </div>
-                <h1 className="mt-2 truncate text-[1.35rem] font-semibold text-[var(--ui-text-primary)] sm:text-2xl">
+                <h1 className="mt-2 truncate text-lg font-semibold tracking-tight text-[var(--ui-text-primary)] sm:text-xl">
                   {pageMeta.title}
                 </h1>
-                <p className="mt-1.5 truncate text-sm text-[var(--ui-text-secondary)]">
+                <p className="mt-1 line-clamp-2 max-w-2xl text-sm leading-relaxed text-[var(--ui-text-secondary)]">
                   {pageMeta.description}
                 </p>
               </div>
@@ -460,20 +475,24 @@ export default function RestaurantShell({
 
                 <div
                   className={[
-                    "restaurant-shell-pill hidden items-center gap-2 sm:flex",
+                    "restaurant-shell-pill hidden items-center gap-2 rounded-full px-2.5 py-1 sm:flex",
                     `restaurant-shell-pill-tone-${pageMeta.headerTone}`,
                   ].join(" ")}
                 >
-                  <span className="restaurant-shell-live-dot h-1.5 w-1.5 rounded-full" />
-                  <p className="text-xs font-medium text-[var(--ui-text-primary)]">Canlı takip aktif</p>
-                  <span className="text-xs text-[var(--ui-text-secondary)]">30 sn</span>
+                  <span className="restaurant-shell-live-dot h-1.5 w-1.5 shrink-0 rounded-full" />
+                  <p className="text-[11px] font-medium text-[var(--ui-text-secondary)]">
+                    Canlı yenileme
+                  </p>
+                  <span className="text-[11px] tabular-nums text-[var(--ui-text-muted)]">30 sn</span>
                 </div>
                 <div className="w-full sm:w-auto">{headerAction}</div>
               </div>
             </div>
           </header>
 
-          <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8">{children}</main>
+          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+            <div className="rm-page">{children}</div>
+          </main>
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { logServerError } from "@/lib/server-error-log";
+import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
 
 export async function updateProductStock(input: {
   productId: number;
@@ -17,6 +18,10 @@ export async function updateProductStock(input: {
     const { tenantId: ctxTenantId } = await getCurrentTenantOrThrow();
     if (tenantId !== ctxTenantId) {
       return { success: false, message: "Yetkisiz." };
+    }
+    const featureGate = await ensureTenantFeatureEnabled(tenantId, "STOCK_MANAGEMENT");
+    if (!featureGate.ok) {
+      return { success: false, message: featureGate.message };
     }
 
     const productId = Number(input.productId);

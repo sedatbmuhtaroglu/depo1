@@ -3,6 +3,10 @@
 import { useActionState } from "react";
 import { buttonClasses, selectClasses } from "@/lib/ui/button-variants";
 import { updateTenantFeatureOverrideAction } from "@/modules/hq/actions/tenant-features";
+import {
+  getFeatureGroupLabel,
+  getFeaturePresentationByCode,
+} from "@/modules/hq/server/tenant-package-feature-labels";
 
 type FeatureOverrideRow = {
   featureCode: string;
@@ -45,7 +49,6 @@ function FeatureOverrideFormRow(props: {
     <tr className="border-b border-[var(--ui-border)]/70">
       <td className="px-2 py-2">
         <p className="font-medium">{props.feature.name}</p>
-        <p className="text-xs text-[var(--ui-text-secondary)]">{props.feature.code}</p>
       </td>
       <td className="px-2 py-2">
         <span
@@ -53,7 +56,7 @@ function FeatureOverrideFormRow(props: {
             props.isEffectiveEnabled ? "text-emerald-700" : "text-rose-700"
           }`}
         >
-          {props.isEffectiveEnabled ? "Enabled" : "Disabled"}
+          {props.isEffectiveEnabled ? "Açık" : "Kapalı"}
         </span>
       </td>
       <td className="px-2 py-2">
@@ -65,9 +68,9 @@ function FeatureOverrideFormRow(props: {
             defaultValue={props.overrideState}
             className={selectClasses({ className: "min-w-[120px]" })}
           >
-            <option value="DEFAULT">Default</option>
-            <option value="ENABLED">Enable</option>
-            <option value="DISABLED">Disable</option>
+            <option value="DEFAULT">Varsayılan</option>
+            <option value="ENABLED">Açık</option>
+            <option value="DISABLED">Kapalı</option>
           </select>
           <button type="submit" className={buttonClasses({ variant: "outline", size: "sm" })} disabled={isPending}>
             {isPending ? "..." : "Kaydet"}
@@ -91,6 +94,22 @@ export function TenantFeatureOverrides({
 }: TenantFeatureOverridesProps) {
   const overrideMap = new Map(overrides.map((row) => [row.featureCode, row.enabled]));
   const effectiveSet = new Set(effectiveFeatures);
+  const sortedFeatures = allFeatures
+    .map((feature) => ({
+      ...feature,
+      presentation: getFeaturePresentationByCode({
+        code: feature.code,
+        fallbackName: feature.name,
+      }),
+    }))
+    .sort((a, b) => {
+      const groupCompare = getFeatureGroupLabel(a.presentation.group).localeCompare(
+        getFeatureGroupLabel(b.presentation.group),
+        "tr",
+      );
+      if (groupCompare !== 0) return groupCompare;
+      return a.presentation.label.localeCompare(b.presentation.label, "tr");
+    });
 
   return (
     <div className="overflow-x-auto">
@@ -103,7 +122,7 @@ export function TenantFeatureOverrides({
           </tr>
         </thead>
         <tbody>
-          {allFeatures.map((feature) => {
+          {sortedFeatures.map((feature) => {
             const overrideValue = overrideMap.get(feature.code);
             const overrideState =
               overrideValue == null
@@ -115,7 +134,10 @@ export function TenantFeatureOverrides({
               <FeatureOverrideFormRow
                 key={feature.code}
                 tenantId={tenantId}
-                feature={feature}
+                feature={{
+                  ...feature,
+                  name: feature.presentation.label,
+                }}
                 isEffectiveEnabled={effectiveSet.has(feature.code)}
                 overrideState={overrideState}
               />

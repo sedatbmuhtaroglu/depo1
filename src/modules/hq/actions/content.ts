@@ -20,6 +20,7 @@ import {
   appendPreviewTokenToPath,
   createPreviewToken,
 } from "@/modules/content/server/preview-token";
+import { normalizeMaintenanceAllowedPathPrefixes } from "@/modules/content/server/content-queries";
 import {
   computeReadingTimeMinutes,
   normalizeOptionalBoolean,
@@ -30,6 +31,7 @@ import {
   parseContentStatus,
   parseTagsInput,
 } from "@/modules/content/server/content-utils";
+import { embedBlocksToPrismaJson, normalizeEmbedBlocksInput } from "@/modules/content/server/embed-blocks-parse";
 import { assertHqMutationGuard } from "@/modules/hq/actions/_shared";
 import { ensureMainMarketingSiteId } from "@/modules/marketing/server/landing-content";
 
@@ -83,6 +85,14 @@ function normalizeOptionalImageUrl(value: FormDataEntryValue | null, maxLength =
   } catch {
     return null;
   }
+}
+
+function parseOptionalDateTimeInput(value: FormDataEntryValue | null): Date | null {
+  const normalized = normalizeOptionalText(value, 64);
+  if (!normalized) return null;
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
 }
 
 function parseSeoInput(formData: FormData) {
@@ -174,9 +184,11 @@ export async function createPageAction(formData: FormData): Promise<ActionResult
     const contentHtml = normalizeRichHtmlInput(formData.get("contentHtml"), 80_000);
     const sortOrder = parseSortOrder(formData.get("sortOrder"));
     const seo = parseSeoInput(formData);
+    const embedBlocksResult = normalizeEmbedBlocksInput(formData.get("embedBlocksJson"));
 
     if (!title) return { success: false, message: "Baslik zorunludur." };
     if (!contentHtml) return { success: false, message: "Icerik zorunludur." };
+    if (!embedBlocksResult.ok) return { success: false, message: embedBlocksResult.message };
 
     const now = new Date();
     const created = await prisma.page.create({
@@ -187,6 +199,7 @@ export async function createPageAction(formData: FormData): Promise<ActionResult
         excerpt,
         coverImageUrl,
         contentHtml,
+        embedBlocks: embedBlocksToPrismaJson(embedBlocksResult.blocks),
         publishedAt: status === "PUBLISHED" ? now : null,
         authorName: hq.username,
         sortOrder,
@@ -236,9 +249,11 @@ export async function updatePageAction(formData: FormData): Promise<ActionResult
     const sortOrder = parseSortOrder(formData.get("sortOrder"));
     const createSlugRedirect = normalizeOptionalBoolean(formData.get("createSlugRedirect"));
     const seo = parseSeoInput(formData);
+    const embedBlocksResult = normalizeEmbedBlocksInput(formData.get("embedBlocksJson"));
 
     if (!title) return { success: false, message: "Baslik zorunludur." };
     if (!contentHtml) return { success: false, message: "Icerik zorunludur." };
+    if (!embedBlocksResult.ok) return { success: false, message: embedBlocksResult.message };
 
     const now = new Date();
     const nextPublishedAt = status === "PUBLISHED" ? (existing.publishedAt ?? now) : null;
@@ -252,6 +267,7 @@ export async function updatePageAction(formData: FormData): Promise<ActionResult
         excerpt,
         coverImageUrl,
         contentHtml,
+        embedBlocks: embedBlocksToPrismaJson(embedBlocksResult.blocks),
         publishedAt: nextPublishedAt,
         sortOrder,
         isHomepageSelectable: false,
@@ -322,9 +338,11 @@ export async function createBlogPostAction(formData: FormData): Promise<ActionRe
     const tags = parseTagsInput(formData.get("tags"));
     const authorName = normalizeOptionalText(formData.get("authorName"), 120) ?? hq.username;
     const seo = parseSeoInput(formData);
+    const embedBlocksResult = normalizeEmbedBlocksInput(formData.get("embedBlocksJson"));
 
     if (!title) return { success: false, message: "Baslik zorunludur." };
     if (!contentHtml) return { success: false, message: "Icerik zorunludur." };
+    if (!embedBlocksResult.ok) return { success: false, message: embedBlocksResult.message };
 
     const now = new Date();
     const created = await prisma.blogPost.create({
@@ -334,6 +352,7 @@ export async function createBlogPostAction(formData: FormData): Promise<ActionRe
         status,
         excerpt,
         contentHtml,
+        embedBlocks: embedBlocksToPrismaJson(embedBlocksResult.blocks),
         featuredImageUrl,
         publishedAt: status === "PUBLISHED" ? now : null,
         authorName,
@@ -387,9 +406,11 @@ export async function updateBlogPostAction(formData: FormData): Promise<ActionRe
     const authorName = normalizeOptionalText(formData.get("authorName"), 120);
     const createSlugRedirect = normalizeOptionalBoolean(formData.get("createSlugRedirect"));
     const seo = parseSeoInput(formData);
+    const embedBlocksResult = normalizeEmbedBlocksInput(formData.get("embedBlocksJson"));
 
     if (!title) return { success: false, message: "Baslik zorunludur." };
     if (!contentHtml) return { success: false, message: "Icerik zorunludur." };
+    if (!embedBlocksResult.ok) return { success: false, message: embedBlocksResult.message };
 
     const now = new Date();
     const nextPublishedAt = status === "PUBLISHED" ? (existing.publishedAt ?? now) : null;
@@ -402,6 +423,7 @@ export async function updateBlogPostAction(formData: FormData): Promise<ActionRe
         status,
         excerpt,
         contentHtml,
+        embedBlocks: embedBlocksToPrismaJson(embedBlocksResult.blocks),
         featuredImageUrl,
         publishedAt: nextPublishedAt,
         authorName,
@@ -801,5 +823,76 @@ export async function saveHomepageSeoSettingsAction(formData: FormData): Promise
     return { success: true, message: "Ana sayfa SEO ayarlari kaydedildi." };
   } catch {
     return { success: false, message: "Ana sayfa SEO ayarlari kaydedilemedi." };
+  }
+}
+
+export async function savePlannedMaintenanceSettingsAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await assertHqMutationGuard({ capability: "MARKETING_CONTENT_MANAGE" });
+    const siteConfigId = await ensureMainMarketingSiteId();
+
+    const plannedMaintenanceEnabled = normalizeOptionalBoolean(
+      formData.get("plannedMaintenanceEnabled"),
+    );
+    const plannedMaintenanceStartsAt = parseOptionalDateTimeInput(
+      formData.get("plannedMaintenanceStartsAt"),
+    );
+    const plannedMaintenanceEndsAt = parseOptionalDateTimeInput(
+      formData.get("plannedMaintenanceEndsAt"),
+    );
+    const plannedMaintenanceMessage = normalizeOptionalText(
+      formData.get("plannedMaintenanceMessage"),
+      500,
+    );
+    const plannedMaintenanceAllowedPathsInput = normalizeOptionalText(
+      formData.get("plannedMaintenanceAllowedPaths"),
+      4_000,
+    );
+    const allowedPathPrefixes = normalizeMaintenanceAllowedPathPrefixes(
+      plannedMaintenanceAllowedPathsInput,
+    );
+
+    // Safety: never lock out HQ/login during maintenance.
+    const guaranteedPrefixes = ["/hq", "/glidragiris"] as const;
+    for (const prefix of guaranteedPrefixes) {
+      if (!allowedPathPrefixes.includes(prefix)) {
+        allowedPathPrefixes.push(prefix);
+      }
+    }
+
+    if (plannedMaintenanceEnabled) {
+      if (!plannedMaintenanceStartsAt || !plannedMaintenanceEndsAt) {
+        return {
+          success: false,
+          message: "Planli bakim acikken baslangic ve bitis tarihi zorunludur.",
+        };
+      }
+      if (plannedMaintenanceEndsAt.getTime() <= plannedMaintenanceStartsAt.getTime()) {
+        return {
+          success: false,
+          message: "Bakim bitis tarihi, baslangic tarihinden sonra olmalidir.",
+        };
+      }
+    }
+
+    await prisma.marketingSiteConfig.update({
+      where: { id: siteConfigId },
+      data: {
+        plannedMaintenanceEnabled,
+        plannedMaintenanceStartsAt: plannedMaintenanceEnabled
+          ? plannedMaintenanceStartsAt
+          : null,
+        plannedMaintenanceEndsAt: plannedMaintenanceEnabled ? plannedMaintenanceEndsAt : null,
+        plannedMaintenanceMessage,
+        plannedMaintenanceAllowedPaths: allowedPathPrefixes.join("\n"),
+      },
+    });
+
+    revalidatePath("/");
+    revalidatePath("/hq");
+    revalidatePath("/hq/settings/maintenance");
+    return { success: true, message: "Planli bakim ayarlari kaydedildi." };
+  } catch {
+    return { success: false, message: "Planli bakim ayarlari kaydedilemedi." };
   }
 }
