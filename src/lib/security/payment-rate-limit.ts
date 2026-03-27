@@ -129,7 +129,7 @@ export async function assertPaymentCallbackAbuseGuard(params: {
   ipRaw: string;
   failureMode?: RateLimitFailureMode;
 }) {
-  const { channel, token, ipRaw, failureMode = "fail-open" } = params;
+  const { channel, token, ipRaw, failureMode = "fail-closed" } = params;
   const normalizedChannel = normalizeKeyPart(channel);
   const ipHash = hashPart(ipRaw);
 

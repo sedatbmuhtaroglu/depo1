@@ -1,8 +1,10 @@
 import React from "react";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { CheckCircle2, ChevronLeft, XCircle, AlertTriangle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getValidTableSession } from "@/lib/table-session";
+import { verifyOrderSuccessAccessProof } from "@/lib/order-success-access";
 
 type PaymentState = "paid" | "failed" | "error" | "pending";
 
@@ -82,7 +84,7 @@ export default async function OrderSuccessPage({
   searchParams,
 }: {
   params: Promise<{ orderId: string }>;
-  searchParams?: Promise<{ payment?: string; paymentRef?: string }>;
+  searchParams?: Promise<{ payment?: string; paymentRef?: string; accessProof?: string }>;
 }) {
   const { orderId } = await params;
   const resolvedSearchParams = (await searchParams) ?? {};
@@ -118,20 +120,38 @@ export default async function OrderSuccessPage({
   }
 
   const paymentRef = resolvedSearchParams.paymentRef ?? null;
+  const accessProof = resolvedSearchParams.accessProof ?? null;
 
-  // IDOR korumasi:
-  // 1) Normal akis: ilgili masa oturumu (table_session) ile.
-  // 2) Iyzico akisi: redirect bazen cookie tasimayabilir; bu durumda paymentRef order'ın paymentReference'i ile dogrulanir.
+  // Access policy:
+  // 1) Primary: table_session (tenant + table bound).
+  // 2) Payment callback fallback: paymentRef + signed short-lived access proof.
   const tableSession = await getValidTableSession();
   const canAccessViaTableSession =
     Boolean(tableSession) &&
     tableSession!.tableId === order.table.id &&
     tableSession!.tenantId === order.table.restaurant.tenantId;
 
+  const requestHeaders = await headers();
+  const requestTenantSlug = requestHeaders.get("x-tenant-slug")?.trim().toLowerCase() ?? null;
+  const orderTenantSlug = order.table.restaurant.tenant?.slug?.trim().toLowerCase() ?? null;
+  const tenantHeaderMatchesOrder =
+    requestTenantSlug == null || requestTenantSlug.length === 0
+      ? true
+      : requestTenantSlug === orderTenantSlug;
+
   const canAccessViaPaymentRef =
     typeof paymentRef === "string" &&
     paymentRef.length > 0 &&
-    paymentRef === order.paymentReference;
+    paymentRef === order.paymentReference &&
+    paymentState === "paid" &&
+    order.paymentStatus === "PAID" &&
+    tenantHeaderMatchesOrder &&
+    verifyOrderSuccessAccessProof({
+      proof: typeof accessProof === "string" ? accessProof : null,
+      orderId: order.id,
+      tenantId: order.table.restaurant.tenantId,
+      paymentReference: order.paymentReference,
+    });
 
   if (!canAccessViaTableSession && !canAccessViaPaymentRef) {
     if (process.env.NODE_ENV !== "production" && paymentState === "paid") {

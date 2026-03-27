@@ -1,6 +1,32 @@
 import { decryptPiiValue, isPiiCiphertext } from "@/lib/pii/pii-crypto";
 import { maskEmailForDisplay, maskPhoneForDisplay } from "@/lib/pii/pii-mask";
 
+const warnedLegacyPlaintextScopes = new Set<string>();
+
+function isPiiPlaintextReadStrict(): boolean {
+  const raw = (process.env.PII_PLAINTEXT_READ_MODE ?? "").trim().toLowerCase();
+  return raw === "strict" || raw === "deny" || raw === "block" || raw === "1" || raw === "true";
+}
+
+function handleLegacyPlaintextFallback(input: {
+  scope: string;
+  field: "email" | "phone" | "contactName";
+  value: string | null;
+}): string | null {
+  if (!input.value?.trim()) return input.value;
+  const warningKey = `${input.scope}:${input.field}`;
+  if (!warnedLegacyPlaintextScopes.has(warningKey)) {
+    warnedLegacyPlaintextScopes.add(warningKey);
+    console.warn(
+      `[security] Legacy plaintext PII fallback used (${warningKey}). Migration required: backfill encrypted fields and remove plaintext read path.`,
+    );
+  }
+  if (isPiiPlaintextReadStrict()) {
+    return null;
+  }
+  return input.value;
+}
+
 export type LeadLikePiiRow = {
   email: string | null;
   emailEncrypted: string | null;
@@ -17,14 +43,22 @@ export function resolveLeadEmail(row: Pick<LeadLikePiiRow, "email" | "emailEncry
   if (row.emailEncrypted && isPiiCiphertext(row.emailEncrypted)) {
     return decryptPiiValue(row.emailEncrypted);
   }
-  return row.email;
+  return handleLegacyPlaintextFallback({
+    scope: "lead",
+    field: "email",
+    value: row.email,
+  });
 }
 
 export function resolveLeadPhone(row: Pick<LeadLikePiiRow, "phone" | "phoneEncrypted">): string | null {
   if (row.phoneEncrypted && isPiiCiphertext(row.phoneEncrypted)) {
     return decryptPiiValue(row.phoneEncrypted);
   }
-  return row.phone;
+  return handleLegacyPlaintextFallback({
+    scope: "lead",
+    field: "phone",
+    value: row.phone,
+  });
 }
 
 export function resolveLeadContactName(
@@ -33,7 +67,13 @@ export function resolveLeadContactName(
   if (row.contactNameEncrypted && isPiiCiphertext(row.contactNameEncrypted)) {
     return decryptPiiValue(row.contactNameEncrypted) ?? row.contactName;
   }
-  return row.contactName;
+  return (
+    handleLegacyPlaintextFallback({
+      scope: "lead",
+      field: "contactName",
+      value: row.contactName,
+    }) ?? "***"
+  );
 }
 
 /** List / non-sensitive: prefer stored masked; never expose plaintext. */
@@ -72,12 +112,20 @@ export function resolveStaffEmail(row: StaffPiiRow): string | null {
   if (row.emailEncrypted && isPiiCiphertext(row.emailEncrypted)) {
     return decryptPiiValue(row.emailEncrypted);
   }
-  return row.email;
+  return handleLegacyPlaintextFallback({
+    scope: "staff",
+    field: "email",
+    value: row.email,
+  });
 }
 
 export function resolveStaffPhone(row: StaffPiiRow): string | null {
   if (row.phoneEncrypted && isPiiCiphertext(row.phoneEncrypted)) {
     return decryptPiiValue(row.phoneEncrypted);
   }
-  return row.phone;
+  return handleLegacyPlaintextFallback({
+    scope: "staff",
+    field: "phone",
+    value: row.phone,
+  });
 }

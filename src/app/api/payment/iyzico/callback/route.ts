@@ -10,6 +10,8 @@ import {
   resolveClientIpFromHeaders,
 } from "@/lib/security/payment-rate-limit";
 import { hasFeature } from "@/core/entitlements/engine";
+import { opLog } from "@/lib/op-logger";
+import { hashValue } from "@/lib/security/hash";
 
 const WAITER_URL = "/waiter";
 
@@ -46,6 +48,24 @@ function buildInvalidCallbackResponse(error: AppOriginSecurityError): NextRespon
   return new NextResponse("Invalid callback request.", { status: isRequestHostError ? 400 : 500 });
 }
 
+function logBillCallbackSecurityEvent(input: {
+  action: string;
+  result: "ok" | "error";
+  tenantId?: number;
+  billRequestId?: number;
+  token?: string | null;
+  message?: string;
+}) {
+  const tokenHash = hashValue(input.token ?? null);
+  opLog({
+    tenantId: input.tenantId,
+    billRequestId: input.billRequestId,
+    action: input.action,
+    result: input.result,
+    message: `${input.message ?? ""}${tokenHash ? `; tokenHash=${tokenHash.slice(0, 12)}` : ""}`,
+  });
+}
+
 async function handleIyzicoCallback(request: NextRequest, token: string | null) {
   let base: string;
   try {
@@ -62,12 +82,24 @@ async function handleIyzicoCallback(request: NextRequest, token: string | null) 
       channel: "bill",
       token,
       ipRaw: resolveClientIpFromHeaders(request.headers),
-      failureMode: "fail-open",
+      failureMode: "fail-closed",
     });
   } catch (error) {
     if (error instanceof DistributedRateLimitError) {
+      logBillCallbackSecurityEvent({
+        action: "BILL_CALLBACK_GUARD_REJECTED",
+        result: "error",
+        token,
+        message: `code=${error.code}`,
+      });
       return new NextResponse("Callback request could not be processed.", { status: 429 });
     }
+    logBillCallbackSecurityEvent({
+      action: "BILL_CALLBACK_GUARD_ERROR",
+      result: "error",
+      token,
+      message: "unexpected_guard_error",
+    });
     throw error;
   }
 
@@ -81,6 +113,12 @@ async function handleIyzicoCallback(request: NextRequest, token: string | null) 
   });
 
   if (!intent) {
+    logBillCallbackSecurityEvent({
+      action: "BILL_CALLBACK_INVALID_TOKEN",
+      result: "error",
+      token,
+      message: "invalid_token",
+    });
     return NextResponse.redirect(buildWaiterRedirectUrl(base, { status: "error", reason: "invalid_token" }));
   }
 

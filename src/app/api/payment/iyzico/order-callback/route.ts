@@ -11,6 +11,9 @@ import {
 import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { hasFeature } from "@/core/entitlements/engine";
+import { opLog } from "@/lib/op-logger";
+import { hashValue } from "@/lib/security/hash";
+import { createOrderSuccessAccessProof } from "@/lib/order-success-access";
 
 function buildOrderResultUrl(params: {
   base: string;
@@ -18,6 +21,7 @@ function buildOrderResultUrl(params: {
   status: "paid" | "failed" | "error";
   reason?: string;
   paymentReference?: string | null;
+  accessProof?: string | null;
 }): string {
   const url = new URL(`/order-success/${params.orderId}`, params.base);
   url.searchParams.set("payment", params.status);
@@ -26,6 +30,9 @@ function buildOrderResultUrl(params: {
   }
   if (params.paymentReference) {
     url.searchParams.set("paymentRef", params.paymentReference);
+  }
+  if (params.accessProof) {
+    url.searchParams.set("accessProof", params.accessProof);
   }
   return url.toString();
 }
@@ -46,6 +53,24 @@ function buildInvalidCallbackResponse(error: AppOriginSecurityError): NextRespon
   const isRequestHostError =
     error.code === "REQUEST_HOST_INVALID" || error.code === "REQUEST_HOST_NOT_ALLOWED";
   return new NextResponse("Invalid callback request.", { status: isRequestHostError ? 400 : 500 });
+}
+
+function logOrderCallbackSecurityEvent(input: {
+  action: string;
+  result: "ok" | "error";
+  tenantId?: number;
+  orderId?: number;
+  token?: string | null;
+  message?: string;
+}) {
+  const tokenHash = hashValue(input.token ?? null);
+  opLog({
+    tenantId: input.tenantId,
+    orderId: input.orderId,
+    action: input.action,
+    result: input.result,
+    message: `${input.message ?? ""}${tokenHash ? `; tokenHash=${tokenHash.slice(0, 12)}` : ""}`,
+  });
 }
 
 const orderCallbackInclude = {
@@ -80,12 +105,24 @@ async function handleOrderCallback(
       channel: "order",
       token,
       ipRaw: resolveClientIpFromHeaders(request.headers),
-      failureMode: "fail-open",
+      failureMode: "fail-closed",
     });
   } catch (error) {
     if (error instanceof DistributedRateLimitError) {
+      logOrderCallbackSecurityEvent({
+        action: "ORDER_CALLBACK_GUARD_REJECTED",
+        result: "error",
+        token,
+        message: `code=${error.code}`,
+      });
       return new NextResponse("Callback request could not be processed.", { status: 429 });
     }
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_GUARD_ERROR",
+      result: "error",
+      token,
+      message: "unexpected_guard_error",
+    });
     throw error;
   }
 
@@ -102,12 +139,18 @@ async function handleOrderCallback(
         include: orderCallbackInclude,
       });
       if (fallbackOrder?.paymentStatus === "PAID") {
+        const fallbackAccessProof = createOrderSuccessAccessProof({
+          orderId: fallbackOrder.id,
+          tenantId: fallbackOrder.table.restaurant.tenantId,
+          paymentReference: fallbackOrder.paymentReference,
+        });
         return NextResponse.redirect(
           buildOrderResultUrl({
             base,
             orderId: fallbackOrder.id,
             status: "paid",
             paymentReference: fallbackOrder.paymentReference ?? null,
+            accessProof: fallbackAccessProof,
           }),
         );
       }
@@ -134,8 +177,20 @@ async function handleOrderCallback(
   }
 
   if (!order) {
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_ORDER_NOT_FOUND",
+      result: "error",
+      token,
+      message: "order_not_found",
+    });
     return NextResponse.redirect(buildGenericErrorUrl(base, "order_not_found"));
   }
+
+  const accessProof = createOrderSuccessAccessProof({
+    orderId: order.id,
+    tenantId: order.table.restaurant.tenantId,
+    paymentReference: order.paymentReference,
+  });
 
   if (order.paymentStatus === "PAID") {
     return NextResponse.redirect(
@@ -144,14 +199,19 @@ async function handleOrderCallback(
         orderId: order.id,
         status: "paid",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
 
   if (parsedOrderId && parsedOrderId !== order.id) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_ORDER_MISMATCH",
+      result: "error",
+      tenantId: order.table.restaurant.tenantId,
+      orderId: order.id,
+      token,
+      message: "order_mismatch",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -160,14 +220,19 @@ async function handleOrderCallback(
         status: "error",
         reason: "order_mismatch",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
 
   if (order.paymentReference !== token) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_TOKEN_MISMATCH",
+      result: "error",
+      tenantId: order.table.restaurant.tenantId,
+      orderId: order.id,
+      token,
+      message: "token_mismatch",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -176,15 +241,19 @@ async function handleOrderCallback(
         status: "failed",
         reason: "token_mismatch",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
 
   const tenantId = order.table.restaurant.tenantId;
   if (!tenantId) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_TENANT_MISSING",
+      result: "error",
+      orderId: order.id,
+      token,
+      message: "tenant_missing",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -193,15 +262,20 @@ async function handleOrderCallback(
         status: "error",
         reason: "tenant_missing",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
 
   const onlinePaymentEnabled = await hasFeature(tenantId, "ONLINE_PAYMENT_IYZICO");
   if (!onlinePaymentEnabled) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_PAYMENT_DISABLED",
+      result: "error",
+      tenantId,
+      orderId: order.id,
+      token,
+      message: "online_payment_disabled",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -210,15 +284,20 @@ async function handleOrderCallback(
         status: "error",
         reason: "online_payment_disabled",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
 
   const iyzicoConfig = await getIyzicoConfigForTenant(tenantId);
   if (!iyzicoConfig) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_CONFIG_MISSING",
+      result: "error",
+      tenantId,
+      orderId: order.id,
+      token,
+      message: "config_missing",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -227,6 +306,7 @@ async function handleOrderCallback(
         status: "error",
         reason: "config_missing",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
@@ -237,9 +317,13 @@ async function handleOrderCallback(
     order.paymentConversationId ?? undefined,
   );
   if (retrieve.status !== "success") {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_RETRIEVE_FAILED",
+      result: "error",
+      tenantId,
+      orderId: order.id,
+      token,
+      message: "retrieve_failed",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -248,6 +332,7 @@ async function handleOrderCallback(
         status: "failed",
         reason: "retrieve_failed",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
@@ -257,9 +342,13 @@ async function handleOrderCallback(
     order.paymentConversationId &&
     retrieve.conversationId !== order.paymentConversationId
   ) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_CONVERSATION_MISMATCH",
+      result: "error",
+      tenantId,
+      orderId: order.id,
+      token,
+      message: "conversation_mismatch",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -268,14 +357,19 @@ async function handleOrderCallback(
         status: "error",
         reason: "conversation_mismatch",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
 
   if (retrieve.paymentStatus !== "SUCCESS") {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "FAILED" },
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_PAYMENT_NOT_SUCCESS",
+      result: "error",
+      tenantId,
+      orderId: order.id,
+      token,
+      message: "not_success",
     });
     return NextResponse.redirect(
       buildOrderResultUrl({
@@ -284,6 +378,7 @@ async function handleOrderCallback(
         status: "failed",
         reason: "not_success",
         paymentReference: order.paymentReference ?? null,
+        accessProof,
       }),
     );
   }
@@ -331,6 +426,7 @@ async function handleOrderCallback(
       orderId: order.id,
       status: "paid",
       paymentReference: order.paymentReference ?? null,
+      accessProof,
     }),
   );
 }
