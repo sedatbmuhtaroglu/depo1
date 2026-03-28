@@ -40,14 +40,15 @@ export function createOrderSuccessAccessProof(input: {
   paymentReference: string | null;
 }): string | null {
   if (!Number.isInteger(input.orderId) || input.orderId <= 0) return null;
-  if (!Number.isInteger(input.tenantId) || (input.tenantId ?? 0) <= 0) return null;
+  const tenantId = input.tenantId;
+  if (tenantId == null || !Number.isInteger(tenantId) || tenantId <= 0) return null;
 
   const paymentReferenceHash = hashValue(input.paymentReference);
   if (!paymentReferenceHash) return null;
 
   const payload: OrderSuccessAccessPayload = {
     orderId: input.orderId,
-    tenantId: input.tenantId,
+    tenantId,
     paymentReferenceHash,
     issuedAtMs: Date.now(),
   };

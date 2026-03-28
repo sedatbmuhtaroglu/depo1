@@ -216,7 +216,7 @@ async function handleOrderCallback(
     logOrderCallbackSecurityEvent({
       action: "ORDER_CALLBACK_REJECTED_INVALID_PAYMENT_STATE",
       result: "error",
-      tenantId: order.table.restaurant.tenantId,
+      tenantId: order.table.restaurant.tenantId ?? undefined,
       orderId: order.id,
       token,
       message: `paymentStatus=${order.paymentStatus ?? "null"}`,
@@ -237,7 +237,7 @@ async function handleOrderCallback(
     logOrderCallbackSecurityEvent({
       action: "ORDER_CALLBACK_REJECTED_ORDER_MISMATCH",
       result: "error",
-      tenantId: order.table.restaurant.tenantId,
+      tenantId: order.table.restaurant.tenantId ?? undefined,
       orderId: order.id,
       token,
       message: "order_mismatch",
@@ -258,7 +258,7 @@ async function handleOrderCallback(
     logOrderCallbackSecurityEvent({
       action: "ORDER_CALLBACK_REJECTED_TOKEN_MISMATCH",
       result: "error",
-      tenantId: order.table.restaurant.tenantId,
+      tenantId: order.table.restaurant.tenantId ?? undefined,
       orderId: order.id,
       token,
       message: "token_mismatch",

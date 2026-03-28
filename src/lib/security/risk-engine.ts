@@ -202,7 +202,10 @@ export async function evaluateAndLogRisk(options: {
           .filter((v): v is number => typeof v === "number"),
       );
 
-      if (tableSet.size >= 3 || (tableSet.size >= 2 && !tableSet.has(tableId))) {
+      if (
+        tableSet.size >= 3 ||
+        (resolvedTableId != null && tableSet.size >= 2 && !tableSet.has(resolvedTableId))
+      ) {
         score += 30;
         reasons.push("RAPID_TABLE_SWITCH");
         details.tableSwitchCount = tableSet.size;
