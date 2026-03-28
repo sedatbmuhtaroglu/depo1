@@ -1,18 +1,27 @@
 version: "3.9"
 
 services:
-  postgres:
+  db:
     image: postgres:15
-    container_name: qrmenu-postgres
+    container_name: qrmenu-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: qrmenu
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
+      POSTGRES_PASSWORD: CataL_2026_pG_Secure!
     ports:
       - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7-alpine
+    container_name: qrmenu-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
 
 volumes:
   pgdata:
+  redisdata:

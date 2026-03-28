@@ -10,6 +10,7 @@ type OriginConfig = {
   isProduction: boolean;
   canonicalOrigin: string | null;
   allowedHosts: ParsedHost[];
+  wildcardHostSuffixes: string[];
 };
 
 const DEFAULT_DEV_BASE_URL = "http://localhost:3000";
@@ -134,17 +135,29 @@ function parseCanonicalOrigin(rawValue: string, envName: string): string {
 function parseAllowedHosts(
   rawValue: string | undefined,
   isProduction: boolean,
-): { hosts: ParsedHost[]; invalidEntries: string[] } {
+): { hosts: ParsedHost[]; wildcardHostSuffixes: string[]; invalidEntries: string[] } {
   if (!rawValue?.trim()) {
-    return { hosts: [], invalidEntries: [] };
+    return { hosts: [], wildcardHostSuffixes: [], invalidEntries: [] };
   }
 
   const hosts: ParsedHost[] = [];
+  const wildcardHostSuffixes: string[] = [];
   const invalidEntries: string[] = [];
 
   for (const entry of rawValue.split(",")) {
     const trimmed = entry.trim();
     if (!trimmed) continue;
+
+    if (trimmed.startsWith("*.")) {
+      const wildcardRaw = trimmed.slice(2);
+      const wildcardParsed = parseHost(wildcardRaw);
+      if (!wildcardParsed || wildcardParsed.port !== null) {
+        invalidEntries.push(trimmed);
+      } else {
+        wildcardHostSuffixes.push(wildcardParsed.hostname);
+      }
+      continue;
+    }
 
     const parsed = parseHost(trimmed);
     if (!parsed) {
@@ -162,7 +175,7 @@ function parseAllowedHosts(
     );
   }
 
-  return { hosts, invalidEntries };
+  return { hosts, wildcardHostSuffixes, invalidEntries };
 }
 
 function dedupeHosts(hosts: ParsedHost[]): ParsedHost[] {
@@ -175,6 +188,17 @@ function dedupeHosts(hosts: ParsedHost[]): ParsedHost[] {
     deduped.push(host);
   }
 
+  return deduped;
+}
+
+function dedupeWildcardHostSuffixes(hosts: string[]): string[] {
+  const seen = new Set<string>();
+  const deduped: string[] = [];
+  for (const host of hosts) {
+    if (seen.has(host)) continue;
+    seen.add(host);
+    deduped.push(host);
+  }
   return deduped;
 }
 
@@ -193,7 +217,10 @@ function resolveOriginConfig(): OriginConfig {
     ? parseCanonicalOrigin(canonicalRaw, "APP_BASE_URL")
     : null;
 
-  const { hosts: allowedFromEnv } = parseAllowedHosts(process.env.ALLOWED_APP_HOSTS, isProduction);
+  const { hosts: allowedFromEnv, wildcardHostSuffixes: wildcardFromEnv } = parseAllowedHosts(
+    process.env.ALLOWED_APP_HOSTS,
+    isProduction,
+  );
   const combined: ParsedHost[] = [...allowedFromEnv];
 
   if (canonicalOrigin) {
@@ -214,8 +241,9 @@ function resolveOriginConfig(): OriginConfig {
   }
 
   const allowedHosts = dedupeHosts(combined);
+  const wildcardHostSuffixes = dedupeWildcardHostSuffixes(wildcardFromEnv);
 
-  if (isProduction && allowedHosts.length === 0) {
+  if (isProduction && allowedHosts.length === 0 && wildcardHostSuffixes.length === 0) {
     throw new AppOriginSecurityError(
       "ALLOWED_HOSTS_INVALID",
       "Allowed host list is empty in production.",
@@ -226,14 +254,27 @@ function resolveOriginConfig(): OriginConfig {
     isProduction,
     canonicalOrigin,
     allowedHosts,
+    wildcardHostSuffixes,
   };
 }
 
-function isHostAllowed(candidate: ParsedHost, allowedHosts: ParsedHost[], isProduction: boolean): boolean {
+function isHostAllowed(
+  candidate: ParsedHost,
+  allowedHosts: ParsedHost[],
+  wildcardHostSuffixes: string[],
+  isProduction: boolean,
+): boolean {
   for (const allowed of allowedHosts) {
     if (allowed.hostname !== candidate.hostname) continue;
     if (allowed.port === null) return true;
     if (allowed.port === candidate.port) return true;
+  }
+
+  for (const suffix of wildcardHostSuffixes) {
+    if (candidate.hostname.length <= suffix.length) continue;
+    if (candidate.hostname.endsWith(`.${suffix}`)) {
+      return true;
+    }
   }
 
   if (!isProduction) {
@@ -298,15 +339,19 @@ export function resolveCanonicalAppOrigin(): string {
 }
 
 export function getAllowedAppHosts(): string[] {
-  return resolveOriginConfig().allowedHosts.map((host) => host.normalized);
+  const { allowedHosts, wildcardHostSuffixes } = resolveOriginConfig();
+  return [
+    ...allowedHosts.map((host) => host.normalized),
+    ...wildcardHostSuffixes.map((suffix) => `*.${suffix}`),
+  ];
 }
 
 export function assertRequestHostAllowed(headers: Headers): void {
-  const { allowedHosts, isProduction } = resolveOriginConfig();
+  const { allowedHosts, wildcardHostSuffixes, isProduction } = resolveOriginConfig();
   const requestHost = resolveRequestHost(headers);
   if (!requestHost) return;
 
-  if (!isHostAllowed(requestHost, allowedHosts, isProduction)) {
+  if (!isHostAllowed(requestHost, allowedHosts, wildcardHostSuffixes, isProduction)) {
     throw new AppOriginSecurityError("REQUEST_HOST_NOT_ALLOWED", "Request host is not allowed.");
   }
 }
@@ -321,7 +366,15 @@ export function resolveSafeAppBaseUrl(params?: {
 
   if (requestHeaders) {
     requestHost = resolveRequestHost(requestHeaders);
-    if (requestHost && !isHostAllowed(requestHost, config.allowedHosts, config.isProduction)) {
+    if (
+      requestHost &&
+      !isHostAllowed(
+        requestHost,
+        config.allowedHosts,
+        config.wildcardHostSuffixes,
+        config.isProduction,
+      )
+    ) {
       throw new AppOriginSecurityError("REQUEST_HOST_NOT_ALLOWED", "Request host is not allowed.");
     }
   }
