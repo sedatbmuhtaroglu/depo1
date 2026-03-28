@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -13,12 +13,50 @@ import {
 } from "@/lib/admin-login-rate-limit";
 import { resolveStaffPostLoginTarget } from "@/lib/staff-post-login-redirect";
 import { assertPrivilegedServerActionOrigin } from "@/lib/server-action-guard";
+import { evaluateAuthLoginRisk } from "@/lib/security/risk-engine";
+import { verifyRecaptchaV3 } from "@/lib/security/recaptcha";
+import { opLog } from "@/lib/op-logger";
+import { hashValue } from "@/lib/security/hash";
 
 function isLegacyTenantAdminFallbackEnabled() {
   return (process.env.ALLOW_LEGACY_ADMIN_USER_TENANT_LOGIN ?? "false").toLowerCase() === "true";
 }
 
 const INVALID_CREDENTIALS_MESSAGE = "Kullanıcı adı veya şifre hatalı.";
+const SECURITY_VALIDATION_FAILED_MESSAGE = "Güvenlik doğrulaması başarısız.";
+const DEV_RECAPTCHA_BYPASS =
+  process.env.NODE_ENV !== "production" &&
+  (process.env.RECAPTCHA_DEV_BYPASS ?? "").trim().toLowerCase() === "1";
+
+async function verifyAdminLoginRecaptchaOrFail(params: {
+  token: string | null;
+  clientIp: string;
+  username: string;
+}): Promise<{ ok: true } | { ok: false; message: string }> {
+  const verifyResult = await verifyRecaptchaV3({
+    token: params.token,
+    expectedAction: "admin_login_submit",
+    remoteIp: params.clientIp,
+    minScore: 0.5,
+  });
+  if (verifyResult.ok) {
+    return { ok: true };
+  }
+
+  if (verifyResult.reason === "config_missing" && DEV_RECAPTCHA_BYPASS) {
+    return { ok: true };
+  }
+
+  opLog({
+    action: "ADMIN_LOGIN_RECAPTCHA_REJECTED",
+    result: "error",
+    message: `reason=${verifyResult.reason}; user=${(hashValue(params.username) ?? "unknown").slice(0, 12)}`,
+  });
+  return {
+    ok: false,
+    message: SECURITY_VALIDATION_FAILED_MESSAGE,
+  };
+}
 
 async function resolveTenantIdForLogin() {
   const requestHeaders = await headers();
@@ -66,7 +104,14 @@ async function attemptTenantStaffLogin(params: {
 
   const isValidStaffPassword = await verifyPassword(params.password, staffUser.passwordHash);
   if (!isValidStaffPassword) {
-    await registerAdminLoginFailure({ username: params.username, ip: params.clientIp });
+    try {
+      await registerAdminLoginFailure({ username: params.username, ip: params.clientIp });
+    } catch {
+      return {
+        kind: "ERROR",
+        message: "Güvenlik kontrolleri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
+      };
+    }
     return { kind: "ERROR", message: INVALID_CREDENTIALS_MESSAGE };
   }
 
@@ -85,10 +130,10 @@ async function attemptTenantStaffLogin(params: {
 
   if (target.kind === "blocked") {
     await clearAdminSession();
-    if (target.errorCode === "inactive") {
-      return { kind: "ERROR", message: "Bu kullanıcı şu anda aktif değil." };
-    }
-    return { kind: "ERROR", message: "Bu kullanıcı çalışma saatleri dışında." };
+    return {
+      kind: "ERROR",
+      message: "Giriş şu an tamamlanamıyor. Lütfen daha sonra tekrar deneyin.",
+    };
   }
 
   redirect(target.path);
@@ -103,12 +148,32 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
 
   const username = formData.get("username")?.toString().trim().toLowerCase() ?? "";
   const password = formData.get("password")?.toString() ?? "";
+  const recaptchaToken = formData.get("recaptchaToken")?.toString().trim() ?? null;
 
   if (!username || !password) {
     return { error: "Kullanıcı adı ve şifre zorunludur." };
   }
 
   const clientIp = await getAdminLoginClientIp();
+  const recaptchaCheck = await verifyAdminLoginRecaptchaOrFail({
+    token: recaptchaToken,
+    clientIp,
+    username,
+  });
+  if (!recaptchaCheck.ok) {
+    return { error: recaptchaCheck.message };
+  }
+
+  const authRisk = await evaluateAuthLoginRisk({
+    ipRaw: clientIp,
+    failureMode: "fail-closed",
+  });
+  if (authRisk.decision === "block") {
+    return {
+      error: "Guvenlik kontrolleri nedeniyle giris istegi gecici olarak engellendi. Lutfen daha sonra tekrar deneyin.",
+    };
+  }
+
   const rateLimit = await checkAdminLoginRateLimit({ username, ip: clientIp });
   if (!rateLimit.allowed) {
     if (rateLimit.reason === "infrastructure") {
@@ -136,7 +201,11 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
     }
 
     if (!isLegacyTenantAdminFallbackEnabled()) {
-      await registerAdminLoginFailure({ username, ip: clientIp });
+      try {
+        await registerAdminLoginFailure({ username, ip: clientIp });
+      } catch {
+        return { error: "Güvenlik kontrolleri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin." };
+      }
       return { error: INVALID_CREDENTIALS_MESSAGE };
     }
   }
@@ -144,11 +213,12 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
   if (tenantId == null) {
     const inferredTenantId = await resolveSingleTenantIdForStaffUsername(username);
     if (inferredTenantId === "AMBIGUOUS") {
-      await registerAdminLoginFailure({ username, ip: clientIp });
-      return {
-        error:
-          "Bu kullanıcı birden fazla işletmede kayıtlı. Tenant bağlantısı ile giriş yapın.",
-      };
+      try {
+        await registerAdminLoginFailure({ username, ip: clientIp });
+      } catch {
+        return { error: "Güvenlik kontrolleri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin." };
+      }
+      return { error: INVALID_CREDENTIALS_MESSAGE };
     }
     if (typeof inferredTenantId === "number") {
       const inferredAttempt = await attemptTenantStaffLogin({
@@ -160,7 +230,11 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
       if (inferredAttempt.kind === "ERROR") {
         return { error: inferredAttempt.message };
       }
-      await registerAdminLoginFailure({ username, ip: clientIp });
+      try {
+        await registerAdminLoginFailure({ username, ip: clientIp });
+      } catch {
+        return { error: "Güvenlik kontrolleri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin." };
+      }
       return { error: INVALID_CREDENTIALS_MESSAGE };
     }
   }
@@ -170,14 +244,22 @@ export async function adminLogin(_: { error?: string } | undefined, formData: Fo
   });
 
   if (!adminUser) {
-    await registerAdminLoginFailure({ username, ip: clientIp });
+    try {
+      await registerAdminLoginFailure({ username, ip: clientIp });
+    } catch {
+      return { error: "Güvenlik kontrolleri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin." };
+    }
     return { error: INVALID_CREDENTIALS_MESSAGE };
   }
 
   const isValidPassword = await verifyPassword(password, adminUser.passwordHash);
 
   if (!isValidPassword) {
-    await registerAdminLoginFailure({ username, ip: clientIp });
+    try {
+      await registerAdminLoginFailure({ username, ip: clientIp });
+    } catch {
+      return { error: "Güvenlik kontrolleri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin." };
+    }
     return { error: INVALID_CREDENTIALS_MESSAGE };
   }
 

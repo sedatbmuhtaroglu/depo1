@@ -20,6 +20,7 @@ import {
   clearAdminSession,
   getAuthenticatedAdminSession,
   requireManagerSession,
+  revokeSessionsForUser,
 } from "@/lib/auth";
 import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { hashPassword } from "@/lib/password";
@@ -309,6 +310,14 @@ export async function updateTenantStaffUser(data: {
       };
     }
     const legacy = deriveLegacyFieldsFromWeekly(data.weeklyShiftSchedule);
+    const currentStaff = await prisma.tenantStaff.findUnique({
+      where: { id: data.id },
+      select: { id: true, tenantId: true, username: true, role: true, isActive: true },
+    });
+    if (!currentStaff || currentStaff.tenantId !== tenantId) {
+      return { success: false, message: "Kullanıcı bulunamadı." };
+    }
+
     await assertNotLastManager({
       tenantId,
       userId: data.id,
@@ -330,6 +339,12 @@ export async function updateTenantStaffUser(data: {
     });
     if (updated.count === 0) {
       return { success: false, message: "Kullanıcı bulunamadı." };
+    }
+    if (currentStaff.role !== role || currentStaff.isActive !== Boolean(data.isActive)) {
+      await revokeSessionsForUser({
+        username: currentStaff.username,
+        tenantId,
+      });
     }
     await writeAuditLog({
       tenantId,
@@ -366,6 +381,12 @@ export async function resetTenantStaffPassword(data: {
     }
     const passwordHash = await hashPassword(newPassword);
     const requireSetup = data.requirePasswordSetupOnNextLogin === true;
+    const targetStaff = await prisma.tenantStaff.findFirst({
+      where: { id: data.id, tenantId },
+      select: { username: true },
+    });
+    if (!targetStaff) return { success: false, message: "Kullanıcı bulunamadı." };
+
     const updated = await prisma.tenantStaff.updateMany({
       where: { id: data.id, tenantId },
       data: {
@@ -375,6 +396,10 @@ export async function resetTenantStaffPassword(data: {
       },
     });
     if (updated.count === 0) return { success: false, message: "Kullanıcı bulunamadı." };
+    await revokeSessionsForUser({
+      username: targetStaff.username,
+      tenantId,
+    });
     await writeAuditLog({
       tenantId,
       actor: { type: "admin", id: actorUsername },
@@ -395,6 +420,12 @@ export async function forceTenantStaffPasswordReset(data: { id: number }): Promi
     await assertPrivilegedServerActionOrigin();
     const { actorUsername, tenantId } = await buildManagerTenantContext();
     const passwordHash = await hashPassword(randomBytes(32).toString("hex"));
+    const targetStaff = await prisma.tenantStaff.findFirst({
+      where: { id: data.id, tenantId },
+      select: { username: true },
+    });
+    if (!targetStaff) return { success: false, message: "Kullanıcı bulunamadı." };
+
     const updated = await prisma.tenantStaff.updateMany({
       where: { id: data.id, tenantId },
       data: {
@@ -404,6 +435,10 @@ export async function forceTenantStaffPasswordReset(data: { id: number }): Promi
       },
     });
     if (updated.count === 0) return { success: false, message: "Kullanıcı bulunamadı." };
+    await revokeSessionsForUser({
+      username: targetStaff.username,
+      tenantId,
+    });
     await writeAuditLog({
       tenantId,
       actor: { type: "admin", id: actorUsername },
@@ -494,6 +529,10 @@ export async function completeInitialStaffPassword(data: {
         passwordInitializedAt: new Date(),
       },
     });
+    await revokeSessionsForUser({
+      username: session.username,
+      tenantId: session.tenantId,
+    });
     await writeAuditLog({
       tenantId: session.tenantId,
       actor: { type: "admin", id: session.username },
@@ -570,6 +609,11 @@ export async function completeInitialStaffPasswordWithToken(data: {
     if (!result.ok) {
       return { success: false, message: mapSetPasswordTokenErrorMessage(result.code) };
     }
+
+    await revokeSessionsForUser({
+      username: result.snapshot.username,
+      tenantId: result.snapshot.tenantId,
+    });
 
     await writeAuditLog({
       tenantId: result.snapshot.tenantId,

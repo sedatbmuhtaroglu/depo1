@@ -14,6 +14,7 @@ import {
 } from "@/lib/security/payment-rate-limit";
 import { logServerError } from "@/lib/server-error-log";
 import { hasFeature } from "@/core/entitlements/engine";
+import { evaluateAndLogRisk } from "@/lib/security/risk-engine";
 
 export async function createIyzicoCheckout(options: {
   billRequestId: number;
@@ -75,9 +76,24 @@ export async function createIyzicoCheckout(options: {
       ipRaw,
     });
 
-    const callbackUrl = buildSafeAppUrl("/api/payment/iyzico/callback", {
+    const risk = await evaluateAndLogRisk({
+      tenantId,
+      tableId: bill.tableId,
+      action: "PAYMENT_INITIATE",
+      failureMode: "fail-closed",
+    });
+    if (risk.decision === "block") {
+      return {
+        success: false,
+        message: "Guvenlik kontrolleri nedeniyle odeme baslatma gecici olarak engellendi.",
+      };
+    }
+
+    const callbackUrlBase = buildSafeAppUrl("/api/payment/iyzico/callback", {
       headers: requestHeaders,
     });
+    const callbackUrl = new URL(callbackUrlBase);
+    callbackUrl.searchParams.set("billRequestId", String(billRequestId));
     const priceStr = amount.toFixed(2);
     const conversationId = `bill-${billRequestId}-${Date.now()}`;
     const basketId = `B${billRequestId}-${Date.now()}`;
@@ -88,7 +104,7 @@ export async function createIyzicoCheckout(options: {
         price: priceStr,
         paidPrice: priceStr,
         basketId,
-        callbackUrl,
+        callbackUrl: callbackUrl.toString(),
         buyer: {
           id: `T${bill.tableId}`,
           name: "Masa",
@@ -143,6 +159,7 @@ export async function createIyzicoCheckout(options: {
         amount,
         currency: "TRY",
         gatewayToken: result.token,
+        gatewayConversationId: conversationId,
         gatewayProvider: "IYZICO",
         status: "PENDING",
       },

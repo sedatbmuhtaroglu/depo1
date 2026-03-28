@@ -465,6 +465,7 @@ export async function createOrder(
       tableSessionId: session.id,
       action: "CREATE_ORDER",
       signals: riskSignals,
+      failureMode: "fail-closed",
     });
 
     if (riskResult.decision === "block") {

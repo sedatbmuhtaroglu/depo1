@@ -272,6 +272,8 @@ model AdminUser {
   id           Int      @id @default(autoincrement())
   username     String   @unique
   passwordHash String
+  sessionVersion Int    @default(1)
+  sessionRevokedAfter DateTime?
   createdAt    DateTime @default(now())
 
   authoredPages                Page[]                       @relation("PageAuthor")
@@ -368,6 +370,8 @@ model TenantStaff {
   tenantId              Int
   username              String
   passwordHash          String
+  sessionVersion        Int       @default(1)
+  sessionRevokedAfter   DateTime?
   mustSetPassword       Boolean   @default(true)
   passwordInitializedAt DateTime?
   role                  StaffRole
@@ -1501,8 +1505,11 @@ model PaymentIntent {
   amount          Decimal                @db.Decimal(10, 2)
   currency        String                 @db.VarChar(3)
   gatewayToken    String                 @unique
+  gatewayConversationId String?          @db.VarChar(191)
+  gatewayPaymentId String?               @db.VarChar(191)
   gatewayProvider PaymentGatewayProvider
   status          PaymentIntentStatus    @default(PENDING)
+  callbackVerifiedAt DateTime?
   createdAt       DateTime               @default(now())
 
   tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)

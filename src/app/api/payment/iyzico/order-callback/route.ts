@@ -15,6 +15,14 @@ import { opLog } from "@/lib/op-logger";
 import { hashValue } from "@/lib/security/hash";
 import { createOrderSuccessAccessProof } from "@/lib/order-success-access";
 
+const MONEY_EPSILON = 0.01;
+
+function normalizeMoney(value: unknown): number | null {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  return Math.round(n * 100) / 100;
+}
+
 function buildOrderResultUrl(params: {
   base: string;
   orderId: number;
@@ -204,6 +212,27 @@ async function handleOrderCallback(
     );
   }
 
+  if (order.paymentStatus !== "INITIATED" && order.paymentStatus !== "PENDING") {
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_INVALID_PAYMENT_STATE",
+      result: "error",
+      tenantId: order.table.restaurant.tenantId,
+      orderId: order.id,
+      token,
+      message: `paymentStatus=${order.paymentStatus ?? "null"}`,
+    });
+    return NextResponse.redirect(
+      buildOrderResultUrl({
+        base,
+        orderId: order.id,
+        status: "error",
+        reason: "invalid_payment_state",
+        paymentReference: order.paymentReference ?? null,
+        accessProof,
+      }),
+    );
+  }
+
   if (parsedOrderId && parsedOrderId !== order.id) {
     logOrderCallbackSecurityEvent({
       action: "ORDER_CALLBACK_REJECTED_ORDER_MISMATCH",
@@ -377,6 +406,55 @@ async function handleOrderCallback(
         orderId: order.id,
         status: "failed",
         reason: "not_success",
+        paymentReference: order.paymentReference ?? null,
+        accessProof,
+      }),
+    );
+  }
+
+  const paidPrice = normalizeMoney(retrieve.paidPrice);
+  const expectedAmount = normalizeMoney(order.totalPrice);
+  if (
+    paidPrice == null ||
+    expectedAmount == null ||
+    Math.abs(paidPrice - expectedAmount) > MONEY_EPSILON
+  ) {
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_AMOUNT_MISMATCH",
+      result: "error",
+      tenantId,
+      orderId: order.id,
+      token,
+      message: `expected=${expectedAmount ?? "n/a"}; paid=${paidPrice ?? "n/a"}`,
+    });
+    return NextResponse.redirect(
+      buildOrderResultUrl({
+        base,
+        orderId: order.id,
+        status: "error",
+        reason: "amount_mismatch",
+        paymentReference: order.paymentReference ?? null,
+        accessProof,
+      }),
+    );
+  }
+
+  const providerPaymentId = retrieve.paymentId?.trim() ?? "";
+  if (!providerPaymentId) {
+    logOrderCallbackSecurityEvent({
+      action: "ORDER_CALLBACK_REJECTED_MISSING_PAYMENT_ID",
+      result: "error",
+      tenantId,
+      orderId: order.id,
+      token,
+      message: "missing_payment_id",
+    });
+    return NextResponse.redirect(
+      buildOrderResultUrl({
+        base,
+        orderId: order.id,
+        status: "error",
+        reason: "missing_payment_id",
         paymentReference: order.paymentReference ?? null,
         accessProof,
       }),

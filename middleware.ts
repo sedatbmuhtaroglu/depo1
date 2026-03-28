@@ -13,6 +13,41 @@ function normalizeHost(rawHost: string | null): string {
   return firstToken.replace(/:\d+$/, "");
 }
 
+function buildContentSecurityPolicy(): string {
+  const scriptSrc = [
+    "'self'",
+    "'unsafe-inline'",
+    "https://www.google.com/recaptcha/",
+    "https://www.gstatic.com/recaptcha/",
+  ];
+  if (process.env.NODE_ENV !== "production") {
+    scriptSrc.push("'unsafe-eval'");
+  }
+
+  const directives = [
+    "default-src 'self'",
+    `script-src ${scriptSrc.join(" ")}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    [
+      "connect-src",
+      "'self'",
+      "https://www.google.com/recaptcha/",
+      "https://www.gstatic.com/recaptcha/",
+      "https://api.iyzipay.com",
+      "https://sandbox-api.iyzipay.com",
+    ].join(" "),
+    "font-src 'self' data:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'self'",
+    "frame-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/",
+    "form-action 'self' https://sandbox-merchant.iyzipay.com https://merchant.iyzipay.com https://www.google.com",
+    "upgrade-insecure-requests",
+  ];
+  return directives.join("; ");
+}
+
 function debugTenancy(event: string, payload: Record<string, unknown>) {
   const debugEnabled =
     process.env.NODE_ENV !== "production" || process.env.TENANCY_DEBUG === "1";
@@ -210,6 +245,9 @@ export async function middleware(request: NextRequest) {
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "geolocation=(self)");
+  response.headers.set("X-DNS-Prefetch-Control", "off");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  response.headers.set("Content-Security-Policy", buildContentSecurityPolicy());
 
   if (process.env.NODE_ENV === "production") {
     response.headers.set(

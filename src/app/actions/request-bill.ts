@@ -58,6 +58,7 @@ export async function requestBill(
       tableSessionId: session.id,
       action: "REQUEST_BILL",
       signals: riskSignals,
+      failureMode: "fail-closed",
     });
 
     if (risk.decision === "block") {

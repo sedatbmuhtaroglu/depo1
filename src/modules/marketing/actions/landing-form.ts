@@ -11,6 +11,7 @@ import {
 import { packLeadLikePii } from "@/lib/pii/pii-pack";
 import { ensureMainMarketingSiteId } from "@/modules/marketing/server/landing-content";
 import { formatTrMobileForStorage, isValidTrMobile } from "@/modules/marketing/lib/tr-phone";
+import { verifyRecaptchaV3 } from "@/lib/security/recaptcha";
 
 type LandingFormActionResult = {
   ok: boolean;
@@ -18,6 +19,9 @@ type LandingFormActionResult = {
 };
 
 const PUBLIC_CONTACT_BUSINESS_LABEL = "Genel iletişim";
+const RECAPTCHA_DEV_BYPASS =
+  process.env.NODE_ENV !== "production" &&
+  (process.env.RECAPTCHA_DEV_BYPASS ?? "").trim().toLowerCase() === "1";
 
 function normalizeText(value: FormDataEntryValue | null, maxLength: number): string {
   return (value?.toString() ?? "").trim().slice(0, maxLength);
@@ -63,6 +67,30 @@ async function assertLandingLeadRateLimit(ipHash: string | null): Promise<void> 
     action: "MARKETING_LANDING_LEAD_SUBMIT",
     failureMode: "fail-closed",
   });
+}
+
+async function verifyPublicRecaptchaOrFail(params: {
+  formData: FormData;
+  expectedAction: "marketing_landing_lead_submit" | "marketing_public_contact_submit";
+  remoteIp: string;
+}): Promise<LandingFormActionResult | null> {
+  const token = normalizeOptionalText(params.formData.get("recaptchaToken"), 4096);
+  const verify = await verifyRecaptchaV3({
+    token,
+    expectedAction: params.expectedAction,
+    remoteIp: params.remoteIp,
+    minScore: 0.5,
+  });
+
+  if (verify.ok) return null;
+  if (verify.reason === "config_missing" && RECAPTCHA_DEV_BYPASS) {
+    return null;
+  }
+
+  return {
+    ok: false,
+    message: "Guvenlik dogrulamasi basarisiz. Lutfen tekrar deneyin.",
+  };
 }
 
 async function finalizeLeadAfterSubmission(
@@ -180,6 +208,13 @@ export async function submitLandingLeadFormAction(formData: FormData): Promise<L
 
   const requestSecurity = await getRequestSecurityContext();
   const referrer = normalizeOptionalText(formData.get("referrer"), 320);
+
+  const recaptchaResult = await verifyPublicRecaptchaOrFail({
+    formData,
+    expectedAction: "marketing_landing_lead_submit",
+    remoteIp: requestSecurity.ipRaw,
+  });
+  if (recaptchaResult) return recaptchaResult;
 
   try {
     await assertLandingLeadRateLimit(requestSecurity.ipHash);
@@ -301,6 +336,13 @@ export async function submitPublicContactFormAction(formData: FormData): Promise
 
   const requestSecurity = await getRequestSecurityContext();
   const referrer = normalizeOptionalText(formData.get("referrer"), 320);
+
+  const recaptchaResult = await verifyPublicRecaptchaOrFail({
+    formData,
+    expectedAction: "marketing_public_contact_submit",
+    remoteIp: requestSecurity.ipRaw,
+  });
+  if (recaptchaResult) return recaptchaResult;
 
   try {
     await assertLandingLeadRateLimit(requestSecurity.ipHash);

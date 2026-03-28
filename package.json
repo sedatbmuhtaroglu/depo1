@@ -11,6 +11,8 @@
     "prisma:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:reset:dev": "prisma migrate reset --force --skip-generate",
+    "pii:backfill": "ts-node -r tsconfig-paths/register -P tsconfig.scripts.json scripts/backfill-pii-legacy.ts",
+    "pii:backfill:write": "ts-node -r tsconfig-paths/register -P tsconfig.scripts.json scripts/backfill-pii-legacy.ts --write",
     "secrets:backfill": "ts-node -P tsconfig.scripts.json scripts/backfill-encrypted-secrets.ts --dry-run",
     "secrets:backfill:write": "ts-node -P tsconfig.scripts.json scripts/backfill-encrypted-secrets.ts --write",
     "secrets:verify": "ts-node -P tsconfig.scripts.json scripts/verify-encrypted-secrets.ts"
@@ -60,6 +62,7 @@
     "prisma": "6.4.1",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   },
   "prisma": {

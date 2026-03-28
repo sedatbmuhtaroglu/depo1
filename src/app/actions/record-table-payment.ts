@@ -7,6 +7,7 @@ import { getCurrentTenantOrThrow } from "@/lib/tenancy/context";
 import { writeAuditLog } from "@/lib/audit-log";
 import { opLog } from "@/lib/op-logger";
 import { ensureTenantFeatureEnabled } from "@/lib/tenant-feature-enforcement";
+import { evaluateAndLogRisk } from "@/lib/security/risk-engine";
 
 type PaymentMethodValue =
   | "CASH"
@@ -45,6 +46,19 @@ export async function recordTablePayment(options: {
     });
     if (!table) {
       return { success: false, message: "Masa bulunamadı." };
+    }
+
+    const risk = await evaluateAndLogRisk({
+      tenantId,
+      tableId,
+      action: "BILL_SETTLEMENT",
+      failureMode: "fail-closed",
+    });
+    if (risk.decision === "block") {
+      return {
+        success: false,
+        message: "Guvenlik kontrolleri nedeniyle odeme kaydi gecici olarak engellendi.",
+      };
     }
 
     await prisma.payment.create({

@@ -1,10 +1,11 @@
 "use server";
 
-import { clearAdminSession } from "@/lib/auth";
+import { clearAdminSession, revokeCurrentAuthenticatedSession } from "@/lib/auth";
 import { clearSupportSessionCookie } from "@/lib/support-session";
 import { redirect } from "next/navigation";
 
 export async function adminLogout() {
+  await revokeCurrentAuthenticatedSession();
   await clearAdminSession();
   try {
     await clearSupportSessionCookie();

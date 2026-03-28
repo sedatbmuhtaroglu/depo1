@@ -1,5 +1,8 @@
 export type SecurityAction =
+  | "AUTH_LOGIN"
   | "CREATE_ORDER"
+  | "PAYMENT_INITIATE"
+  | "BILL_SETTLEMENT"
   | "WAITER_CALL"
   | "REQUEST_BILL"
   | "REQUEST_BILL_WITH_METHOD"
@@ -46,11 +49,29 @@ export const SECURITY_RUNTIME_CONFIG = {
 } as const;
 
 export const SECURITY_RATE_LIMITS: Record<SecurityAction, SecurityRateLimitConfig> = {
+  AUTH_LOGIN: {
+    cooldownMs: 5_000,
+    windowMs: 60_000,
+    maxInWindow: 5,
+    blockDurationMs: 5 * 60_000,
+  },
   CREATE_ORDER: {
     cooldownMs: 10_000,
     windowMs: 30_000,
     maxInWindow: 4,
     blockDurationMs: 2 * 60_000,
+  },
+  PAYMENT_INITIATE: {
+    cooldownMs: 10_000,
+    windowMs: 60_000,
+    maxInWindow: 5,
+    blockDurationMs: 3 * 60_000,
+  },
+  BILL_SETTLEMENT: {
+    cooldownMs: 10_000,
+    windowMs: 60_000,
+    maxInWindow: 6,
+    blockDurationMs: 3 * 60_000,
   },
   WAITER_CALL: {
     cooldownMs: 45_000,

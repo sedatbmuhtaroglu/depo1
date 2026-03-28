@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Prisma, type StaffRole } from "@prisma/client";
@@ -27,6 +27,8 @@ type AdminSessionPayload = {
   username: string;
   tenantId: number | null;
   issuedAt: number;
+  jti: string;
+  sessionVersion: number;
 };
 
 function getSessionSecret() {
@@ -59,6 +61,11 @@ function decodePayload(rawPayload: string): AdminSessionPayload | null {
       parsed.username.trim() === "" ||
       typeof parsed.issuedAt !== "number" ||
       !Number.isFinite(parsed.issuedAt) ||
+      typeof parsed.jti !== "string" ||
+      parsed.jti.trim().length < 16 ||
+      typeof parsed.sessionVersion !== "number" ||
+      !Number.isInteger(parsed.sessionVersion) ||
+      parsed.sessionVersion < 1 ||
       (parsed.tenantId !== null &&
         parsed.tenantId !== undefined &&
         (!Number.isInteger(parsed.tenantId) || parsed.tenantId <= 0))
@@ -73,6 +80,8 @@ function decodePayload(rawPayload: string): AdminSessionPayload | null {
           ? null
           : Number(parsed.tenantId),
       issuedAt: parsed.issuedAt,
+      jti: parsed.jti,
+      sessionVersion: parsed.sessionVersion,
     };
   } catch {
     return null;
@@ -95,6 +104,8 @@ function decodeLegacyPayload(rawPayload: string): AdminSessionPayload | null {
     username,
     tenantId: null,
     issuedAt,
+    jti: randomBytes(8).toString("hex"),
+    sessionVersion: 1,
   };
 }
 
@@ -108,10 +119,26 @@ export async function createAdminSession(params: {
   tenantId: number | null;
 }) {
   const cookieStore = await cookies();
+  const sessionVersion =
+    params.tenantId == null
+      ? (
+          await prisma.adminUser.findUnique({
+            where: { username: params.username },
+            select: { sessionVersion: true },
+          })
+        )?.sessionVersion ?? 1
+      : (
+          await prisma.tenantStaff.findFirst({
+            where: { tenantId: params.tenantId, username: params.username },
+            select: { sessionVersion: true },
+          })
+        )?.sessionVersion ?? 1;
   const payload = encodePayload({
     username: params.username,
     tenantId: params.tenantId,
     issuedAt: Date.now(),
+    jti: randomBytes(16).toString("hex"),
+    sessionVersion,
   });
   const signature = signValue(payload);
 
@@ -191,7 +218,67 @@ export async function getAuthenticatedAdminSession(): Promise<AdminSessionPayloa
     return null;
   }
 
+  const subjectState =
+    decoded.tenantId == null
+      ? await prisma.adminUser.findUnique({
+          where: { username: decoded.username },
+          select: { sessionVersion: true, sessionRevokedAfter: true },
+        })
+      : await prisma.tenantStaff.findFirst({
+          where: { tenantId: decoded.tenantId, username: decoded.username },
+          select: { sessionVersion: true, sessionRevokedAfter: true },
+        });
+
+  if (!subjectState) {
+    return null;
+  }
+
+  if (decoded.sessionVersion !== subjectState.sessionVersion) {
+    return null;
+  }
+
+  if (
+    subjectState.sessionRevokedAfter &&
+    decoded.issuedAt <= subjectState.sessionRevokedAfter.getTime()
+  ) {
+    return null;
+  }
+
   return decoded;
+}
+
+export async function revokeSessionsForUser(params: {
+  username: string;
+  tenantId: number | null;
+}) {
+  const now = new Date();
+  if (params.tenantId == null) {
+    await prisma.adminUser.updateMany({
+      where: { username: params.username },
+      data: {
+        sessionVersion: { increment: 1 },
+        sessionRevokedAfter: now,
+      },
+    });
+    return;
+  }
+
+  await prisma.tenantStaff.updateMany({
+    where: { tenantId: params.tenantId, username: params.username },
+    data: {
+      sessionVersion: { increment: 1 },
+      sessionRevokedAfter: now,
+    },
+  });
+}
+
+export async function revokeCurrentAuthenticatedSession() {
+  const session = await getAuthenticatedAdminSession();
+  if (!session?.username) return;
+  await revokeSessionsForUser({
+    username: session.username,
+    tenantId: session.tenantId,
+  });
 }
 
 export async function getAuthenticatedAdmin() {

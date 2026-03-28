@@ -83,6 +83,7 @@ export async function requestBillWithMethod(
       tableSessionId: session.id,
       action: "REQUEST_BILL_WITH_METHOD",
       signals: riskSignals,
+      failureMode: "fail-closed",
     });
 
     const activeMethods = await getTenantCustomerPaymentMethods(tenantId);
@@ -169,6 +170,7 @@ export async function requestBillWithMethod(
           amount: totalUnpaid,
           currency: "TRY",
           gatewayToken,
+          gatewayConversationId: `mock-bill-${billRequest.id}`,
           gatewayProvider: "IYZICO",
           status: "PENDING",
         },

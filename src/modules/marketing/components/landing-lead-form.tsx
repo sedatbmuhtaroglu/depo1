@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Script from "next/script";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,6 +15,7 @@ import {
 import { MARKETING_UI } from "@/constants/marketing";
 import { submitPublicContactFormAction } from "@/modules/marketing/actions/landing-form";
 import { isValidTrMobile } from "@/modules/marketing/lib/tr-phone";
+import { executeRecaptchaV3, getRecaptchaSiteKey } from "@/lib/security/recaptcha-client";
 
 type LandingLeadFormProps = {
   submitLabel: string;
@@ -60,6 +62,7 @@ export function LandingLeadForm({
   tracking,
 }: LandingLeadFormProps) {
   const [serverMessage, setServerMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const recaptchaSiteKey = getRecaptchaSiteKey();
 
   const {
     register,
@@ -95,6 +98,18 @@ export function LandingLeadForm({
     fd.set("consent", values.consent ? "on" : "");
     fd.set("companyWebsite", (values.companyWebsite ?? "").trim());
 
+    if (recaptchaSiteKey) {
+      const recaptchaToken = await executeRecaptchaV3("marketing_public_contact_submit");
+      if (!recaptchaToken) {
+        setServerMessage({
+          ok: false,
+          text: "Guvenlik dogrulamasi su an tamamlanamadi. Lutfen tekrar deneyin.",
+        });
+        return;
+      }
+      fd.set("recaptchaToken", recaptchaToken);
+    }
+
     const result = await submitPublicContactFormAction(fd);
     setServerMessage({ ok: result.ok, text: result.message });
     if (result.ok) {
@@ -105,22 +120,29 @@ export function LandingLeadForm({
   const disabled = isSubmitting;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {trustBullets.length > 0 ? (
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {trustBullets.slice(0, 2).map((item) => (
-            <li
-              key={item}
-              className="flex items-start gap-2 rounded-xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-subtle)]/75 px-3 py-2 text-xs text-[var(--ui-text-secondary)]"
-            >
-              <span className="mt-1 inline-flex h-2 w-2 shrink-0 rounded-full bg-[var(--ui-accent)]" />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
+    <>
+      {recaptchaSiteKey ? (
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaSiteKey)}`}
+          strategy="afterInteractive"
+        />
       ) : null}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        {trustBullets.length > 0 ? (
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {trustBullets.slice(0, 2).map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-2 rounded-xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-subtle)]/75 px-3 py-2 text-xs text-[var(--ui-text-secondary)]"
+              >
+                <span className="mt-1 inline-flex h-2 w-2 shrink-0 rounded-full bg-[var(--ui-accent)]" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
-      <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1">
           <label className={labelClasses()} htmlFor="landing-firstName">
             İsim
@@ -181,49 +203,50 @@ export function LandingLeadForm({
             {...register("note")}
           />
         </div>
-      </div>
+        </div>
 
-      <div aria-hidden className="hidden">
-        <label htmlFor="landing-companyWebsite">Website</label>
-        <input id="landing-companyWebsite" tabIndex={-1} autoComplete="off" {...register("companyWebsite")} />
-      </div>
+        <div aria-hidden className="hidden">
+          <label htmlFor="landing-companyWebsite">Website</label>
+          <input id="landing-companyWebsite" tabIndex={-1} autoComplete="off" {...register("companyWebsite")} />
+        </div>
 
-      <label className="flex min-h-11 items-start gap-2 rounded-xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-subtle)]/55 px-3 py-2.5 text-sm text-[var(--ui-text-secondary)]">
-        <input type="checkbox" className={checkboxInputClasses()} disabled={disabled} {...register("consent")} />
-        <span>
-          {consentText ??
-            "Bilgilerimin satış ekibi tarafından iletişim için kullanılmasını kabul ediyorum."}
-        </span>
-      </label>
-      {errors.consent ? (
-        <p className="text-xs text-[color:var(--ui-danger)]">{errors.consent.message}</p>
-      ) : null}
-
-      <div className="flex flex-col gap-2">
-        <button
-          type="submit"
-          disabled={disabled}
-          className={buttonClasses({
-            variant: "primary",
-            className: "min-h-11 w-full justify-center rounded-xl text-sm font-semibold",
-          })}
-        >
-          {isSubmitting ? "Gönderiliyor..." : submitLabel}
-        </button>
-        <p className="text-xs text-[var(--ui-text-muted)]">{MARKETING_UI.formFooterHint}</p>
-        {serverMessage?.text ? (
-          <p
-            className={`rounded-lg border px-3 py-2 text-sm ${
-              serverMessage.ok
-                ? "border-[color:var(--ui-success-border)] bg-[color:var(--ui-success-soft)] text-[color:var(--ui-success)]"
-                : "border-[color:var(--ui-danger-border)] bg-[color:var(--ui-danger-soft)] text-[color:var(--ui-danger)]"
-            }`}
-            role="status"
-          >
-            {serverMessage.ok && successMessage ? successMessage : serverMessage.text}
-          </p>
+        <label className="flex min-h-11 items-start gap-2 rounded-xl border border-[var(--ui-border-subtle)] bg-[var(--ui-surface-subtle)]/55 px-3 py-2.5 text-sm text-[var(--ui-text-secondary)]">
+          <input type="checkbox" className={checkboxInputClasses()} disabled={disabled} {...register("consent")} />
+          <span>
+            {consentText ??
+              "Bilgilerimin satış ekibi tarafından iletişim için kullanılmasını kabul ediyorum."}
+          </span>
+        </label>
+        {errors.consent ? (
+          <p className="text-xs text-[color:var(--ui-danger)]">{errors.consent.message}</p>
         ) : null}
-      </div>
-    </form>
+
+        <div className="flex flex-col gap-2">
+          <button
+            type="submit"
+            disabled={disabled}
+            className={buttonClasses({
+              variant: "primary",
+              className: "min-h-11 w-full justify-center rounded-xl text-sm font-semibold",
+            })}
+          >
+            {isSubmitting ? "Gönderiliyor..." : submitLabel}
+          </button>
+          <p className="text-xs text-[var(--ui-text-muted)]">{MARKETING_UI.formFooterHint}</p>
+          {serverMessage?.text ? (
+            <p
+              className={`rounded-lg border px-3 py-2 text-sm ${
+                serverMessage.ok
+                  ? "border-[color:var(--ui-success-border)] bg-[color:var(--ui-success-soft)] text-[color:var(--ui-success)]"
+                  : "border-[color:var(--ui-danger-border)] bg-[color:var(--ui-danger-soft)] text-[color:var(--ui-danger)]"
+              }`}
+              role="status"
+            >
+              {serverMessage.ok && successMessage ? successMessage : serverMessage.text}
+            </p>
+          ) : null}
+        </div>
+      </form>
+    </>
   );
 }

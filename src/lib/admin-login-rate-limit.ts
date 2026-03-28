@@ -1,4 +1,4 @@
-﻿import { headers } from "next/headers";
+import { headers } from "next/headers";
 import { opLog } from "@/lib/op-logger";
 import { hashValue } from "@/lib/security/hash";
 import { getRateLimitStore } from "@/lib/security/rate-limit-store";
@@ -9,8 +9,6 @@ type LoginRateLimitResult =
   | { allowed: false; retryAfterSeconds: number; reason: "limited" | "infrastructure" };
 
 const WINDOW_MS = 10 * 60 * 1000;
-const MAX_ATTEMPTS = 8;
-const BLOCK_DURATION_MS = 15 * 60 * 1000;
 const INFRA_RETRY_SECONDS = 30;
 
 function normalizeUsername(username: string) {
@@ -24,7 +22,13 @@ function hashPart(value: string): string {
 function buildKey(params: { username: string; ip: string }) {
   const usernameHash = hashPart(normalizeUsername(params.username));
   const ipHash = hashPart(params.ip);
-  return `admin-login:user:${usernameHash}:ip:${ipHash}`;
+  return {
+    ipKey: `admin-login:ip:${ipHash}`,
+    userKey: `admin-login:user:${usernameHash}`,
+    comboKey: `admin-login:user:${usernameHash}:ip:${ipHash}`,
+    usernameHash,
+    ipHash,
+  };
 }
 
 function isStoreUnavailable(error: unknown): boolean {
@@ -40,6 +44,28 @@ function logStoreFailure(action: string) {
     action,
     result: "error",
   });
+}
+
+function resolveBlockDurationMs(attempts: number, mode: "ip" | "user" | "combo"): number | null {
+  if (mode === "combo") {
+    if (attempts >= 16) return 60 * 60 * 1000;
+    if (attempts >= 12) return 30 * 60 * 1000;
+    if (attempts >= 8) return 15 * 60 * 1000;
+    if (attempts >= 5) return 3 * 60 * 1000;
+    return null;
+  }
+
+  if (mode === "user") {
+    if (attempts >= 14) return 60 * 60 * 1000;
+    if (attempts >= 10) return 20 * 60 * 1000;
+    if (attempts >= 6) return 5 * 60 * 1000;
+    return null;
+  }
+
+  if (attempts >= 30) return 60 * 60 * 1000;
+  if (attempts >= 20) return 20 * 60 * 1000;
+  if (attempts >= 10) return 5 * 60 * 1000;
+  return null;
 }
 
 export async function getAdminLoginClientIp() {
@@ -61,14 +87,28 @@ export async function checkAdminLoginRateLimit(params: {
   username: string;
   ip: string;
 }): Promise<LoginRateLimitResult> {
-  const key = buildKey(params);
+  const keys = buildKey(params);
 
   try {
     const store = getRateLimitStore();
     const now = Date.now();
-    const blockedUntil = await store.getBlock(key);
+    const [ipBlockedUntil, userBlockedUntil, comboBlockedUntil] = await Promise.all([
+      store.getBlock(keys.ipKey),
+      store.getBlock(keys.userKey),
+      store.getBlock(keys.comboKey),
+    ]);
+    const blockedUntil = Math.max(
+      ipBlockedUntil ?? 0,
+      userBlockedUntil ?? 0,
+      comboBlockedUntil ?? 0,
+    );
 
-    if (blockedUntil && blockedUntil > now) {
+    if (blockedUntil > now) {
+      opLog({
+        action: "ADMIN_LOGIN_RATE_LIMIT_BLOCKED",
+        result: "error",
+        message: `u=${keys.usernameHash.slice(0, 12)}; ip=${keys.ipHash.slice(0, 12)}`,
+      });
       return {
         allowed: false,
         reason: "limited",
@@ -92,24 +132,50 @@ export async function checkAdminLoginRateLimit(params: {
 }
 
 export async function registerAdminLoginFailure(params: { username: string; ip: string }) {
-  const key = buildKey(params);
+  const keys = buildKey(params);
 
   try {
     const store = getRateLimitStore();
     const now = Date.now();
-    const blockedUntil = await store.getBlock(key);
-    if (blockedUntil && blockedUntil > now) {
+    const [ipBlockedUntil, userBlockedUntil, comboBlockedUntil] = await Promise.all([
+      store.getBlock(keys.ipKey),
+      store.getBlock(keys.userKey),
+      store.getBlock(keys.comboKey),
+    ]);
+    const blockedUntil = Math.max(
+      ipBlockedUntil ?? 0,
+      userBlockedUntil ?? 0,
+      comboBlockedUntil ?? 0,
+    );
+    if (blockedUntil > now) {
       return;
     }
 
-    const attempts = await store.increment(key, WINDOW_MS);
-    if (attempts >= MAX_ATTEMPTS) {
-      await store.setBlock(key, now + BLOCK_DURATION_MS);
-    }
+    const [ipAttempts, userAttempts, comboAttempts] = await Promise.all([
+      store.increment(keys.ipKey, WINDOW_MS),
+      store.increment(keys.userKey, WINDOW_MS),
+      store.increment(keys.comboKey, WINDOW_MS),
+    ]);
+
+    const ipBlockMs = resolveBlockDurationMs(ipAttempts, "ip");
+    const userBlockMs = resolveBlockDurationMs(userAttempts, "user");
+    const comboBlockMs = resolveBlockDurationMs(comboAttempts, "combo");
+
+    await Promise.all([
+      ipBlockMs ? store.setBlock(keys.ipKey, now + ipBlockMs) : Promise.resolve(),
+      userBlockMs ? store.setBlock(keys.userKey, now + userBlockMs) : Promise.resolve(),
+      comboBlockMs ? store.setBlock(keys.comboKey, now + comboBlockMs) : Promise.resolve(),
+    ]);
+
+    opLog({
+      action: "ADMIN_LOGIN_FAILURE_RECORDED",
+      result: "error",
+      message: `u=${keys.usernameHash.slice(0, 12)}; ip=${keys.ipHash.slice(0, 12)}`,
+    });
   } catch (error) {
     if (isStoreUnavailable(error)) {
       logStoreFailure("ADMIN_LOGIN_FAILURE_RATE_LIMIT_STORE_UNAVAILABLE");
-      return;
+      throw error;
     }
 
     throw error;
@@ -119,7 +185,11 @@ export async function registerAdminLoginFailure(params: { username: string; ip: 
 export async function clearAdminLoginFailures(params: { username: string; ip: string }) {
   try {
     const store = getRateLimitStore();
-    await store.reset(buildKey(params));
+    const keys = buildKey(params);
+    await Promise.all([
+      store.reset(keys.userKey),
+      store.reset(keys.comboKey),
+    ]);
   } catch (error) {
     if (isStoreUnavailable(error)) {
       logStoreFailure("ADMIN_LOGIN_CLEAR_RATE_LIMIT_STORE_UNAVAILABLE");
